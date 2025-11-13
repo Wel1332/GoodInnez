@@ -1,33 +1,52 @@
-HELP.md
+# ------------------------------------
+# 1. Spring Boot / Maven (Root Project)
+# ------------------------------------
+
+# Build Artifacts
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+*.jar
+*.war
+*.ear
+*.zip
+*.log
+logs/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Maven Wrapper
+!/.mvn/wrapper/maven-wrapper.jar
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+# IDE and Editor Files (IntelliJ, VS Code, OS files)
+.idea/
+.settings/
 .vscode/
+.DS_Store
+Thumbs.db
+
+# ------------------------------------
+# 2. Vite / Node.js (inside GoodInnez/ folder)
+# ------------------------------------
+
+# Node Dependencies
+/GoodInnez/node_modules
+
+# Vite Build Output (The files that need to be excluded)
+/GoodInnez/dist
+/GoodInnez/dist-ssr
+
+# Local Cache and Logs
+/GoodInnez/.local
+/GoodInnez/npm-debug.log*
+/GoodInnez/yarn-error.log*
+/GoodInnez/pnpm-debug.log*
+/GoodInnez/lerna-debug.log*
+/GoodInnez/*.log
+
+# Environment Variables (Keep sensitive data out of the repo)
+/GoodInnez/.env
+/GoodInnez/.env.*
+
+# ------------------------------------
+# 3. Other Ignored Files
+# ------------------------------------
+# Ignore temporary files created by certain systems
+*.swp
+*~
