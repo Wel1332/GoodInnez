@@ -1,0 +1,202 @@
+/* src/components/HeroSection.css */
+
+/* --- Main Hero Section --- */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/image 2.jpg'); 
+  background-size: cover;
+  background-position: center;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  width: 100%;
+}
+
+.search-container-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px; 
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 20px 30px; 
+}
+
+
+.search-header {
+  display: flex;
+  align-items: baseline;
+  gap: 2rem;
+  margin-bottom: -1rem; 
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0;
+  text-shadow: none;
+}
+
+.search-tabs {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  color: #eee;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab.active,
+.tab:hover {
+  background-color: transparent;
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+.search-form-white {
+  background-color: #ffffff;
+  border-radius: 50px; 
+  padding: 1rem 1.5rem; 
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.search-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-right: 1rem;
+  border-right: 1px solid #eee; 
+}
+
+.search-field:last-of-type {
+  border-right: none;
+}
+
+.search-field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.search-field input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 0.9rem;
+  color: #555; 
+}
+.search-field input:focus {
+  outline: none;
+}
+.search-field input::placeholder {
+  color: #999;
+}
+
+
+input[type="date"],
+input[type="number"] {
+  color: #999;
+}
+input[type="date"]:valid,
+input[type="number"]:valid,
+input[type="date"]:focus,
+input[type="number"]:focus {
+  color: #555;
+}
+
+.search-btn {
+  background-color: #333;
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+  border: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.search-btn:hover {
+  background-color: #555;
+}
+
+
+@media (max-width: 768px) {
+  .hero-content {
+    max-width: 95%; /* Use more of the screen */
+  }
+
+  .search-container-glass {
+    padding: 15px; /* Reduce padding on the glass box */
+  }
+
+  .search-header {
+    flex-direction: column; /* Stack "FIND" and tabs */
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* This is the most important part! */
+  .search-form-white {
+    flex-direction: column; /* Stack form fields vertically */
+    gap: 1.5rem;
+  }
+
+  .search-field {
+    width: 100%;
+    border-right: none; /* Remove vertical dividers */
+    border-bottom: 1px solid #eee; /* Add horizontal dividers */
+    padding-right: 0;
+    padding-bottom: 1rem;
+  }
+  
+  .search-field:last-of-type {
+    border-bottom: none;
+  }
+
+  .search-btn {
+    width: 100%;
+    border-radius: 8px; /* Make it a square button */
+    padding: 12px;
+  }
+}
