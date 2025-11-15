@@ -1,0 +1,42 @@
+# ------------------
+# GENERAL
+# ------------------
+logs/
+*.log
+.DS_Store
+Thumbs.db
+
+# ------------------
+# IDEs / EDITORS
+# ------------------
+.idea/
+.vscode/
+*.suo
+*.sw?
+
+# ------------------
+# SPRING BOOT (Backend)
+# ------------------
+# Compiled Java class files
+/target/
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# ------------------
+# VITE (Frontend - inside GoodInnez folder)
+# ------------------
+# Node dependencies
+/GoodInnez/node_modules/
+
+# Vite build cache and output
+/GoodInnez/.vite/
+/GoodInnez/dist/
+/GoodInnez/dist-ssr/
+
+# Environment variables
+/GoodInnez/.env
+/GoodInnez/.env.local
+/GoodInnez/.env.*.local

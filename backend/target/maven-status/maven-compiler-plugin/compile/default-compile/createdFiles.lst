@@ -1,0 +1,11 @@
+com\goodinnez\goodinnez\GoodinnezApplication.class
+com\goodinnez\goodinnez\model\RoomType.class
+com\goodinnez\goodinnez\model\Hotel.class
+com\goodinnez\goodinnez\controller\HotelController.class
+com\goodinnez\goodinnez\model\Payment.class
+com\goodinnez\goodinnez\model\Employee.class
+com\goodinnez\goodinnez\model\Guest.class
+com\goodinnez\goodinnez\model\Room.class
+com\goodinnez\goodinnez\model\PaymentId.class
+com\goodinnez\goodinnez\model\Booking.class
+com\goodinnez\goodinnez\repository\HotelRepository.class

@@ -1,0 +1,58 @@
+.activities-section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    position: relative;
+  }
+  
+  .activities-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/placeholder.svg?height=400&width=1400') center/cover;
+    opacity: 0.15;
+    z-index: -1;
+  }
+  
+  .activities-section h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 3rem;
+    color: #fff;
+  }
+  
+  .activities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  
+  .view-all-btn {
+    display: block;
+    margin: 0 auto;
+    background-color: #3a3a3a;
+    color: #fff;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+  }
+  
+  .view-all-btn:hover {
+    background-color: #555;
+  }
+  
+  @media (max-width: 768px) {
+    .activities-section h2 {
+      font-size: 1.875rem;
+    }
+  
+    .activities-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  

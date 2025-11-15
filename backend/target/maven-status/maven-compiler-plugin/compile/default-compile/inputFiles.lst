@@ -1,0 +1,11 @@
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\HotelController.java
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\GoodinnezApplication.java
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Booking.java
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Employee.java
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Guest.java
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Hotel.java
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Payment.java
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\PaymentId.java
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Room.java
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\RoomType.java
+D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\HotelRepository.java
