@@ -1,6 +1,5 @@
 package com.goodinnez.goodinnez.controller;
 
-import com.goodinnez.goodinnez.dto.EmployeeDTO;
 import com.goodinnez.goodinnez.model.Employee;
 import com.goodinnez.goodinnez.repository.EmployeeRepository;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +17,8 @@ public class EmployeeController {
         this.employeeRepository = employeeRepository;
     }
 
-    private EmployeeDTO toDTO(Employee e) {
-        EmployeeDTO dto = new EmployeeDTO();
+    private Employee toDTO(com.goodinnez.goodinnez.entity.Employee e) {
+        Employee dto = new Employee();
         dto.uniqueID = e.getUniqueID();
         dto.firstName = e.getFirstName();
         dto.lastName = e.getLastName();
@@ -34,22 +33,22 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public List<EmployeeDTO> getAll() {
+    public List<Employee> getAll() {
         return employeeRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public EmployeeDTO getById(@PathVariable Integer id) {
+    public Employee getById(@PathVariable Integer id) {
         return employeeRepository.findById(id).map(this::toDTO).orElse(null);
     }
 
     @PostMapping
-    public EmployeeDTO create(@RequestBody Employee employee) {
+    public Employee create(@RequestBody com.goodinnez.goodinnez.entity.Employee employee) {
         return toDTO(employeeRepository.save(employee));
     }
 
     @PutMapping("/{id}")
-    public EmployeeDTO update(@PathVariable Integer id, @RequestBody Employee details) {
+    public Employee update(@PathVariable Integer id, @RequestBody com.goodinnez.goodinnez.entity.Employee details) {
         return employeeRepository.findById(id).map(e -> {
             e.setFirstName(details.getFirstName());
             e.setLastName(details.getLastName());

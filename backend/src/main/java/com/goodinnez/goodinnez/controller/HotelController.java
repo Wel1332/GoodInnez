@@ -1,6 +1,5 @@
 package com.goodinnez.goodinnez.controller;
 
-import com.goodinnez.goodinnez.dto.HotelDTO;
 import com.goodinnez.goodinnez.model.Hotel;
 import com.goodinnez.goodinnez.repository.HotelRepository;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +17,8 @@ public class HotelController {
         this.hotelRepository = hotelRepository;
     }
 
-    private HotelDTO toDTO(Hotel h) {
-        HotelDTO dto = new HotelDTO();
+    private Hotel toDTO(com.goodinnez.goodinnez.entity.Hotel h) {
+        Hotel dto = new Hotel();
         dto.hotelID = h.getHotelID();
         dto.name = h.getName();
         dto.address = h.getAddress();
@@ -32,22 +31,22 @@ public class HotelController {
     }
 
     @GetMapping
-    public List<HotelDTO> getAll() {
+    public List<Hotel> getAll() {
         return hotelRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public HotelDTO getById(@PathVariable Integer id) {
+    public Hotel getById(@PathVariable Integer id) {
         return hotelRepository.findById(id).map(this::toDTO).orElse(null);
     }
 
     @PostMapping
-    public HotelDTO create(@RequestBody Hotel hotel) {
+    public Hotel create(@RequestBody com.goodinnez.goodinnez.entity.Hotel hotel) {
         return toDTO(hotelRepository.save(hotel));
     }
 
     @PutMapping("/{id}")
-    public HotelDTO update(@PathVariable Integer id, @RequestBody Hotel details) {
+    public Hotel update(@PathVariable Integer id, @RequestBody com.goodinnez.goodinnez.entity.Hotel details) {
         return hotelRepository.findById(id).map(h -> {
             h.setName(details.getName());
             h.setAddress(details.getAddress());

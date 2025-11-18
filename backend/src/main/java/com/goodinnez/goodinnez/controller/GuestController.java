@@ -1,6 +1,5 @@
 package com.goodinnez.goodinnez.controller;
 
-import com.goodinnez.goodinnez.dto.GuestDTO;
 import com.goodinnez.goodinnez.model.Guest;
 import com.goodinnez.goodinnez.repository.GuestRepository;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +17,8 @@ public class GuestController {
         this.guestRepository = guestRepository;
     }
 
-    private GuestDTO toDTO(Guest g) {
-        GuestDTO dto = new GuestDTO();
+    private Guest toDTO(com.goodinnez.goodinnez.entity.Guest g) {
+        Guest dto = new Guest();
         dto.guestID = g.getGuestID();
         dto.firstName = g.getFirstName();
         dto.lastName = g.getLastName();
@@ -31,22 +30,22 @@ public class GuestController {
     }
 
     @GetMapping
-    public List<GuestDTO> getAll() {
+    public List<Guest> getAll() {
         return guestRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public GuestDTO getById(@PathVariable Integer id) {
+    public Guest getById(@PathVariable Integer id) {
         return guestRepository.findById(id).map(this::toDTO).orElse(null);
     }
 
     @PostMapping
-    public GuestDTO create(@RequestBody Guest guest) {
+    public Guest create(@RequestBody com.goodinnez.goodinnez.entity.Guest guest) {
         return toDTO(guestRepository.save(guest));
     }
 
     @PutMapping("/{id}")
-    public GuestDTO update(@PathVariable Integer id, @RequestBody Guest details) {
+    public Guest update(@PathVariable Integer id, @RequestBody com.goodinnez.goodinnez.entity.Guest details) {
         return guestRepository.findById(id).map(g -> {
             g.setFirstName(details.getFirstName());
             g.setLastName(details.getLastName());

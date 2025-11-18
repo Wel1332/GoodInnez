@@ -1,4 +1,4 @@
-package com.goodinnez.goodinnez.model;
+package com.goodinnez.goodinnez.entity;
 
 
 import java.io.Serializable;

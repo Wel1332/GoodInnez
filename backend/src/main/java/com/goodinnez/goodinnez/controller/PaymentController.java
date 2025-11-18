@@ -1,7 +1,7 @@
 package com.goodinnez.goodinnez.controller;
 
-import com.goodinnez.goodinnez.model.Payment;
-import com.goodinnez.goodinnez.model.PaymentId;
+import com.goodinnez.goodinnez.entity.Payment;
+import com.goodinnez.goodinnez.entity.PaymentId;
 import com.goodinnez.goodinnez.repository.PaymentRepository;
 import org.springframework.web.bind.annotation.*;
 

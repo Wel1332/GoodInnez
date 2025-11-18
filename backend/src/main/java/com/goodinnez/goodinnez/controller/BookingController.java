@@ -1,6 +1,5 @@
 package com.goodinnez.goodinnez.controller;
 
-import com.goodinnez.goodinnez.dto.BookingDTO;
 import com.goodinnez.goodinnez.model.Booking;
 import com.goodinnez.goodinnez.repository.BookingRepository;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +17,8 @@ public class BookingController {
         this.bookingRepository = bookingRepository;
     }
 
-    private BookingDTO toDTO(Booking b) {
-        BookingDTO dto = new BookingDTO();
+    private Booking toDTO(com.goodinnez.goodinnez.entity.Booking b) {
+        Booking dto = new Booking();
         dto.bookingID = b.getBookingID();
         dto.checkinTime = b.getCheckinTime();
         dto.checkoutTime = b.getCheckoutTime();
@@ -30,22 +29,22 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDTO> getAll() {
+    public List<Booking> getAll() {
         return bookingRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public BookingDTO getById(@PathVariable Integer id) {
+    public Booking getById(@PathVariable Integer id) {
         return bookingRepository.findById(id).map(this::toDTO).orElse(null);
     }
 
     @PostMapping
-    public BookingDTO create(@RequestBody Booking booking) {
+    public Booking create(@RequestBody com.goodinnez.goodinnez.entity.Booking booking) {
         return toDTO(bookingRepository.save(booking));
     }
 
     @PutMapping("/{id}")
-    public BookingDTO update(@PathVariable Integer id, @RequestBody Booking details) {
+    public Booking update(@PathVariable Integer id, @RequestBody com.goodinnez.goodinnez.entity.Booking details) {
         return bookingRepository.findById(id).map(b -> {
             b.setCheckinTime(details.getCheckinTime());
             b.setCheckoutTime(details.getCheckoutTime());

@@ -1,4 +1,4 @@
-package com.goodinnez.goodinnez.model;
+package com.goodinnez.goodinnez.entity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
