@@ -1,12 +1,14 @@
 package com.goodinnez.goodinnez.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
+
 import java.time.LocalTime;
 import java.util.List;
 
 @Entity
 public class Hotel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer hotelID;
@@ -18,11 +20,12 @@ public class Hotel {
     private Integer stars;
     private LocalTime checkinTime;
     private LocalTime checkoutTime;
-
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Employee> employees;
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Room> rooms;
 
     public Integer getHotelID() { return hotelID; }

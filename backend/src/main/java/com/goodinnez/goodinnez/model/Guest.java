@@ -1,11 +1,14 @@
 package com.goodinnez.goodinnez.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
 import java.time.LocalDate;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Guest {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer guestID;
@@ -14,9 +17,12 @@ public class Guest {
     private String lastName;
     private LocalDate dateOfBirth;
     private String email;
-    private String address;
     private String phone;
+    private String address;
 
+    @OneToMany(mappedBy = "guest", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Booking> bookings;
     // Getters and Setters
     public Integer getGuestID() { return guestID; }
     public void setGuestID(Integer guestID) { this.guestID = guestID; }

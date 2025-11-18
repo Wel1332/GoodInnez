@@ -1,7 +1,9 @@
 package com.goodinnez.goodinnez.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 public class RoomType {
@@ -11,9 +13,12 @@ public class RoomType {
 
     private String name;
     private String description;
-    private BigDecimal pricePerNight;
     private Integer capacity;
+    private BigDecimal pricePerNight;
 
+    @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Room> rooms;
     public Integer getTypeID() { return typeID; }
     public void setTypeID(Integer typeID) { this.typeID = typeID; }
 

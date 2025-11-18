@@ -1,8 +1,10 @@
 package com.goodinnez.goodinnez.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 public class Booking {
@@ -10,17 +12,19 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer bookingID;
 
-    @ManyToOne
-    @JoinColumn(name = "guestID")
-    private Guest guest;
-
-    @ManyToOne
-    @JoinColumn(name = "roomNumber")
-    private Room room;
-
     private LocalDateTime checkinTime;
     private LocalDateTime checkoutTime;
     private BigDecimal totalPrice;
+
+    @ManyToOne
+    @JoinColumn(name = "guestid")
+    @JsonBackReference
+    private Guest guest;
+
+    @ManyToOne
+    @JoinColumn(name = "room_number")
+    @JsonBackReference
+    private Room room;
 
     // Getters and Setters
     public Integer getBookingID() { return bookingID; }

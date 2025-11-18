@@ -1,28 +1,30 @@
 package com.goodinnez.goodinnez.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Date;
 
-@Entity // Add this annotation
+@Entity
 public class Employee {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer uniqueID;
 
-    @ManyToOne
-    @JoinColumn(name = "hotelID")
-    private Hotel hotel;
-
     private String firstName;
     private String lastName;
+    private String email;
+    private String phone;
     private String position;
     private BigDecimal salary;
     private LocalDate dateOfBirth;
-    private String phone;
-    private String email;
     private LocalDate hireDate;
+
+    @ManyToOne
+    @JoinColumn(name = "hotelid")
+    @JsonBackReference
+    private Hotel hotel;
 
     // Getters and Setters
     public Integer getUniqueID() { return uniqueID; }

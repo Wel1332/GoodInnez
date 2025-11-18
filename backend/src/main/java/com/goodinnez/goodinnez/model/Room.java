@@ -1,6 +1,9 @@
 package com.goodinnez.goodinnez.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 public class Room {
@@ -8,16 +11,21 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer roomID;
 
+    private String status;
+
     @ManyToOne
-    @JoinColumn(name = "hotelID")
+    @JoinColumn(name = "hotelid")
+    @JsonBackReference
     private Hotel hotel;
 
     @ManyToOne
-    @JoinColumn(name = "typeID")
+    @JoinColumn(name = "typeid")
+    @JsonBackReference
     private RoomType roomType;
 
-    private String status;
-
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Booking> bookings;
     public Integer getRoomID() { return roomID; }
     public void setRoomID(Integer roomID) { this.roomID = roomID; }
 
