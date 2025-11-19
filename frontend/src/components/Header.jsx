@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './Header.css'
 
-export default function Header() {
+export default function Header({ onOpenLogin }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -16,12 +16,22 @@ export default function Header() {
           </nav>
 
           <div className="header-actions">
-            <button className="book-btn">Book now</button>
+
+            <button className="book-btn">
+              Book now
+            </button>
+            
+            {/* The Login Button */}
+            <button className="login-burger-btn" onClick={onOpenLogin}>
+              <span className="burger-icon">☰</span>
+            </button>
+
+            {/* Mobile Navigation Toggle (Only shows on small screens) */}
             <button 
-              className="menu-btn"
+              className="mobile-menu-toggle"
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              ☰
+              ⋮ 
             </button>
           </div>
         </div>
