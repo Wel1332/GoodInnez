@@ -7,6 +7,8 @@
 .header {
   background-color: #1a1a1a;
   padding: 1rem 2rem;
+  display: flex; 
+  justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #333;
 }
@@ -21,7 +23,7 @@
 .header-nav {
   display: flex;
   gap: 2rem;
-  align-items: right;
+  align-items: center;
 }
 
 .header-nav a {
@@ -56,21 +58,6 @@
   cursor: pointer;
   display: none;
 }
-
-/* Hero Section
-.hero-section {
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/placeholder.svg?height=600&width=1200');
-  background-size: cover;
-  background-position: center;
-  padding: 6rem 2rem;
-  text-align: center;
-  color: #ffffff;
-  min-height: 500px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-} */
 
 .hero-content h1 {
   font-size: 2.5rem;
@@ -234,15 +221,6 @@
   font-size: 0.85rem;
 }
 
-/* Activities Section */
-.activities-section {
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/placeholder.svg?height=600&width=1200');
-  background-size: cover;
-  background-position: center;
-  padding: 3rem 2rem;
-  text-align: center;
-}
-
 .activities-title {
   font-size: 2rem;
   font-weight: 700;
@@ -259,13 +237,7 @@
 }
 
 /* Activity Card */
-.activity-card {
-  background-color: rgba(42, 42, 42, 0.9);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  transition: transform 0.3s;
-  cursor: pointer;
-}
+
 
 .activity-card:hover {
   transform: scale(1.05);

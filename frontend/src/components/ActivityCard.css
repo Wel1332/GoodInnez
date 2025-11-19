@@ -1,46 +1,51 @@
+/* src/components/ActivityCard.css */
+
 .activity-card {
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    height: 300px;
-    cursor: pointer;
-    transition: transform 0.3s;
-  }
-  
-  .activity-card:hover {
-    transform: scale(1.05);
-  }
-  
-  .activity-image {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-  
-  .activity-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .activity-info {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-    padding: 2rem 1.5rem 1.5rem;
-    color: #fff;
-  }
-  
-  .activity-name {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  
-  .activity-category {
-    font-size: 0.875rem;
-    color: #bbb;
-  }
-  
+  flex: 1; /* Grow to fill space */
+  min-width: 280px;
+  /* No background color, transparent */
+  background: transparent;
+}
+
+.activity-image {
+  width: 100%;
+  height: 250px; /* Fixed height for uniformity */
+  border-radius: 20px; /* Rounded corners for the image */
+  overflow: hidden;
+  margin-bottom: 1rem; /* Space between image and text */
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.activity-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.activity-card:hover .activity-image img {
+  transform: scale(1.05);
+}
+
+/* Text Styling */
+.activity-info {
+  /* Reset any absolute positioning from previous versions */
+  position: static; 
+  background: transparent;
+  padding: 0;
+  color: #fff;
+  text-align: left;
+}
+
+.activity-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+  color: #fff;
+}
+
+.activity-category {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8); /* Slightly transparent white */
+  font-weight: 400;
+}
