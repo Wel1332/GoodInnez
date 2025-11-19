@@ -29,14 +29,14 @@ Thumbs.db
 # VITE (Frontend - inside GoodInnez folder)
 # ------------------
 # Node dependencies
-/GoodInnez/node_modules/
+/frontend/node_modules/
 
 # Vite build cache and output
-/GoodInnez/.vite/
-/GoodInnez/dist/
-/GoodInnez/dist-ssr/
+/frontend/.vite/
+/frontend/dist/
+/frontend/dist-ssr/
 
 # Environment variables
-/GoodInnez/.env
-/GoodInnez/.env.local
-/GoodInnez/.env.*.local
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.*.local
