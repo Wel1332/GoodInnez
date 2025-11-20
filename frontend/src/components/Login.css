@@ -4,17 +4,17 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6); /* Dark dim background */
-    backdrop-filter: blur(5px); /* Blurs the content behind it */
+    background-color: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(5px); 
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000; /* On top of everything */
+    z-index: 1000; 
     padding: 1rem;
 }
 
     .login-glass-card {
-    background: rgba(20, 20, 20, 0.85); /* Darker than hero for readability */
+    background: rgba(20, 20, 20, 0.85); 
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -85,7 +85,7 @@
 }
 
     .input-group input:focus {
-    border-color: #fbbf24; /* Your Gold Brand Color */
+    border-color: #fbbf24;
 }
 
     .form-actions {

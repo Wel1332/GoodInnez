@@ -21,17 +21,8 @@ export default function Header({ onOpenLogin }) {
               Book now
             </button>
             
-            {/* The Login Button */}
             <button className="login-burger-btn" onClick={onOpenLogin}>
               <span className="burger-icon">☰</span>
-            </button>
-
-            {/* Mobile Navigation Toggle (Only shows on small screens) */}
-            <button 
-              className="mobile-menu-toggle"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              ⋮ 
             </button>
           </div>
         </div>

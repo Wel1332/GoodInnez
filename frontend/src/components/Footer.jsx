@@ -1,56 +1,55 @@
-import './Footer.css'
+import React from 'react';
+import './Footer.css';
 
 export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-content">
-        <div className="footer-section">
-          <h3>Good Innez</h3>
-          <p>axd'jDxrjS$-D-MjbcbuA5sf"SO.5ckJB js.lsic dkb</p>
-          <div className="app-buttons">
-            <button className="app-btn">▶ Playstore</button>
-            <button className="app-btn">⚫ Appstore</button>
-          </div>
+        
+        {/* Column 1: Brand Only (Buttons Removed) */}
+        <div className="footer-col brand-col">
+          <h2 className="footer-logo">Good Innez</h2>
+          <p className="footer-desc">
+            Your premium partner for the best stays and experiences in Cebu City.
+          </p>
         </div>
 
-        <div className="footer-section">
-          <h4>COMPANY</h4>
+        {/* Column 2: Company */}
+        <div className="footer-col">
+          <h3>COMPANY</h3>
           <ul>
-            <li><a href="#about">About Us</a></li>
-            <li><a href="#legal">Legal Information</a></li>
-            <li><a href="#contact">Contact Us</a></li>
-            <li><a href="#blogs">Blogs</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Legal Information</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Blogs</a></li>
           </ul>
         </div>
 
-        <div className="footer-section">
-          <h4>HELP CENTER</h4>
+        {/* Column 3: Help Center */}
+        <div className="footer-col">
+          <h3>HELP CENTER</h3>
           <ul>
-            <li><a href="#find-hotel">Find a Hotel</a></li>
-            <li><a href="#find-activities">Find Activities</a></li>
-            <li><a href="#why-us">Why Us?</a></li>
-            <li><a href="#faqs">FAQs</a></li>
-            <li><a href="#guides">Guides</a></li>
+            <li><a href="#">Find a Hotel</a></li>
+            <li><a href="#">Find Activities</a></li>
+            <li><a href="#">Why Us?</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Guides</a></li>
           </ul>
         </div>
 
-        <div className="footer-section">
-          <h4>CONTACT INFO</h4>
-          <p>Phone: 6969696969</p>
-          <p>Email: admin@goodinnez@good.inn</p>
-          <p>Location: Paarl, Cebu city</p>
-          <div className="social-links">
-            <a href="#facebook">f</a>
-            <a href="#twitter">𝕏</a>
-            <a href="#instagram">📷</a>
-            <a href="#linkedin">in</a>
-          </div>
+        {/* Column 4: Contact Info Only (Socials Removed) */}
+        <div className="footer-col contact-col">
+          <h3>CONTACT INFO</h3>
+          <p>Phone: 0969696969</p>
+          <p>Email: admin.goodinnez@gmail.com</p>
+          <p>Location: Pasil, Cebu City</p>
         </div>
+
       </div>
 
       <div className="footer-bottom">
-        <p>© 2025 Good-Innez | All rights reserved</p>
+        <p>&copy; 2025 Good Innez | All rights reserved</p>
       </div>
     </footer>
-  )
+  );
 }

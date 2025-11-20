@@ -1,61 +1,64 @@
 /* src/components/HeroSection.css */
 
-/* --- Main Hero Section --- */
+/* --- Main Background --- */
 .hero {
   position: relative;
   min-height: 100vh;
-  padding: 0 40px;
+  padding: 0 20px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   color: #fff;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/image 2.jpg'); 
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), 
+                    url('/image 2.jpg'); 
   background-size: cover;
   background-position: center;
-}
 
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  z-index: 1;
+  /* --- CRITICAL FIX: Z-INDEX --- */
+  /* This ensures the dropdown floats ON TOP of the hotel section below */
+  z-index: 50; 
+  overflow: visible; 
 }
 
 .hero-content {
   position: relative;
   z-index: 2;
-  max-width: 900px;
   width: 100%;
+  max-width: 900px;
 }
 
-.search-container-glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50px; 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  padding: 20px 30px; 
+/* --- 1. The Main Glass Container --- */
+.glass-search-container {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  padding: 2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  /* --- CRITICAL FIX: OVERFLOW VISIBLE --- */
+  overflow: visible; 
+  position: relative;
 }
 
-
-.search-header {
+/* --- Header: Title & Tabs --- */
+.glass-header {
   display: flex;
   align-items: baseline;
   gap: 2rem;
-  margin-bottom: -1rem; 
+  padding-left: 1rem;
 }
 
 .hero-title {
   font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0;
-  text-shadow: none;
+  font-weight: 800;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
 .search-tabs {
@@ -66,30 +69,31 @@
 .tab {
   background: transparent;
   border: none;
-  color: #eee;
-  padding: 8px 0;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.5rem 0;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  border-radius: 0;
   border-bottom: 3px solid transparent;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
-.tab.active,
-.tab:hover {
-  background-color: transparent;
+.tab.active, .tab:hover {
   color: #fff;
   border-bottom-color: #fff;
 }
 
-.search-form-white {
+/* --- 2. The White Form --- */
+.inner-search-form {
   background-color: #ffffff;
-  border-radius: 50px; 
-  padding: 1rem 1.5rem; 
+  border-radius: 20px;
+  padding: 1rem 1.5rem;
   display: flex;
-  gap: 1rem;
   align-items: center;
+  gap: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 20;
 }
 
 .search-field {
@@ -104,11 +108,20 @@
   border-right: none;
 }
 
+/* Location Field Wrapper (Parent of Dropdown) */
+.location-field {
+  flex: 1.5;
+  position: relative; /* Necessary for absolute positioning of dropdown */
+  z-index: 50; /* Ensure it sits above other fields */
+}
+
 .search-field label {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   color: #333;
-  margin-bottom: 5px;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .search-field input {
@@ -116,87 +129,155 @@
   border: none;
   background: transparent;
   padding: 0;
-  font-size: 0.9rem;
-  color: #555; 
-}
-.search-field input:focus {
+  font-size: 1rem;
+  color: #555;
   outline: none;
 }
+
 .search-field input::placeholder {
-  color: #999;
-}
-
-
-input[type="date"],
-input[type="number"] {
-  color: #999;
-}
-input[type="date"]:valid,
-input[type="number"]:valid,
-input[type="date"]:focus,
-input[type="number"]:focus {
-  color: #555;
+  color: #aaa;
 }
 
 .search-btn {
   background-color: #333;
   color: #fff;
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s;
   border: none;
-  padding: 0;
   flex-shrink: 0;
+  transition: transform 0.2s;
 }
 
 .search-btn:hover {
-  background-color: #555;
+  transform: scale(1.05);
+  background-color: #000;
 }
 
+/* --- 3. The Dropdown Menu --- */
+.suggestions-dropdown {
+  position: absolute;
+  top: 120%; 
+  left: -10px;
+  width: 350px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); 
+  z-index: 100; /* Sits on top of everything */
+  padding: 10px 0;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-in-out;
+}
 
+.dropdown-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #888;
+  padding: 10px 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #f9f9f9;
+}
+
+.suggestion-icon {
+  font-size: 1.2rem;
+  margin-right: 15px;
+  background-color: #f0f0f0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.suggestion-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestion-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.suggestion-sub {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 2px;
+}
+
+/* --- Mobile Responsive --- */
 @media (max-width: 768px) {
-  .hero-content {
-    max-width: 95%; /* Use more of the screen */
-  }
-
-  .search-container-glass {
-    padding: 15px; /* Reduce padding on the glass box */
-  }
-
-  .search-header {
-    flex-direction: column; /* Stack "FIND" and tabs */
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1rem;
+  .glass-search-container {
+    padding: 1.5rem;
   }
   
-  /* This is the most important part! */
-  .search-form-white {
-    flex-direction: column; /* Stack form fields vertically */
+  .glass-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding-left: 0;
+  }
+
+  .inner-search-form {
+    flex-direction: column;
+    align-items: stretch;
     gap: 1.5rem;
+    padding: 1.5rem;
   }
 
   .search-field {
-    width: 100%;
-    border-right: none; /* Remove vertical dividers */
-    border-bottom: 1px solid #eee; /* Add horizontal dividers */
+    border-right: none;
+    border-bottom: 1px solid #eee;
     padding-right: 0;
     padding-bottom: 1rem;
   }
-  
+
   .search-field:last-of-type {
     border-bottom: none;
+    padding-bottom: 0;
   }
 
   .search-btn {
     width: 100%;
-    border-radius: 8px; /* Make it a square button */
-    padding: 12px;
+    border-radius: 12px;
   }
+
+  /* Mobile Dropdown Fix */
+  .suggestions-dropdown {
+    width: 100%;
+    left: 0;
+    top: 100%;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }

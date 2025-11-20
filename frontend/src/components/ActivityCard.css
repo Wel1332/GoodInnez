@@ -1,18 +1,15 @@
-/* src/components/ActivityCard.css */
-
 .activity-card {
-  flex: 1; /* Grow to fill space */
+  flex: 1;
   min-width: 280px;
-  /* No background color, transparent */
   background: transparent;
 }
 
 .activity-image {
   width: 100%;
-  height: 250px; /* Fixed height for uniformity */
-  border-radius: 20px; /* Rounded corners for the image */
+  height: 250px;
+  border-radius: 20px;
   overflow: hidden;
-  margin-bottom: 1rem; /* Space between image and text */
+  margin-bottom: 1rem;
   box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
@@ -27,9 +24,7 @@
   transform: scale(1.05);
 }
 
-/* Text Styling */
 .activity-info {
-  /* Reset any absolute positioning from previous versions */
   position: static; 
   background: transparent;
   padding: 0;
@@ -46,6 +41,6 @@
 
 .activity-category {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8); /* Slightly transparent white */
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 400;
 }
