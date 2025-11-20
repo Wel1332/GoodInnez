@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/roomtypes")
+@CrossOrigin(origins = "http://localhost:5173")
 public class RoomTypeController {
 
     private final RoomTypeRepository roomTypeRepository;

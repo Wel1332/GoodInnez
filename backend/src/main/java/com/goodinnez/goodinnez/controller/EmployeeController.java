@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/employees")
+@CrossOrigin(origins = "http://localhost:5173")
 public class EmployeeController {
 
     private final EmployeeRepository employeeRepository;

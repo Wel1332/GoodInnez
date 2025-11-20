@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { api } from '../services/api'
 import './Login.css'
 
-export default function Login({ onClose, onSwitchToSignup }) {
+export default function Login({ onClose, onSwitchToSignup, onLoginSuccess }) {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -19,7 +20,17 @@ export default function Login({ onClose, onSwitchToSignup }) {
     const handleSubmit = (e) => {
         e.preventDefault()
         console.log('Login attempt:', formData)
-        // Add your login logic here
+        
+        // Call the API
+        api.login({ email: formData.email, password: formData.password })
+            .then((user) => {
+                // If successful, tell App.jsx
+                onLoginSuccess(user) 
+            })
+            .catch((err) => {
+                console.error(err)
+                alert("Login failed. Please check your email and password.")
+            })
     }
 
     return (
