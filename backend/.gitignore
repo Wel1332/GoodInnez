@@ -31,3 +31,20 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# ---------------------------------
+# SECURITY & SECRETS (Critical)
+# ---------------------------------
+# This hides your database password
+application.properties
+src/main/resources/application.properties
+
+# Hides environment variable files if you use them
+*.env
+
+# ---------------------------------
+# DATABASE DUMPS
+# ---------------------------------
+# Ignores SQL dumps to prevent leaking customer data
+# (Remove this check if you specifically WANT to share the SQL files)
+*.sql

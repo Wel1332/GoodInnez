@@ -1,5 +1,5 @@
 # ------------------
-# GENERAL
+# GENERAL (Global)
 # ------------------
 logs/
 *.log
@@ -15,28 +15,20 @@ Thumbs.db
 *.sw?
 
 # ------------------
-# SPRING BOOT (Backend)
+# FRONTEND (Vite/React)
 # ------------------
-# Compiled Java class files
-/target/
-
-# Package files
-*.jar
-*.war
-*.ear
-
+# Since 'frontend' has no gitignore, we rule them out here.
 # ------------------
-# VITE (Frontend - inside GoodInnez folder)
-# ------------------
-# Node dependencies
-/frontend/node_modules/
 
-# Vite build cache and output
-/frontend/.vite/
-/frontend/dist/
-/frontend/dist-ssr/
+# Dependencies (Huge folder - Never commit this!)
+frontend/node_modules/
 
-# Environment variables
-/frontend/.env
-/frontend/.env.local
-/frontend/.env.*.local
+# Build output (Generated files)
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+
+# Environment variables (Secrets)
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
