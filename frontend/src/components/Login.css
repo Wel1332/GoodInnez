@@ -171,18 +171,18 @@
     transition: background-color 0.3s;
 }
 
-    .google-btn:hover {
+.google-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-    .signup-prompt {
+.signup-prompt {
     margin-top: 1.5rem;
     text-align: center;
     color: #aaa;
     font-size: 0.9rem;
 }
 
-    .link-btn {
+.link-btn {
     background: none;
     border: none;
     color: #fbbf24;
@@ -193,6 +193,11 @@
     font-size: 0.9rem;
 }
 
-    .link-btn:hover {
+.link-btn:hover {
     text-decoration: underline;
+}
+
+.form-actions-full {
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
 }

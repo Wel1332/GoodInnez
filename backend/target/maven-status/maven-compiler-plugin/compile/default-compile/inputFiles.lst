@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\BookingController.java
 D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\EmployeeController.java
 D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\GuestController.java
@@ -27,3 +28,34 @@ D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\HotelRepos
 D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\PaymentRepository.java
 D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\RoomRepository.java
 D:\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\RoomTypeRepository.java
+=======
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\BookingController.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\EmployeeController.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\GuestController.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\HotelController.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\PaymentController.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\RoomController.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\controller\RoomTypeController.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\entity\Booking.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\entity\Employee.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\entity\Guest.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\entity\Hotel.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\entity\Payment.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\entity\PaymentId.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\entity\Room.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\entity\RoomType.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\GoodinnezApplication.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Booking.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Employee.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Guest.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Hotel.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\Room.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\model\RoomType.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\BookingRepository.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\EmployeeRepository.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\GuestRepository.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\HotelRepository.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\PaymentRepository.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\RoomRepository.java
+C:\Users\admin\Desktop\GoodInnez\backend\src\main\java\com\goodinnez\goodinnez\repository\RoomTypeRepository.java
+>>>>>>> 840779b56c260868ff7493c7cbfd4f349ca93fc3

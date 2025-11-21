@@ -2,13 +2,19 @@ package com.goodinnez.goodinnez.controller;
 
 import com.goodinnez.goodinnez.model.Guest;
 import com.goodinnez.goodinnez.repository.GuestRepository;
+
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/guests")
+@CrossOrigin(origins = "http://localhost:5173")
 public class GuestController {
 
     private final GuestRepository guestRepository;
@@ -60,5 +66,22 @@ public class GuestController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
         guestRepository.deleteById(id);
+    }
+
+@PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
+        String email = loginData.get("email");
+        String password = loginData.get("password");
+
+        com.goodinnez.goodinnez.entity.Guest dbGuest = guestRepository.findByEmail(email);
+
+        if (dbGuest != null && dbGuest.getPassword().equals(password)) {
+            
+            Guest dto = toDTO(dbGuest);
+            
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
     }
 }
