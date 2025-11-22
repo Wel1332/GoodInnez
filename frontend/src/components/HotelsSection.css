@@ -4,7 +4,7 @@
   position: relative;
   padding: 6rem 0;
   overflow: hidden;
-  background-image: url('/glitter.jpg'); 
+  background-image: url('/glitter.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -13,14 +13,18 @@
 .hotels-section::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: linear-gradient(to bottom, rgba(180, 130, 30, 0.85), rgba(120, 80, 10, 0.95));
   z-index: 1;
 }
 
-.section-header-glass, .hotels-container {
+.section-header-glass,
+.hotels-container {
   position: relative;
-  z-index: 2; 
+  z-index: 2;
 }
 
 /* --- THE HEADER FIX --- */
@@ -28,15 +32,15 @@
   max-width: 1200px;
   margin: 0 auto 4rem auto;
   padding: 1.5rem 3rem;
-  
+
   /* Force items into a single horizontal row */
-  display: flex; 
-  flex-direction: row; 
-  
+  display: flex;
+  flex-direction: row;
+
   /* Push Title to Left, Button to Right */
-  justify-content: space-between; 
+  justify-content: space-between;
   align-items: center;
-  
+
   /* Glass Styling */
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(12px);
@@ -51,9 +55,9 @@
   font-weight: 700;
   color: #fff;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   /* Ensure title doesn't push button off */
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .underline-text {
@@ -74,7 +78,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  white-space: nowrap; /* Prevents button text from wrapping */
+  white-space: nowrap;
+  /* Prevents button text from wrapping */
 }
 
 .map-btn:hover {
@@ -84,9 +89,9 @@
 /* Card Container */
 .hotels-container {
   display: flex;
-  justify-content: center; 
-  flex-wrap: wrap; 
-  gap: 2rem; 
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 2rem;
@@ -95,16 +100,17 @@
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .section-header-glass {
-    flex-direction: column; /* Stack vertically on small screens */
+    flex-direction: column;
+    /* Stack vertically on small screens */
     border-radius: 20px;
     gap: 1rem;
     text-align: center;
   }
-  
+
   .header-title {
     font-size: 1.5rem;
   }
-  
+
   .underline-text {
     border-bottom: 2px solid #fff;
     margin-right: 0;

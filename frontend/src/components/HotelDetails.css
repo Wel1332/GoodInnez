@@ -1,118 +1,333 @@
+/* src/components/HotelDetails.css */
+
 .details-page {
     background-color: var(--bg-white);
     min-height: 100vh;
+    /* Space for the fixed header from App.jsx */
     padding-top: 80px;
-  }
-  
-  .details-container {
+    color: var(--text-black);
+}
+
+.details-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 5%;
-  }
-  
-  /* Title Section */
-  .details-title-section {
-    margin-bottom: 1.5rem;
-  }
-  .details-title-section h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--text-black);
-    margin-bottom: 0.5rem;
-  }
-  .details-sub-info {
-    color: var(--text-grey);
-    font-size: 1rem;
-    display: flex;
-    gap: 1rem;
-  }
-  
-  /* Gallery */
-  .details-gallery {
+}
+
+/* --- Gallery --- */
+.gallery-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1.5fr 1fr;
     gap: 1rem;
     height: 450px;
-    border-radius: 16px;
-    overflow: hidden;
     margin-bottom: 3rem;
-  }
-  .main-image img, .sub-images img {
-    width: 100%; height: 100%; object-fit: cover;
-  }
-  .sub-images {
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.gallery-main img,
+.gallery-side img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.gallery-side {
     display: grid;
     grid-template-rows: 1fr 1fr;
     gap: 1rem;
-  }
-  
-  /* Layout Columns */
-  .details-layout {
-    display: grid;
-    grid-template-columns: 2fr 1fr; /* Left content is wider */
-    gap: 4rem;
-  }
-  
-  /* Left Column */
-  .info-block h3 {
-    font-size: 1.4rem;
+}
+
+.gallery-more {
+    position: relative;
+    overflow: hidden;
+}
+
+.more-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* --- Host Header --- */
+.host-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #eee;
+}
+
+.avatar-circle {
+    width: 60px;
+    height: 60px;
+    background-color: #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: 700;
-    margin-bottom: 1rem;
+    color: #666;
+    font-size: 1.2rem;
+}
+
+.host-info h3 {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.hosted-by {
+    font-size: 0.8rem;
+    color: var(--text-grey);
+}
+
+.host-location {
+    font-size: 0.8rem;
+    color: var(--text-grey);
+}
+
+/* --- Layout (Left Content / Right Booking) --- */
+.details-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 4rem;
+}
+
+/* Left Column */
+.title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-row h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 800;
+}
+
+.title-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    border: none;
+    background: none;
+    font-size: 1.5rem;
+    cursor: pointer;
     color: var(--text-black);
-  }
-  .info-block p {
+}
+
+.location-text {
+    color: var(--text-grey);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Feature Icons */
+.features-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.feature-box {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.feature-icon {
+    font-size: 1.5rem;
+}
+
+/* Generic Sections */
+.section-block {
+    margin-bottom: 3rem;
+}
+
+.section-block h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.section-block p {
     color: var(--text-grey);
     line-height: 1.6;
-    margin-bottom: 1rem;
-  }
-  hr {
-    border: 0; border-top: 1px solid #eee; margin: 2rem 0;
-  }
-  .amenities-list {
-    list-style: none;
+    font-size: 0.95rem;
+}
+
+/* Amenities Grid */
+.amenities-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
-    color: var(--text-black);
-  }
-  
-  /* Booking Card (Right Column) */
-  .booking-card {
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    position: sticky;
-    top: 100px;
-    background: #fff;
-  }
-  
-  .price-header {
     margin-bottom: 1.5rem;
-  }
-  .price-header .price { font-size: 1.5rem; font-weight: 700; color: var(--text-black); }
-  .price-header .night { color: var(--text-grey); }
-  
-  .booking-form {
+}
+
+.amenity-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #444;
+    font-size: 0.95rem;
+}
+
+/* Buttons */
+.outline-btn {
+    background: white;
+    border: 1px solid var(--text-black);
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.outline-btn:hover {
+    background: var(--text-black);
+    color: #fff;
+}
+
+/* Reviews */
+.reviews-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.review-score {
+    font-weight: 700;
+    color: var(--accent-gold);
+}
+
+.reviews-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.5rem;
+}
+
+.avatar-small {
+    width: 40px;
+    height: 40px;
+    background: #ccc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.review-date {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.review-text {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* --- Right Column (Sticky Booking Card) --- */
+.booking-card {
+    border: 1px solid #eee;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 120px;
+    background: #fff;
+}
+
+.price-header {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.price-header .night {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #666;
+}
+
+.booking-form {
     border: 1px solid #aaa;
     border-radius: 8px;
     margin-bottom: 1rem;
-  }
-  .date-row { display: flex; border-bottom: 1px solid #aaa; }
-  .date-input { flex: 1; padding: 0.5rem; border-right: 1px solid #aaa; }
-  .date-input:last-child { border-right: none; }
-  .guest-select { padding: 0.5rem; }
-  
-  .booking-form label {
-    display: block; font-size: 0.6rem; font-weight: 800; margin-bottom: 2px;
-  }
-  .booking-form input, .booking-form select {
-    width: 100%; border: none; outline: none; font-size: 0.9rem; color: var(--text-black);
-  }
-  
-  .reserve-btn {
+}
+
+.date-row {
+    display: flex;
+    border-bottom: 1px solid #aaa;
+}
+
+.date-input {
+    flex: 1;
+    padding: 0.5rem;
+    border-right: 1px solid #aaa;
+}
+
+.date-input:last-child {
+    border-right: none;
+}
+
+.guest-select {
+    padding: 0.5rem;
+}
+
+.booking-form label {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 800;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+}
+
+.booking-form input,
+.booking-form select {
     width: 100%;
-    background-color: var(--accent-gold); /* Gold Button */
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: var(--text-black);
+}
+
+.reserve-btn {
+    width: 100%;
+    background-color: var(--accent-gold);
     color: var(--text-black);
     font-weight: 700;
     padding: 1rem;
@@ -121,13 +336,25 @@
     cursor: pointer;
     font-size: 1rem;
     transition: background 0.2s;
-  }
-  .reserve-btn:hover { background-color: #b89335; }
-  
-  .charge-note {
-    text-align: center; font-size: 0.85rem; color: var(--text-grey); margin: 1rem 0;
-  }
-  
-  .total-price {
-    display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem; border-top: 1px solid #eee; padding-top: 1rem;
-  }
+    margin-bottom: 1rem;
+}
+
+.reserve-btn:hover {
+    background-color: #b89335;
+}
+
+.charge-note {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-grey);
+    margin-bottom: 1.5rem;
+}
+
+.total-price {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 800;
+    font-size: 1.1rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}

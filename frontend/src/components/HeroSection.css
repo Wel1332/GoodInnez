@@ -9,15 +9,15 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), 
-                    url('/image 2.jpg'); 
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url('/image 2.jpg');
   background-size: cover;
   background-position: center;
 
   /* --- CRITICAL FIX: Z-INDEX --- */
   /* This ensures the dropdown floats ON TOP of the hotel section below */
-  z-index: 50; 
-  overflow: visible; 
+  z-index: 50;
+  overflow: visible;
 }
 
 .hero-content {
@@ -36,13 +36,13 @@
   border-radius: 30px;
   padding: 2rem;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  
+
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 
   /* --- CRITICAL FIX: OVERFLOW VISIBLE --- */
-  overflow: visible; 
+  overflow: visible;
   position: relative;
 }
 
@@ -58,7 +58,7 @@
   font-size: 2.5rem;
   font-weight: 800;
   margin: 0;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .search-tabs {
@@ -78,7 +78,8 @@
   transition: all 0.3s;
 }
 
-.tab.active, .tab:hover {
+.tab.active,
+.tab:hover {
   color: #fff;
   border-bottom-color: #fff;
 }
@@ -101,7 +102,7 @@
   display: flex;
   flex-direction: column;
   padding-right: 1rem;
-  border-right: 1px solid #eee; 
+  border-right: 1px solid #eee;
 }
 
 .search-field:last-of-type {
@@ -111,8 +112,10 @@
 /* Location Field Wrapper (Parent of Dropdown) */
 .location-field {
   flex: 1.5;
-  position: relative; /* Necessary for absolute positioning of dropdown */
-  z-index: 50; /* Ensure it sits above other fields */
+  position: relative;
+  /* Necessary for absolute positioning of dropdown */
+  z-index: 50;
+  /* Ensure it sits above other fields */
 }
 
 .search-field label {
@@ -162,13 +165,14 @@
 /* --- 3. The Dropdown Menu --- */
 .suggestions-dropdown {
   position: absolute;
-  top: 120%; 
+  top: 120%;
   left: -10px;
   width: 350px;
   background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); 
-  z-index: 100; /* Sits on top of everything */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  /* Sits on top of everything */
   padding: 10px 0;
   overflow: hidden;
   animation: fadeIn 0.2s ease-in-out;
@@ -234,7 +238,7 @@
   .glass-search-container {
     padding: 1.5rem;
   }
-  
+
   .glass-header {
     flex-direction: column;
     align-items: flex-start;
@@ -272,12 +276,19 @@
     left: 0;
     top: 100%;
     position: relative;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   }
 }
 
 /* Animation */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

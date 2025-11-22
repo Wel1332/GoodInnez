@@ -8,6 +8,7 @@ import Signup from './components/Signup';
 import LandingPage from './components/LandingPage';
 import ListingPage from './components/ListingPage';
 import HotelDetails from './components/HotelDetails';
+import BookingPage from './components/BookingPage';
 import './App.css';
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/search" element={<ListingPage />} />
             <Route path="/hotel/:id" element={<HotelDetails />} />
+            <Route path="/booking" element={<BookingPage />} />
           </Routes>
         </main>
         

@@ -10,7 +10,7 @@
   border-radius: 20px;
   overflow: hidden;
   margin-bottom: 1rem;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .activity-image img {
@@ -25,7 +25,7 @@
 }
 
 .activity-info {
-  position: static; 
+  position: static;
   background: transparent;
   padding: 0;
   color: #fff;
