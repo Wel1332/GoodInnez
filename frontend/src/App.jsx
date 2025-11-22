@@ -9,14 +9,12 @@ import Signup from './components/Signup';
 import './App.css';
 
 function App() {
-  const [showAuth, setShowAuth] = useState(false); // Controls modal visibility
-  const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
-  const [currentUser, setCurrentUser] = useState(null); // Tracks logged-in user
-  const [searchCriteria, setSearchCriteria] = useState({
-    location: '',
-    guests: ''
-  });
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
+  const [currentUser, setCurrentUser] = useState(null);
+  const [searchCriteria, setSearchCriteria] = useState({ location: '', guests: '' });
 
+  // --- HANDLERS ---
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
     setShowAuth(false);
@@ -30,17 +28,19 @@ function App() {
 
   const handleSearch = (criteria) => {
     setSearchCriteria(criteria);
-    // Scroll to hotels section when search is triggered
     const section = document.getElementById('hotels'); 
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (section) section.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // --- NEW: Universal Auth Opener ---
+  // This allows the Header to specify 'login' or 'signup'
+  const openAuthModal = (mode) => {
+    setAuthMode(mode);
+    setShowAuth(true);
   };
 
   const renderAuthComponent = () => {
-    const commonProps = {
-      onClose: () => setShowAuth(false),
-    };
+    const commonProps = { onClose: () => setShowAuth(false) };
 
     if (authMode === 'login') {
       return (
@@ -63,30 +63,20 @@ function App() {
 
   return (
     <div className="app">
-      {/* Header: Uses Stashed logic for User/Logout */}
+      {/* UPDATE: Pass openAuthModal instead of onOpenLogin */}
       <Header 
-        onOpenLogin={() => { setShowAuth(true); setAuthMode('login'); }} 
+        onOpenAuth={openAuthModal} 
         user={currentUser}
         onLogout={handleLogout}
       />
 
       <main>
-        {/* Hero: Uses Upstream logic to pass search handler */}
         <HeroSection onSearch={handleSearch} />
-
-        {/* Hotels: Uses Upstream logic for search criteria + Stashed ID for nav */}
-        <div id="hotels">
-          <HotelsSection searchCriteria={searchCriteria} />
-        </div>
-        
-        <div id="activities">
-          <ActivitiesSection />
-        </div>
+        <div id="hotels"><HotelsSection searchCriteria={searchCriteria} /></div>
+        <div id="activities"><ActivitiesSection /></div>
       </main>
       
       <Footer />
-      
-      {/* Auth Modal: Uses Stashed logic */}
       {showAuth && renderAuthComponent()}
     </div>
   );

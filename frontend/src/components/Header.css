@@ -112,3 +112,49 @@
   border-color: #fbbf24;
   color: #fbbf24;
 }
+
+.auth-dropdown-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.auth-dropdown-menu {
+    position: absolute;
+    top: 120%; /* Pushes it below the button */
+    right: 0;
+    width: 150px;
+    background-color: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    overflow: hidden;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.auth-dropdown-menu button {
+    background: transparent;
+    border: none;
+    color: #eee;
+    padding: 10px 15px;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.auth-dropdown-menu button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fbbf24; /* Gold on hover */
+}
+
+/* Optional: Highlight the burger when menu is open */
+.login-burger-btn.active {
+    border-color: #fbbf24;
+    color: #fbbf24;
+}
