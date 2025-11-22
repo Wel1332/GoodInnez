@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import './Header.css'
 
+// 1. FIX: Prop name must be 'onOpenAuth' to match App.jsx
 export default function Header({ onOpenAuth, user, onLogout }) {
-  // Removed mobile menu state (menuOpen)
-  const [authDropdownOpen, setAuthDropdownOpen] = useState(false) 
   
+  const [authDropdownOpen, setAuthDropdownOpen] = useState(false) 
   const dropdownRef = useRef(null);
 
-  // Close dropdown if clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -22,8 +21,8 @@ export default function Header({ onOpenAuth, user, onLogout }) {
     <header className="header">
       <div className="header-container">
         <div className="logo">Good Innez</div>
+        
         <div className="header-right-group">
-          {/* Removed dynamic 'open' class logic */}
           <nav className="nav">
             <a href="#hotels">Find a Hotel</a>
             <a href="#guides">Local Guides</a>
@@ -31,7 +30,14 @@ export default function Header({ onOpenAuth, user, onLogout }) {
           </nav>
 
           <div className="header-actions">
-            <button className="book-btn">Book now</button>
+            
+            {/* 2. FIX: Add onClick to the Book Now button */}
+            <button 
+              className="book-btn" 
+              onClick={() => onOpenAuth('login')}
+            >
+              Book now
+            </button>
             
             {/* AUTH BUTTON AREA */}
             <div className="auth-dropdown-container" ref={dropdownRef}>
@@ -58,6 +64,7 @@ export default function Header({ onOpenAuth, user, onLogout }) {
                         {/* THE DROPDOWN MENU */}
                         {authDropdownOpen && (
                             <div className="auth-dropdown-menu">
+                                {/* 3. FIX: Ensure these call onOpenAuth */}
                                 <button onClick={() => {
                                     onOpenAuth('login');
                                     setAuthDropdownOpen(false);
