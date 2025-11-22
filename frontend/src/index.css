@@ -1,5 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+:root {
+  --bg-cream: #F2F0E4;
+  --bg-white: #FFFFFF;
+  --accent-gold: #CCA43B;
+  --text-black: #1a1a1a;
+  --text-grey: #666666;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -11,12 +19,15 @@ html {
 }
 
 body {
+  /* 3. Use the new font and colors */
   font-family: 'Poppins', sans-serif;
   
-  background-color: #0f0f0f;
-  color: #ffffff;
+  /* --- CRITICAL FIX: Change background to WHITE --- */
+  background-color: var(--bg-white); 
+  color: var(--text-black);
+  
   line-height: 1.6;
-  -webkit-font-smoothing: antialiased; 
+  -webkit-font-smoothing: antialiased;
 }
 
 button {

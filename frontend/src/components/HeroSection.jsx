@@ -1,5 +1,5 @@
-// src/components/HeroSection.jsx
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
 import './HeroSection.css';
 
 // --- Cebu Specific Recommendations ---
@@ -11,7 +11,9 @@ const popularDestinations = [
   { id: 5, name: "Oslob", sub: "Municipality · Whale Shark Watching", icon: "🐋" },
 ];
 
-export default function HeroSection({ onSearch }) {
+export default function HeroSection() { // No props needed
+  const navigate = useNavigate(); // 2. Initialize hook
+  
   const [activeTab, setActiveTab] = useState('hotels');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const wrapperRef = useRef(null);
@@ -24,7 +26,6 @@ export default function HeroSection({ onSearch }) {
     rooms: '1',
   });
 
-  // Handle clicking outside to close dropdown
   useEffect(() => {
     function handleClickOutside(event) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
@@ -47,9 +48,8 @@ export default function HeroSection({ onSearch }) {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (onSearch) {
-      onSearch({ ...searchParams, type: activeTab });
-    }
+    // 3. Navigate to Listing Page with state
+    navigate('/search', { state: { ...searchParams, type: activeTab } });
   };
 
   const getGuestLabel = () => {
@@ -65,11 +65,9 @@ export default function HeroSection({ onSearch }) {
   return (
     <section className="hero">
       <div className="hero-content">
-        
-        {/* --- The Unified Container --- */}
         <div className="glass-search-container">
           
-          {/* Top Part: Glass Header */}
+          {/* Header */}
           <div className="glass-header">
             <h1 className="hero-title">FIND</h1>
             <div className="search-tabs">
@@ -79,10 +77,10 @@ export default function HeroSection({ onSearch }) {
             </div>
           </div>
 
-          {/* Bottom Part: White Form */}
+          {/* Form */}
           <form className="inner-search-form" onSubmit={handleSearch}>
             
-            {/* --- LOCATION FIELD WITH DROPDOWN --- */}
+            {/* Location with Dropdown */}
             <div className="search-field location-field" ref={wrapperRef}>
               <label>Location</label>
               <input
@@ -92,20 +90,15 @@ export default function HeroSection({ onSearch }) {
                 value={searchParams.location}
                 onChange={handleChange}
                 onFocus={() => setShowSuggestions(true)} 
-                onClick={() => setShowSuggestions(true)} /* FIX: Open on click too */
+                onClick={() => setShowSuggestions(true)}
                 autoComplete="off"
               />
 
-              {/* The Dropdown */}
               {showSuggestions && (
                 <div className="suggestions-dropdown">
                   <div className="dropdown-header">Popular destinations</div>
                   {popularDestinations.map((item) => (
-                    <div 
-                      key={item.id} 
-                      className="suggestion-item"
-                      onClick={() => handleSelectLocation(item.name)}
-                    >
+                    <div key={item.id} className="suggestion-item" onClick={() => handleSelectLocation(item.name)}>
                       <div className="suggestion-icon">{item.icon}</div>
                       <div className="suggestion-text">
                         <div className="suggestion-name">{item.name}</div>

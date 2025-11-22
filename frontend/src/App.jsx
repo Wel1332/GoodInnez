@@ -1,84 +1,61 @@
+// src/App.jsx
 import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
-import HeroSection from './components/HeroSection';
-import HotelsSection from './components/HotelsSection';
-import ActivitiesSection from './components/ActivitiesSection';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import LandingPage from './components/LandingPage';
+import ListingPage from './components/ListingPage';
+import HotelDetails from './components/HotelDetails';
 import './App.css';
 
 function App() {
+  // Auth State
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
-  const [searchCriteria, setSearchCriteria] = useState({ location: '', guests: '' });
 
-  // --- HANDLERS ---
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
     setShowAuth(false);
-    alert(`Welcome back, ${user.firstName}!`);
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
-    alert("You have been logged out.");
-  };
-
-  const handleSearch = (criteria) => {
-    setSearchCriteria(criteria);
-    const section = document.getElementById('hotels'); 
-    if (section) section.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // --- NEW: Universal Auth Opener ---
-  // This allows the Header to specify 'login' or 'signup'
-  const openAuthModal = (mode) => {
-    setAuthMode(mode);
-    setShowAuth(true);
   };
 
   const renderAuthComponent = () => {
     const commonProps = { onClose: () => setShowAuth(false) };
-
-    if (authMode === 'login') {
-      return (
-        <Login
-          {...commonProps}
-          onSwitchToSignup={() => setAuthMode('signup')}
-          onLoginSuccess={handleLoginSuccess}
-        />
-      );
-    } else if (authMode === 'signup') {
-      return (
-        <Signup
-          {...commonProps}
-          onSwitchToLogin={() => setAuthMode('login')}
-        />
-      );
-    }
-    return null;
+    return authMode === 'login' ? (
+      <Login {...commonProps} onSwitchToSignup={() => setAuthMode('signup')} onLoginSuccess={handleLoginSuccess} />
+    ) : (
+      <Signup {...commonProps} onSwitchToLogin={() => setAuthMode('login')} />
+    );
   };
 
   return (
-    <div className="app">
-      {/* UPDATE: Pass openAuthModal instead of onOpenLogin */}
-      <Header 
-        onOpenAuth={openAuthModal} 
-        user={currentUser}
-        onLogout={handleLogout}
-      />
+    <Router>
+      <div className="app">
+        <Header 
+          onOpenLogin={() => { setShowAuth(true); setAuthMode('login'); }} 
+          user={currentUser}
+          onLogout={handleLogout}
+        />
 
-      <main>
-        <HeroSection onSearch={handleSearch} />
-        <div id="hotels"><HotelsSection searchCriteria={searchCriteria} /></div>
-        <div id="activities"><ActivitiesSection /></div>
-      </main>
-      
-      <Footer />
-      {showAuth && renderAuthComponent()}
-    </div>
+        <main>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/search" element={<ListingPage />} />
+            <Route path="/hotel/:id" element={<HotelDetails />} />
+          </Routes>
+        </main>
+        
+        <Footer />
+        
+        {showAuth && renderAuthComponent()}
+      </div>
+    </Router>
   );
 }
 

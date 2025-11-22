@@ -1,5 +1,5 @@
 .app {
   min-height: 100vh;
-  background-color: #000000;
+  background-color: var(--bg-white);
   overflow-x: hidden; 
 }
