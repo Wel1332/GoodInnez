@@ -14,17 +14,38 @@
 }
 
 .login-glass-card {
-    background: rgba(20, 20, 20, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 24px;
-    padding: 2.5rem;
+    padding: 2rem;
     width: 100%;
-    max-width: 420px;
+    max-width: 480px; 
     position: relative;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     color: #fff;
+    
+    max-height: 90vh; 
+    overflow-y: auto; 
+    display: flex;
+    flex-direction: column;
+}
+
+.login-glass-card::-webkit-scrollbar {
+    width: 6px;
+}
+.login-glass-card::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    margin: 20px; 
+    border-radius: 10px;
+}
+.login-glass-card::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+.login-glass-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(251, 191, 36, 0.5); /* Gold hover */
 }
 
 .close-btn {
@@ -58,6 +79,26 @@
 .login-header p {
     color: #aaa;
     font-size: 0.9rem;
+}
+
+.name-row {
+    display: flex;
+    flex-direction: column; 
+    gap: 0; 
+    width: 100%; /* Ensure it fits the container */
+}
+
+/* Ensure the inputs inside take full width */
+.name-row .input-group {
+    width: 100%;
+    margin-bottom: 1.25rem; /* Match the spacing of other inputs */
+}
+
+@media (max-width: 480px) {
+    .name-row {
+        flex-direction: column; /* Stack them on mobile */
+        gap: 0;
+    }
 }
 
 .input-group {
@@ -240,4 +281,12 @@
 .password-toggle-btn svg {
     width: 20px;
     height: 20px;
+}
+
+.login-form {
+    padding-bottom: 1rem;
+}
+
+* {
+    box-sizing: border-box;
 }

@@ -160,3 +160,41 @@
   border-color: #fbbf24;
   color: #fbbf24;
 }
+
+/* Wrapper for the Initial + Burger */
+.user-profile-group {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Space between Initial and Burger */
+}
+
+/* The User's Initial (Visual only) */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(251, 191, 36, 0.2); /* Low opacity gold background */
+    border: 2px solid #fbbf24;
+    color: #fbbf24;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    user-select: none;
+}
+
+/* Divider line inside the dropdown */
+.menu-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: 8px 0;
+}
+
+/* Logout button specific styling (optional, maybe make it red text) */
+.logout-btn {
+    color: #ff6b6b !important; /* Light red */
+}
+.logout-btn:hover {
+    background-color: rgba(255, 107, 107, 0.1) !important;
+}

@@ -1,3 +1,5 @@
+// src/services/api.js
+
 const API_BASE_URL = "http://localhost:8080/api";
 
 export const api = {
@@ -13,20 +15,17 @@ export const api = {
         }
     },
 
-    // --- REGISTER ---
+    // --- REGISTER (UPDATED) ---
     registerGuest: async (userData) => {
-        const nameParts = userData.name.split(" ");
-        const firstName = nameParts[0];
-        const lastName = nameParts.slice(1).join(" ") || "";
-
+        // Now we pass the full object directly, no more hardcoded defaults
         const payload = {
-        firstName: firstName,
-        lastName: lastName,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
         email: userData.email,
         password: userData.password,
-        phone: "000-000-0000",
-        address: "Not Provided",
-        dateOfBirth: "2000-01-01"
+        phone: userData.phone,
+        address: userData.address,
+        dateOfBirth: userData.dateOfBirth
         };
 
         const response = await fetch(`${API_BASE_URL}/guests`, {
@@ -35,8 +34,12 @@ export const api = {
         body: JSON.stringify(payload),
         });
 
-        if (!response.ok) throw new Error("Registration failed");
-        return await response.json();
+    if (!response.ok) {
+        // Try to get the error message from the backend (e.g. "Email already exists")
+        const errorText = await response.text();
+        throw new Error(errorText || "Registration failed");
+    }
+    return await response.json();
     },
 
     // --- LOGIN ---
@@ -48,6 +51,13 @@ export const api = {
         });
 
         if (!response.ok) throw new Error("Invalid credentials");
-        return await response.json(); // Returns the user object
+        return await response.json();
+    },
+    
+    // --- DELETE USER ---
+    deleteGuest: async (id) => {
+        await fetch(`${API_BASE_URL}/guests/${id}`, {
+        method: "DELETE",
+        });
     }
 };

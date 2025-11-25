@@ -45,9 +45,22 @@ public class GuestController {
         return guestRepository.findById(id).map(this::toDTO).orElse(null);
     }
 
-    @PostMapping
-    public Guest create(@RequestBody com.goodinnez.goodinnez.entity.Guest guest) {
-        return toDTO(guestRepository.save(guest));
+@PostMapping
+    public ResponseEntity<?> create(@RequestBody com.goodinnez.goodinnez.entity.Guest guest) {
+        // 1. Check if email already exists
+        com.goodinnez.goodinnez.entity.Guest existingUser = guestRepository.findByEmail(guest.getEmail());
+        
+        if (existingUser != null) {
+            // 2. If it exists, return an ERROR (409 Conflict)
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Error: Email is already in use!");
+        }
+
+        // 3. If new, save the user
+        com.goodinnez.goodinnez.entity.Guest savedGuest = guestRepository.save(guest);
+        
+        // 4. Return success
+        return ResponseEntity.ok(toDTO(savedGuest));
     }
 
     @PutMapping("/{id}")
