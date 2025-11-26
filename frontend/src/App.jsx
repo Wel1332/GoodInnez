@@ -83,7 +83,7 @@ function App() {
             <Route path="/hotel/:id" element={<HotelDetails />} />
             
             {/* Booking Page */}
-            <Route path="/booking" element={<BookingPage />} />
+            <Route path="/booking" element={<BookingPage user={currentUser} />} />
           </Routes>
         </main>
         

@@ -1,27 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { api } from '../services/api'; // 1. Import API Service
+// REMOVED Header/Footer imports (App.jsx handles them)
 import './BookingPage.css';
 
-export default function BookingPage() {
+// 2. Accept 'user' prop (passed from App.jsx)
+export default function BookingPage({ user }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const hotel = location.state?.hotel || {
+  
+  // Get data passed from HotelDetails page
+  const { hotel, dates } = location.state || {}; 
+  
+  // Fallback if page is accessed directly without data
+  const safeHotel = hotel || {
     name: "Sample Hotel",
-    address: "Cebu City, Philippines",
+    address: "Cebu City",
     price: "1000",
     image: "/colorful-modern-hotel-room.jpg"
   };
 
-  const handleConfirm = (e) => {
+  // Form State
+  const [formData, setFormData] = useState({
+    // Auto-fill if user is logged in
+    fullName: user ? `${user.firstName} ${user.lastName}` : '',
+    email: user ? user.email : '',
+    phone: user ? user.phone : '',
+    specialRequests: ''
+  });
+
+  const handleConfirm = async (e) => {
     e.preventDefault();
-    alert("Booking Confirmed! (Mock)");
-    navigate('/');
+
+    // 3. Check Login
+    if (!user) {
+      alert("You must be logged in to book a room.");
+      return;
+    }
+
+    // 4. Prepare Data for Backend
+    // This matches your Java 'Booking' entity structure
+    const bookingPayload = {
+      // Format dates for SQL (YYYY-MM-DDTHH:MM:SS)
+      checkinTime: dates?.checkIn ? `${dates.checkIn}T14:00:00` : null,
+      checkoutTime: dates?.checkOut ? `${dates.checkOut}T11:00:00` : null,
+      totalPrice: safeHotel.price || 1000,
+      guest: { guestID: user.guestID }, // Link to logged-in user
+      room: { roomID: 1 } // Placeholder: Assign Room #1 (We can improve this later)
+    };
+
+    try {
+      // 5. Send to API
+      await api.createBooking(bookingPayload);
+      alert("Booking Successful! Thank you.");
+      navigate('/'); // Redirect to Home
+    } catch (error) {
+      console.error("Booking Error:", error);
+      alert("Booking failed. Please try again.");
+    }
   };
 
   return (
     <div className="booking-page">
-      {/* REMOVED: <Header /> */}
-
+      
       <main className="booking-container">
         
         <div className="booking-layout">
@@ -30,33 +71,56 @@ export default function BookingPage() {
           <div className="booking-left">
             <h1>Reservation Form</h1>
             <p className="sub-text">
-              Sample reservation form to be provided for the concept and further design...
+              Please review your details and complete the reservation.
             </p>
 
-            <button type="button" className="back-link" onClick={() => navigate('/')}>
-              &larr; Go To Home
+            <button type="button" className="back-link" onClick={() => navigate(-1)}>
+              &larr; Back
             </button>
 
             {/* The Actual Form */}
             <form className="reservation-form" onSubmit={handleConfirm}>
               <div className="form-group">
                 <label>Full Name</label>
-                <input type="text" placeholder="John Doe" className="input-field" required />
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  value={formData.fullName} 
+                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                  required 
+                />
               </div>
               
               <div className="form-group">
                 <label>Email Address</label>
-                <input type="email" placeholder="john@example.com" className="input-field" required />
+                <input 
+                  type="email" 
+                  className="input-field" 
+                  value={formData.email} 
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  required 
+                />
               </div>
 
               <div className="form-group">
                 <label>Phone Number</label>
-                <input type="tel" placeholder="+63 900 000 0000" className="input-field" />
+                <input 
+                  type="tel" 
+                  className="input-field" 
+                  value={formData.phone} 
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                />
               </div>
 
               <div className="form-group">
                 <label>Special Requests</label>
-                <textarea rows="4" placeholder="Any special requirements?" className="input-field"></textarea>
+                <textarea 
+                  rows="4" 
+                  className="input-field"
+                  placeholder="Any special requirements?"
+                  value={formData.specialRequests}
+                  onChange={(e) => setFormData({...formData, specialRequests: e.target.value})}
+                ></textarea>
               </div>
 
               <button type="submit" className="confirm-btn">Confirm Booking</button>
@@ -70,14 +134,19 @@ export default function BookingPage() {
               {/* Hotel Header */}
               <div className="summary-header">
                 <div className="summary-image-box">
-                   <img src={hotel.image || "/colorful-modern-hotel-room.jpg"} alt={hotel.name} />
+                   <img src={safeHotel.image || "/colorful-modern-hotel-room.jpg"} alt={safeHotel.name} />
                 </div>
                 <div className="summary-info">
-                  <h3>{hotel.name}</h3>
-                  <p className="summary-address">{hotel.address}</p>
-                  <div className="summary-amenities">
-                    <span>1 Bedroom</span> • <span>1 Bathroom</span> • <span>1 Parking</span>
-                  </div>
+                  <h3>{safeHotel.name}</h3>
+                  <p className="summary-address">{safeHotel.address}</p>
+                  
+                  {/* Show Dates if available */}
+                  {dates && (
+                    <p style={{fontSize:'0.8rem', color:'#666', marginTop:'5px'}}>
+                      <strong>Check-in:</strong> {dates.checkIn} <br/>
+                      <strong>Check-out:</strong> {dates.checkOut}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -85,18 +154,13 @@ export default function BookingPage() {
 
               {/* Price Details */}
               <div className="price-details">
-                <h4>Price Details</h4>
                 <div className="price-row">
-                  <span>Short Period</span>
-                  <span>$ {hotel.price || 1000}</span>
+                  <span>Price per night</span>
+                  <span>$ {safeHotel.price || 1000}</span>
                 </div>
-                <div className="price-row">
-                  <span>Medium Period</span>
-                  <span>$ 2000</span>
-                </div>
-                <div className="price-row">
-                  <span>Long Period</span>
-                  <span>$ 5000</span>
+                <div className="price-row total">
+                  <span>Total</span>
+                  <span>$ {safeHotel.price || 1000}</span>
                 </div>
               </div>
 

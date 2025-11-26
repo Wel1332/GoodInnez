@@ -9,6 +9,10 @@ export default function HotelDetails() {
   const [hotel, setHotel] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // --- 1. NEW STATE: Track User Inputs ---
+  const [dates, setDates] = useState({ checkIn: '', checkOut: '' });
+  const [guests, setGuests] = useState(1);
+
   // Fetch hotel data from Spring Boot
   useEffect(() => {
     fetch(`http://localhost:8080/api/hotels/${id}`)
@@ -23,10 +27,22 @@ export default function HotelDetails() {
       });
   }, [id]);
 
-  // Handle "Reserve" Click -> Go to Booking Page
+  // --- 2. UPDATE: Handle "Reserve" Click ---
   const handleReserve = () => {
-    // Pass the hotel data to the booking page so it can display the summary
-    navigate('/booking', { state: { hotel: hotel } });
+    // Basic Validation
+    if (!dates.checkIn || !dates.checkOut) {
+      alert("Please select a Check-in and Check-out date.");
+      return;
+    }
+
+    // Navigate to booking page and pass ALL data
+    navigate('/booking', { 
+      state: { 
+        hotel: hotel, 
+        dates: dates,
+        guests: guests
+      } 
+    });
   };
 
   if (loading) return <div className="loading-screen">Loading...</div>;
@@ -37,7 +53,7 @@ export default function HotelDetails() {
       
       <div className="details-container">
         
-        {/* 1. Gallery Grid */}
+        {/* Gallery Grid */}
         <div className="gallery-grid">
           <div className="gallery-main">
             <img src="/colorful-modern-hotel-room.jpg" alt="Main View" />
@@ -51,7 +67,7 @@ export default function HotelDetails() {
           </div>
         </div>
 
-        {/* 2. Host Info Header */}
+        {/* Host Info Header */}
         <div className="host-header">
           <div className="host-avatar">
             <div className="avatar-circle">JD</div>
@@ -169,7 +185,6 @@ export default function HotelDetails() {
           <div className="details-right">
             <div className="booking-card">
               <div className="price-header">
-                {/* Fallback price if DB is empty */}
                 <span className="price">$120</span> 
                 <span className="night"> / night</span>
               </div>
@@ -178,19 +193,33 @@ export default function HotelDetails() {
                 <div className="date-row">
                   <div className="date-input">
                     <label>CHECK-IN</label>
-                    <input type="date" />
+                    {/* --- 3. Connected Input --- */}
+                    <input 
+                      type="date" 
+                      value={dates.checkIn}
+                      onChange={(e) => setDates({...dates, checkIn: e.target.value})}
+                    />
                   </div>
                   <div className="date-input">
                     <label>CHECKOUT</label>
-                    <input type="date" />
+                    {/* --- 3. Connected Input --- */}
+                    <input 
+                      type="date" 
+                      value={dates.checkOut}
+                      onChange={(e) => setDates({...dates, checkOut: e.target.value})}
+                    />
                   </div>
                 </div>
                 <div className="guest-select">
                   <label>GUESTS</label>
-                  <select>
-                    <option>1 Guest</option>
-                    <option>2 Guests</option>
-                    <option>3 Guests</option>
+                  {/* --- 3. Connected Input --- */}
+                  <select 
+                    value={guests}
+                    onChange={(e) => setGuests(e.target.value)}
+                  >
+                    <option value="1">1 Guest</option>
+                    <option value="2">2 Guests</option>
+                    <option value="3">3 Guests</option>
                   </select>
                 </div>
               </div>
