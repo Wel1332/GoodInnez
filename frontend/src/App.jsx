@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -13,16 +12,20 @@ import LandingPage from './components/LandingPage';
 import ListingPage from './components/ListingPage';
 import HotelDetails from './components/HotelDetails';
 import BookingPage from './components/BookingPage';
+import GuestProfile from './components/GuestProfile';
+import MessagesPage from './components/MessagesPage'; // New Import
+import NotificationsPage from './components/NotificationsPage'; // New Import
 
 import './App.css';
 
 function App() {
-  // --- Auth State ---
+  // --- Global Auth State ---
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
   const [currentUser, setCurrentUser] = useState(null);
 
   // --- Handlers ---
+
   const handleOpenAuth = (mode = 'login') => {
     setAuthMode(mode);
     setShowAuth(true);
@@ -64,7 +67,7 @@ function App() {
     <Router>
       <div className="app">
         
-        {/* ✅ GLOBAL HEADER: This sits outside Routes, so it appears on EVERY page */}
+        {/* Global Header */}
         <Header 
           onOpenAuth={handleOpenAuth} 
           user={currentUser}
@@ -73,24 +76,33 @@ function App() {
 
         <main>
           <Routes>
-            {/* Home Page */}
+            {/* 1. Home Page */}
             <Route path="/" element={<LandingPage />} />
             
-            {/* Search Results */}
+            {/* 2. Search Results */}
             <Route path="/search" element={<ListingPage />} />
             
-            {/* Hotel Details */}
+            {/* 3. Hotel Details */}
             <Route path="/hotel/:id" element={<HotelDetails />} />
             
-            {/* Booking Page */}
+            {/* 4. Booking Page */}
             <Route path="/booking" element={<BookingPage user={currentUser} />} />
+
+            {/* 5. User Profile Dashboard */}
+            <Route path="/profile" element={<GuestProfile user={currentUser} onLogout={handleLogout} />} />
+
+            {/* 6. Messages Page (New Route) */}
+            <Route path="/messages" element={<MessagesPage user={currentUser} onLogout={handleLogout} />} />
+
+            {/* 7. Notifications Page (New Route) */}
+            <Route path="/notifications" element={<NotificationsPage user={currentUser} onLogout={handleLogout} />} />
           </Routes>
         </main>
         
-        {/* ✅ GLOBAL FOOTER: Appears on every page */}
+        {/* Global Footer */}
         <Footer />
         
-        {/* Global Auth Modal */}
+        {/* Auth Modal */}
         {showAuth && renderAuthComponent()}
       </div>
     </Router>

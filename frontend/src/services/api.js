@@ -1,5 +1,3 @@
-// src/services/api.js
-
 const API_BASE_URL = "http://localhost:8080/api";
 
 export const api = {
@@ -16,7 +14,6 @@ export const api = {
     },
 
     // --- GET SINGLE HOTEL ---
-    // Added this just in case you need it for the Details page later
     getHotelById: async (id) => {
         const response = await fetch(`${API_BASE_URL}/hotels/${id}`);
         if (!response.ok) throw new Error("Hotel not found");
@@ -67,7 +64,14 @@ export const api = {
         });
     },
 
-    // --- CREATE BOOKING (NEW!) ---
+    // --- GET ALL BOOKINGS (New) ---
+    getBookings: async () => {
+        const response = await fetch(`${API_BASE_URL}/bookings`);
+        if (!response.ok) throw new Error("Failed to fetch bookings");
+        return await response.json();
+    },
+
+    // --- CREATE BOOKING ---
     createBooking: async (bookingData) => {
         const response = await fetch(`${API_BASE_URL}/bookings`, {
             method: "POST",
@@ -80,5 +84,13 @@ export const api = {
             throw new Error(errorText || "Booking failed");
         }
         return await response.json();
+    },
+
+    // --- CANCEL BOOKING (New - Required for Reservations Page) ---
+    cancelBooking: async (id) => {
+        const response = await fetch(`${API_BASE_URL}/bookings/${id}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) throw new Error("Failed to cancel booking");
     }
 };
