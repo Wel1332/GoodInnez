@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 import './GuestProfile.css';
 
-// --- ICONS (SVGs for Professional Look) ---
 const CheckIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12"></polyline>
@@ -25,19 +24,16 @@ export default function GuestProfile({ user }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Handle Tab Switching via Header Dropdown State
   useEffect(() => {
     if (location.state && location.state.tab) {
       setActiveTab(location.state.tab);
     }
   }, [location.state]);
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
-  // Fetch Bookings
   useEffect(() => {
     if (user) {
       fetch('http://localhost:8080/api/bookings')

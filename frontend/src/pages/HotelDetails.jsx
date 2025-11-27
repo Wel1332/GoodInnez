@@ -9,11 +9,9 @@ export default function HotelDetails() {
   const [hotel, setHotel] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // --- 1. NEW STATE: Track User Inputs ---
   const [dates, setDates] = useState({ checkIn: '', checkOut: '' });
   const [guests, setGuests] = useState(1);
 
-  // Fetch hotel data from Spring Boot
   useEffect(() => {
     fetch(`http://localhost:8080/api/hotels/${id}`)
       .then(res => res.json())
@@ -27,15 +25,11 @@ export default function HotelDetails() {
       });
   }, [id]);
 
-  // --- 2. UPDATE: Handle "Reserve" Click ---
   const handleReserve = () => {
-    // Basic Validation
     if (!dates.checkIn || !dates.checkOut) {
       alert("Please select a Check-in and Check-out date.");
       return;
     }
-
-    // Navigate to booking page and pass ALL data
     navigate('/booking', { 
       state: { 
         hotel: hotel, 

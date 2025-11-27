@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
-// REMOVED: import Header from './Header'; 
 import './MessagesPage.css';
 
-// Icons
 const SendIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>);
 
 export default function MessagesPage() {
   const [activeChat, setActiveChat] = useState(1);
-  
-  // Mock Data
   const conversations = [
     { id: 1, name: "John Doberman", date: "10:30 AM", preview: "Confirming your arrival time...", avatar: "JD", active: true },
     { id: 2, name: "Harry Parker", date: "Yesterday", preview: "Thanks for the great review!", avatar: "HP", active: false },

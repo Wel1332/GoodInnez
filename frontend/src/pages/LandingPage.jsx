@@ -1,8 +1,7 @@
-// src/components/LandingPage.jsx
 import React from 'react';
-import HeroSection from './HeroSection';
-import HotelsSection from './HotelsSection';
-import ActivitiesSection from './ActivitiesSection';
+import HeroSection from '../components/HeroSection';
+import HotelsSection from '../components/HotelsSection';
+import ActivitiesSection from '../components/ActivitiesSection';
 
 export default function LandingPage() {
   return (

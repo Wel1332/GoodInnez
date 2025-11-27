@@ -21,7 +21,6 @@
     border: 1px solid #eee;
   }
   
-  /* Sidebar */
   .msg-sidebar {
     border-right: 1px solid #eee;
     background-color: #fff;
@@ -58,7 +57,6 @@
   .msg-time { font-size: 0.75rem; color: #888; }
   .msg-preview { color: #666; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
   
-  /* Chat Window */
   .chat-window { display: flex; flex-direction: column; background-color: #fff; }
   
   .chat-header {

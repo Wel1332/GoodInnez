@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { api } from '../services/api'; // 1. Import API Service
-// REMOVED Header/Footer imports (App.jsx handles them)
+import { api } from '../services/api';
 import './BookingPage.css';
 
-// 2. Accept 'user' prop (passed from App.jsx)
 export default function BookingPage({ user }) {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Get data passed from HotelDetails page
   const { hotel, dates } = location.state || {}; 
-  
-  // Fallback if page is accessed directly without data
   const safeHotel = hotel || {
     name: "Sample Hotel",
     address: "Cebu City",
@@ -20,9 +14,7 @@ export default function BookingPage({ user }) {
     image: "/colorful-modern-hotel-room.jpg"
   };
 
-  // Form State
   const [formData, setFormData] = useState({
-    // Auto-fill if user is logged in
     fullName: user ? `${user.firstName} ${user.lastName}` : '',
     email: user ? user.email : '',
     phone: user ? user.phone : '',
@@ -31,29 +23,22 @@ export default function BookingPage({ user }) {
 
   const handleConfirm = async (e) => {
     e.preventDefault();
-
-    // 3. Check Login
     if (!user) {
       alert("You must be logged in to book a room.");
       return;
     }
-
-    // 4. Prepare Data for Backend
-    // This matches your Java 'Booking' entity structure
     const bookingPayload = {
-      // Format dates for SQL (YYYY-MM-DDTHH:MM:SS)
       checkinTime: dates?.checkIn ? `${dates.checkIn}T14:00:00` : null,
       checkoutTime: dates?.checkOut ? `${dates.checkOut}T11:00:00` : null,
       totalPrice: safeHotel.price || 1000,
-      guest: { guestID: user.guestID }, // Link to logged-in user
-      room: { roomID: 1 } // Placeholder: Assign Room #1 (We can improve this later)
+      guest: { guestID: user.guestID }, 
+      room: { roomID: 1 }
     };
 
     try {
-      // 5. Send to API
       await api.createBooking(bookingPayload);
       alert("Booking Successful! Thank you.");
-      navigate('/'); // Redirect to Home
+      navigate('/');
     } catch (error) {
       console.error("Booking Error:", error);
       alert("Booking failed. Please try again.");
@@ -163,10 +148,8 @@ export default function BookingPage({ user }) {
                   <span>$ {safeHotel.price || 1000}</span>
                 </div>
               </div>
-
             </div>
           </div>
-
         </div>
       </main>
     </div>

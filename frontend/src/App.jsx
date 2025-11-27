@@ -1,31 +1,30 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Components
+// --- Components (Reusable UI) ---
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import Signup from './components/Signup';
 
-// Pages
-import LandingPage from './components/LandingPage';
-import ListingPage from './components/ListingPage';
-import HotelDetails from './components/HotelDetails';
-import BookingPage from './components/BookingPage';
-import GuestProfile from './components/GuestProfile';
-import MessagesPage from './components/MessagesPage'; // New Import
-import NotificationsPage from './components/NotificationsPage'; // New Import
+// --- Pages (Full Screens) ---
+import LandingPage from './pages/LandingPage';
+import ListingPage from './pages/ListingPage';
+import HotelDetails from './pages/HotelDetails';
+import BookingPage from './pages/BookingPage';
+import GuestProfile from './pages/GuestProfile';
+import MessagesPage from './pages/MessagesPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 import './App.css';
 
 function App() {
-  // --- Global Auth State ---
+  // --- Auth State ---
   const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
+  const [authMode, setAuthMode] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
 
   // --- Handlers ---
-
   const handleOpenAuth = (mode = 'login') => {
     setAuthMode(mode);
     setShowAuth(true);
@@ -67,7 +66,6 @@ function App() {
     <Router>
       <div className="app">
         
-        {/* Global Header */}
         <Header 
           onOpenAuth={handleOpenAuth} 
           user={currentUser}
@@ -76,33 +74,18 @@ function App() {
 
         <main>
           <Routes>
-            {/* 1. Home Page */}
             <Route path="/" element={<LandingPage />} />
-            
-            {/* 2. Search Results */}
             <Route path="/search" element={<ListingPage />} />
-            
-            {/* 3. Hotel Details */}
             <Route path="/hotel/:id" element={<HotelDetails />} />
-            
-            {/* 4. Booking Page */}
             <Route path="/booking" element={<BookingPage user={currentUser} />} />
-
-            {/* 5. User Profile Dashboard */}
             <Route path="/profile" element={<GuestProfile user={currentUser} onLogout={handleLogout} />} />
-
-            {/* 6. Messages Page (New Route) */}
             <Route path="/messages" element={<MessagesPage user={currentUser} onLogout={handleLogout} />} />
-
-            {/* 7. Notifications Page (New Route) */}
             <Route path="/notifications" element={<NotificationsPage user={currentUser} onLogout={handleLogout} />} />
           </Routes>
         </main>
         
-        {/* Global Footer */}
         <Footer />
         
-        {/* Auth Modal */}
         {showAuth && renderAuthComponent()}
       </div>
     </Router>

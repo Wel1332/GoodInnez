@@ -1,9 +1,6 @@
-/* src/components/HotelDetails.css */
-
 .details-page {
     background-color: var(--bg-white);
     min-height: 100vh;
-    /* Space for the fixed header from App.jsx */
     padding-top: 80px;
     color: var(--text-black);
 }
@@ -14,7 +11,6 @@
     padding: 2rem 5%;
 }
 
-/* --- Gallery --- */
 .gallery-grid {
     display: grid;
     grid-template-columns: 1.5fr 1fr;
@@ -56,7 +52,6 @@
     cursor: pointer;
 }
 
-/* --- Host Header --- */
 .host-header {
     display: flex;
     align-items: center;
@@ -94,14 +89,12 @@
     color: var(--text-grey);
 }
 
-/* --- Layout (Left Content / Right Booking) --- */
 .details-layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 4rem;
 }
 
-/* Left Column */
 .title-row {
     display: flex;
     justify-content: space-between;
@@ -133,7 +126,6 @@
     margin-bottom: 2rem;
 }
 
-/* Feature Icons */
 .features-row {
     display: flex;
     gap: 1rem;
@@ -158,7 +150,6 @@
     font-size: 1.5rem;
 }
 
-/* Generic Sections */
 .section-block {
     margin-bottom: 3rem;
 }
@@ -175,7 +166,6 @@
     font-size: 0.95rem;
 }
 
-/* Amenities Grid */
 .amenities-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -191,7 +181,6 @@
     font-size: 0.95rem;
 }
 
-/* Buttons */
 .outline-btn {
     background: white;
     border: 1px solid var(--text-black);
@@ -208,7 +197,6 @@
     color: #fff;
 }
 
-/* Reviews */
 .reviews-header {
     display: flex;
     align-items: center;
@@ -257,7 +245,6 @@
     color: #555;
 }
 
-/* --- Right Column (Sticky Booking Card) --- */
 .booking-card {
     border: 1px solid #eee;
     border-radius: 20px;

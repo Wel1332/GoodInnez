@@ -28,7 +28,6 @@
   .mark-read-btn { background: none; border: none; font-weight: 600; color: #888; cursor: pointer; }
   .mark-read-btn:hover { color: #1a1a1a; text-decoration: underline; }
   
-  /* List */
   .notif-row {
     display: flex; align-items: flex-start; gap: 1.5rem;
     padding: 1.5rem 2rem;
@@ -39,7 +38,7 @@
   .notif-row:hover { background-color: #fafafa; }
   
   .notif-row.unread {
-    background-color: #FFFCF5; /* Subtle Gold Tint */
+    background-color: #FFFCF5;
     border-left: 4px solid #CCA43B;
   }
   
