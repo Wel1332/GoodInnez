@@ -1,0 +1,48 @@
+/* src/components/HostHeader.css */
+
+.host-nav-bar {
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 0 2rem;
+    /* Position it just below the main fixed header */
+    margin-top: 80px; 
+  }
+  
+  .host-nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+  
+  .host-link {
+    text-decoration: none;
+    color: #666;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 1rem 0.5rem;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  
+  .host-link:hover {
+    color: #1a1a1a;
+  }
+  
+  .host-link.active {
+    color: #1a1a1a;
+    border-bottom-color: #1a1a1a; /* Black underline for active tab */
+  }
+  
+  /* Special Style for "Add New" */
+  .host-link.add-new {
+    margin-left: auto; /* Pushes it to the far right */
+    color: #CCA43B; /* Gold */
+    border-bottom: none;
+  }
+  
+  .host-link.add-new:hover {
+    color: #b89335;
+    text-decoration: underline;
+  }

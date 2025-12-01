@@ -35,7 +35,16 @@ export default function Header({ onOpenAuth, user, onLogout }) {
           </nav>
 
           <div className="header-actions">
-            <button className="book-btn" onClick={() => onOpenAuth('login')}>Book now</button>
+            
+            {/* --- UPDATED BUTTON: Become a Partner --- */}
+            [cite_start]{/* If logged in -> Go to Host Dashboard [cite: 35] */}
+            {/* If logged out -> Open Login Modal */}
+            <button 
+              className="book-btn" 
+              onClick={() => user ? navigate('/host/properties') : onOpenAuth('login')}
+            >
+              Become a Partner
+            </button>
             
             <div className="auth-dropdown-container" ref={dropdownRef}>
                 {user ? (
@@ -66,7 +75,6 @@ export default function Header({ onOpenAuth, user, onLogout }) {
                     <div className="auth-dropdown-menu">
                         {user ? (
                             <>
-                                {/* --- UPDATED LINKS --- */}
                                 <button onClick={() => handleMenuClick(() => navigate('/messages'))}>
                                     Messages
                                 </button>
@@ -79,12 +87,18 @@ export default function Header({ onOpenAuth, user, onLogout }) {
                                 <button onClick={() => handleMenuClick(() => navigate('/profile'))}>
                                     My Profile
                                 </button>
-                                <button onClick={() => handleMenuClick(() => navigate('/profile'))}>
+                                <button onClick={() => handleMenuClick(() => navigate('/profile', { state: { tab: 'bookings' } }))}>
                                     Reservations
                                 </button>
                                 
                                 <div className="menu-divider"></div>
                                 
+                                {/* Added Host Link here too for convenience */}
+                                <button onClick={() => handleMenuClick(() => navigate('/host/properties'))}>
+                                    Switch to Hosting
+                                </button>
+
+                                <div className="menu-divider"></div>
                                 <button className="logout-btn" onClick={() => handleMenuClick(onLogout)}>
                                     Log out
                                 </button>

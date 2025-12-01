@@ -92,5 +92,39 @@ export const api = {
             method: "DELETE",
         });
         if (!response.ok) throw new Error("Failed to cancel booking");
+    },
+
+    updateGuest: async (id, userData) => {
+        const response = await fetch(`${API_BASE_URL}/guests/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(userData),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to update profile");
+        }
+        return await response.json();
+    },
+
+    rejectBooking: async (id) => {
+        const response = await fetch(`${API_BASE_URL}/bookings/${id}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) throw new Error("Failed to reject booking");
+    },
+
+    // --- HOST: APPROVE BOOKING (Mock for now) ---
+    approveBooking: async (id) => {
+        // In a real app, you'd send a PUT request to update status to 'CONFIRMED'
+        // For now, we will just return success
+        return new Promise((resolve) => setTimeout(resolve, 500)); 
+    },
+
+    deleteHotel: async (id) => {
+        const response = await fetch(`${API_BASE_URL}/hotels/${id}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) throw new Error("Failed to delete hotel");
     }
 };

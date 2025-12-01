@@ -44,6 +44,7 @@
   /* --- CRITICAL FIX: OVERFLOW VISIBLE --- */
   overflow: visible;
   position: relative;
+  z-index: 10;
 }
 
 /* --- Header: Title & Tabs --- */

@@ -1,11 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
+  /* --- Core Palette --- */
   --bg-cream: #F2F0E4;
   --bg-white: #FFFFFF;
   --accent-gold: #CCA43B;
-  --text-black: #1a1a1a;
-  --text-grey: #666666;
+  
+  /* --- Typography --- */
+  --text-black: #1a1a1a; /* Primary Text */
+  --text-grey: #666666;  /* Secondary Text */
+  
+  /* --- UI Elements (New for Dashboard) --- */
+  --border-light: #e5e5e5;
+  --bg-hover: #f9f9f9;
+  --danger-red: #d32f2f;
+  --success-green: #1e8e3e;
 }
 
 * {
@@ -20,13 +29,16 @@ html {
 
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: var(--bg-white);
+  
+  /* Global Background */
+  background-color: var(--bg-white); 
   color: var(--text-black);
-
+  
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
+/* Defaults for consistent UI */
 button {
   cursor: pointer;
   border: none;
@@ -39,8 +51,7 @@ a {
   color: inherit;
 }
 
-input,
-textarea,
-select {
+input, textarea, select {
   font-family: inherit;
+  color: var(--text-black); /* Ensures inputs aren't white-on-white */
 }
