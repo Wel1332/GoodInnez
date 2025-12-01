@@ -10,7 +10,7 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer uniqueID;
-
+    private String password;
     private String firstName;
     private String lastName;
     private String email;
@@ -26,6 +26,9 @@ public class Employee {
     private Hotel hotel;
 
     // Getters and Setters
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    
     public Integer getUniqueID() { return uniqueID; }
     public void setUniqueID(Integer uniqueID) { this.uniqueID = uniqueID; }
 

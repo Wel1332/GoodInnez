@@ -43,6 +43,20 @@ public class EmployeeController {
         return employeeRepository.findById(id).map(this::toDTO).orElse(null);
     }
 
+    @PostMapping("/login")
+    public org.springframework.http.ResponseEntity<?> login(@RequestBody java.util.Map<String, String> loginData) {
+        String email = loginData.get("email");
+        String password = loginData.get("password");
+
+        com.goodinnez.goodinnez.entity.Employee dbEmployee = employeeRepository.findByEmail(email);
+
+        if (dbEmployee != null && dbEmployee.getPassword() != null && dbEmployee.getPassword().equals(password)) {
+            return org.springframework.http.ResponseEntity.ok(toDTO(dbEmployee));
+        } else {
+            return org.springframework.http.ResponseEntity.status(401).body("Invalid credentials");
+        }
+    }
+    
     @PostMapping
     public Employee create(@RequestBody com.goodinnez.goodinnez.entity.Employee employee) {
         return toDTO(employeeRepository.save(employee));
