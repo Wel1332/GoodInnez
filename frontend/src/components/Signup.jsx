@@ -1,27 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '../services/api'
 import './Login.css' 
 
-export default function Signup({ onClose, onSwitchToLogin }) {
+export default function Signup({ onClose, onSwitchToLogin, isPartnerFlow }) {
     const maxDate = new Date().toISOString().split("T")[0];
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        phone: '',
-        address: '',
-        dateOfBirth: '',
-        email: '',
-        password: '',
-        agreedToTerms: false
-    })
+    
+    // Initialize toggle based on flow
+    const [isPartner, setIsPartner] = useState(isPartnerFlow);
 
+    const [formData, setFormData] = useState({
+        firstName: '', lastName: '', phone: '', address: '',
+        dateOfBirth: '', email: '', password: '', agreedToTerms: false
+    })
     const [showPassword, setShowPassword] = useState(false)
+
+    // Sync state if prop changes
+    useEffect(() => {
+        setIsPartner(isPartnerFlow);
+    }, [isPartnerFlow]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target
-        if (name === 'dateOfBirth' && value.length > 10) {
-            return;
-        }
+        if (name === 'dateOfBirth' && value.length > 10) return;
 
         setFormData(prev => ({
             ...prev,
@@ -35,9 +35,15 @@ export default function Signup({ onClose, onSwitchToLogin }) {
             alert('You must agree to the Terms of Service.')
             return
         }
-        api.registerGuest(formData)
+        
+        // Choose correct API call
+        const registerCall = isPartner 
+            ? api.registerEmployee(formData) 
+            : api.registerGuest(formData);
+
+        registerCall
             .then(() => {
-                alert('Account created! Please log in.')
+                alert(isPartner ? 'Partner account created! Please log in.' : 'Account created! Please log in.')
                 onSwitchToLogin() 
             })
             .catch((error) => {
@@ -51,13 +57,13 @@ export default function Signup({ onClose, onSwitchToLogin }) {
                 <button className="close-btn" onClick={onClose}>×</button>
                 
                 <div className="login-header">
-                    <h2>Create Account</h2>
-                    <p>Join Good Innez today!</p>
+                    {/* Dynamic Header */}
+                    <h2>{isPartner ? "Become a Partner" : "Create Account"}</h2>
+                    <p>{isPartner ? "Start hosting with Good Innez" : "Join Good Innez today!"}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="login-form">
                     
-                    {/* --- ROW 1: NAMES (Uses new CSS class) --- */}
                     <div className="name-row">
                         <div className="input-group">
                             <label>First Name</label>
@@ -73,7 +79,6 @@ export default function Signup({ onClose, onSwitchToLogin }) {
                         </div>
                     </div>
 
-                    {/* --- ROW 2: CONTACT --- */}
                     <div className="input-group">
                         <label>Phone Number</label>
                         <input type="tel" name="phone" placeholder="+1 234 567 890"
@@ -88,7 +93,6 @@ export default function Signup({ onClose, onSwitchToLogin }) {
                         />
                     </div>
 
-                    {/* --- ROW 3: DOB & EMAIL --- */}
                     <div className="input-group">
                             <label>Date of Birth</label>
                             <input 
@@ -96,7 +100,7 @@ export default function Signup({ onClose, onSwitchToLogin }) {
                                 name="dateOfBirth"
                                 value={formData.dateOfBirth}
                                 onChange={handleChange}
-                                max={maxDate} // Prevents selecting future dates
+                                max={maxDate} 
                                 required 
                             />
                     </div>
@@ -108,7 +112,6 @@ export default function Signup({ onClose, onSwitchToLogin }) {
                         />
                     </div>
 
-                    {/* --- ROW 4: PASSWORD --- */}
                     <div className="input-group">
                         <label>Password</label>
                         <div className="password-input-wrapper">
@@ -143,13 +146,35 @@ export default function Signup({ onClose, onSwitchToLogin }) {
                             <span className="checkmark"></span>
                             I agree to the Terms & Policy
                         </label>
+
+                        {/* Only show this checkbox if user came from 'Sign Up', not 'Become a Partner' */}
+                        {!isPartnerFlow && (
+                            <div style={{marginTop: '10px'}}>
+                                <label className="checkbox-container" style={{color: '#CCA43B'}}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={isPartner} 
+                                        onChange={(e) => setIsPartner(e.target.checked)} 
+                                    />
+                                    <span className="checkmark"></span>
+                                    Sign up as a Host/Partner
+                                </label>
+                            </div>
+                        )}
                     </div>
 
-                    <button type="submit" className="login-btn">Sign Up</button>
+                    <button type="submit" className="login-btn">
+                        {isPartner ? "Register as Partner" : "Sign Up"}
+                    </button>
                 </form>
 
-                <div className="divider"><span>Or continue with</span></div>
-                <button className="google-btn"><span className="google-icon">G</span> Google</button>
+                <div className="divider">
+                    <span>Or continue with</span>
+                </div>
+
+                <button className="google-btn">
+                    <span className="google-icon">G</span> Google
+                </button>
 
                 <p className="signup-prompt">
                     Already have an account? 

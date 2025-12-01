@@ -1,9 +1,7 @@
 package com.goodinnez.goodinnez.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.*;
-
 import java.time.LocalTime;
 import java.util.List;
 
@@ -20,14 +18,16 @@ public class Hotel {
     private Integer stars;
     private LocalTime checkinTime;
     private LocalTime checkoutTime;
+
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference(value = "hotel-employee") // <--- ADD UNIQUE NAME
     private List<Employee> employees;
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference(value = "hotel-room") // <--- ADD UNIQUE NAME
     private List<Room> rooms;
 
+    // ... getters and setters ...
     public Integer getHotelID() { return hotelID; }
     public void setHotelID(Integer hotelID) { this.hotelID = hotelID; }
 

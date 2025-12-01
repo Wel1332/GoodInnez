@@ -17,12 +17,12 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "guestid")
-    @JsonBackReference
+    @JsonBackReference(value = "guest-booking") // <--- UNIQUE NAME 1
     private Guest guest;
 
     @ManyToOne
     @JoinColumn(name = "room_number")
-    @JsonBackReference
+    @JsonBackReference(value = "room-booking")  // <--- UNIQUE NAME 2
     private Room room;
 
     // Getters and Setters

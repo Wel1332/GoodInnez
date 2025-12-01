@@ -15,17 +15,19 @@ public class Room {
 
     @ManyToOne
     @JoinColumn(name = "hotelid")
-    @JsonBackReference
+    @JsonBackReference(value = "hotel-room") // Matches Hotel.java
     private Hotel hotel;
 
     @ManyToOne
     @JoinColumn(name = "typeid")
-    @JsonBackReference
+    @JsonBackReference(value = "room-type") // Matches RoomType.java
     private RoomType roomType;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference(value = "room-booking") // Matches Booking.java
     private List<Booking> bookings;
+
+    // Getters and Setters
     public Integer getRoomID() { return roomID; }
     public void setRoomID(Integer roomID) { this.roomID = roomID; }
 

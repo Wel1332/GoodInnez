@@ -20,7 +20,7 @@ export const api = {
         return await response.json();
     },
 
-    // --- REGISTER ---
+    // --- REGISTER GUEST ---
     registerGuest: async (userData) => {
         const payload = {
             firstName: userData.firstName,
@@ -42,10 +42,38 @@ export const api = {
             const errorText = await response.text();
             throw new Error(errorText || "Registration failed");
         }
-        return await response.json();
+        const data = await response.json();
+        return { ...data, type: 'guest' }; // Explicitly mark as guest
     },
 
-    // --- LOGIN ---
+    // --- REGISTER PARTNER (EMPLOYEE) ---
+    registerEmployee: async (userData) => {
+        const payload = {
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            email: userData.email,
+            password: userData.password,
+            phone: userData.phone,
+            dateOfBirth: userData.dateOfBirth,
+            position: "Partner", // Auto-assign position
+            hireDate: new Date().toISOString().split('T')[0],
+            salary: 0 
+        };
+
+        const response = await fetch(`${API_BASE_URL}/employees`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            throw new Error("Partner registration failed");
+        }
+        const data = await response.json();
+        return { ...data, type: 'employee' }; // Mark as employee for AddHotel check
+    },
+
+    // --- LOGIN GUEST ---
     login: async (credentials) => {
         const response = await fetch(`${API_BASE_URL}/guests/login`, {
             method: "POST",
@@ -54,7 +82,21 @@ export const api = {
         });
 
         if (!response.ok) throw new Error("Invalid credentials");
-        return await response.json(); 
+        const data = await response.json(); 
+        return { ...data, type: 'guest' };
+    },
+
+    // --- LOGIN PARTNER (EMPLOYEE) ---
+    loginEmployee: async (credentials) => {
+        const response = await fetch(`${API_BASE_URL}/employees/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(credentials),
+        });
+
+        if (!response.ok) throw new Error("Invalid partner credentials");
+        const data = await response.json();
+        return { ...data, type: 'employee' };
     },
     
     // --- DELETE USER ---
@@ -64,7 +106,7 @@ export const api = {
         });
     },
 
-    // --- GET ALL BOOKINGS (New) ---
+    // --- GET ALL BOOKINGS ---
     getBookings: async () => {
         const response = await fetch(`${API_BASE_URL}/bookings`);
         if (!response.ok) throw new Error("Failed to fetch bookings");
@@ -86,7 +128,7 @@ export const api = {
         return await response.json();
     },
 
-    // --- CANCEL BOOKING (New - Required for Reservations Page) ---
+    // --- CANCEL BOOKING ---
     cancelBooking: async (id) => {
         const response = await fetch(`${API_BASE_URL}/bookings/${id}`, {
             method: "DELETE",
@@ -116,9 +158,18 @@ export const api = {
 
     // --- HOST: APPROVE BOOKING (Mock for now) ---
     approveBooking: async (id) => {
-        // In a real app, you'd send a PUT request to update status to 'CONFIRMED'
-        // For now, we will just return success
         return new Promise((resolve) => setTimeout(resolve, 500)); 
+    },
+
+    // --- HOST: CREATE HOTEL ---
+    createHotel: async (hotelData) => {
+        const response = await fetch(`${API_BASE_URL}/hotels`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(hotelData),
+        });
+        if (!response.ok) throw new Error("Failed to create hotel");
+        return await response.json();
     },
 
     deleteHotel: async (id) => {

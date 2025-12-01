@@ -7,6 +7,7 @@ import java.util.List;
 
 @Entity
 public class RoomType {
+    // ... fields ...
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer typeID;
@@ -17,8 +18,10 @@ public class RoomType {
     private BigDecimal pricePerNight;
 
     @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference(value = "room-type") // <--- MATCH ROOM NAME
     private List<Room> rooms;
+
+    // ... getters and setters ...
     public Integer getTypeID() { return typeID; }
     public void setTypeID(Integer typeID) { this.typeID = typeID; }
 

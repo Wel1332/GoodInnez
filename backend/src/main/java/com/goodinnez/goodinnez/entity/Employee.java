@@ -10,6 +10,7 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer uniqueID;
+    // ... other fields ...
     private String password;
     private String firstName;
     private String lastName;
@@ -22,10 +23,11 @@ public class Employee {
 
     @ManyToOne
     @JoinColumn(name = "hotelid")
-    @JsonBackReference
+    @JsonBackReference(value = "hotel-employee") // <--- MATCH THE NAME
     private Hotel hotel;
 
-    // Getters and Setters
+    // ... getters and setters ...
+    // (Ensure you keep existing fields and getters/setters)
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
     
@@ -58,4 +60,4 @@ public class Employee {
 
     public LocalDate getHireDate() { return hireDate; }
     public void setHireDate(LocalDate hireDate) { this.hireDate = hireDate; }
-}
+}   

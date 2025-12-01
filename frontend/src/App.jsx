@@ -16,7 +16,7 @@ import GuestProfile from './pages/GuestProfile';
 import MessagesPage from './pages/MessagesPage';
 import NotificationsPage from './pages/NotificationsPage';
 
-// --- Host Pages (New) ---
+// --- Host Pages ---
 import HostProperties from "./pages/host/HostProperties";
 import AddProperty from "./pages/host/AddProperty";
 import HostReservations from "./pages/host/HostReservations";
@@ -29,17 +29,23 @@ function App() {
   // --- Auth State ---
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+  
+  // New state to track if the user clicked "Become a Partner"
+  const [isPartnerFlow, setIsPartnerFlow] = useState(false);
+
   const [currentUser, setCurrentUser] = useState(null);
 
   // --- Handlers ---
-  const handleOpenAuth = (mode = 'login') => {
+  const handleOpenAuth = (mode = 'login', isPartner = false) => {
     setAuthMode(mode);
+    setIsPartnerFlow(isPartner); // Set flow type based on button clicked
     setShowAuth(true);
   };
 
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
     setShowAuth(false);
+    setIsPartnerFlow(false); // Reset flow
     alert(`Welcome back, ${user.firstName}!`);
   };
 
@@ -49,7 +55,10 @@ function App() {
   };
 
   const renderAuthComponent = () => {
-    const commonProps = { onClose: () => setShowAuth(false) };
+    const commonProps = { 
+        onClose: () => setShowAuth(false),
+        isPartnerFlow: isPartnerFlow // Pass flow state to modals
+    };
     
     if (authMode === 'login') {
       return (
@@ -93,7 +102,7 @@ function App() {
             <Route path="/messages" element={<MessagesPage user={currentUser} onLogout={handleLogout} />} />
             <Route path="/notifications" element={<NotificationsPage user={currentUser} onLogout={handleLogout} />} />
 
-            {/* --- HOST ROUTES (New) --- */}
+            {/* --- HOST ROUTES --- */}
             <Route path="/host" element={<HostProperties user={currentUser} />} />
             <Route path="/host/properties" element={<HostProperties user={currentUser} />} />
             <Route path="/host/add" element={<AddProperty user={currentUser} />} />

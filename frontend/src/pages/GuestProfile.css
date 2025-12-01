@@ -1,4 +1,4 @@
-/* src/components/GuestProfile.css */
+/* src/pages/GuestProfile.css */
 
 /* --- GLOBAL PROFILE VARS --- */
 :root {
@@ -90,19 +90,25 @@
 
 /* Modern Form */
 .modern-form { display: flex; flex-direction: column; gap: 1.5rem; }
-.input-group { display: flex; flex-direction: column; gap: 0.5rem; }
-.input-group label { font-size: 0.85rem; font-weight: 600; color: var(--primary-black); }
 
-.input-group input, .input-group textarea {
+/* --- UPDATE 1: Scoped to .modern-form to prevent affecting Login.jsx --- */
+.modern-form .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.modern-form .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--primary-black); }
+
+/* --- UPDATE 2: Scoped input styles --- */
+.modern-form .input-group input, 
+.modern-form .input-group textarea {
   width: 100%; padding: 1rem; border: 1px solid #B0B0B0; border-radius: 12px;
   font-size: 1rem; font-family: inherit; outline: none; transition: border 0.2s;
   
-  /* --- FIX: Force text color to black and background to white --- */
+  /* These !important tags were overriding the Login Modal. 
+     By scoping with .modern-form, they are now safe. */
   color: var(--primary-black) !important; 
   background-color: #FFFFFF !important;
 }
 
-.input-group input:focus, .input-group textarea:focus {
+.modern-form .input-group input:focus, 
+.modern-form .input-group textarea:focus {
   border-color: var(--primary-black); box-shadow: 0 0 0 1px var(--primary-black);
 }
 
