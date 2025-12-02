@@ -95,6 +95,7 @@ CREATE TABLE `guest` (
   `address` varchar(255) DEFAULT NULL,
   `date_of_birth` date DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `first_name` varchar(255) DEFAULT NULL,
   `last_name` varchar(255) DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
