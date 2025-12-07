@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// --- Components (Reusable UI) ---
+// Components
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import Signup from './components/Signup';
 
-// --- Guest Pages ---
+// Guest Pages
 import LandingPage from './pages/LandingPage';
 import ListingPage from './pages/ListingPage';
 import HotelDetails from './pages/HotelDetails';
@@ -16,49 +16,50 @@ import GuestProfile from './pages/GuestProfile';
 import MessagesPage from './pages/MessagesPage';
 import NotificationsPage from './pages/NotificationsPage';
 
-// --- Host Pages ---
-import HostProperties from "./pages/host/HostProperties";
-import AddProperty from "./pages/host/AddProperty";
-import HostReservations from "./pages/host/HostReservations";
+// Host Pages
+import HostProperties from './pages/host/HostProperties';
+import AddProperty from './pages/host/AddProperty';
+import HostReservations from './pages/host/HostReservations';
 import HostDashboard from './pages/host/HostDashboard';
 import HostTransactions from './pages/host/HostTransactions';
 
 import './App.css';
 
 function App() {
-  // --- Auth State ---
+  // --- Auth State with Persistence ---
+  // 1. Initialize state by checking Local Storage first
+  const [currentUser, setCurrentUser] = useState(() => {
+    const savedUser = localStorage.getItem('goodinnez_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState('login');
-  
-  // New state to track if the user clicked "Become a Partner"
-  const [isPartnerFlow, setIsPartnerFlow] = useState(false);
-
-  const [currentUser, setCurrentUser] = useState(null);
 
   // --- Handlers ---
-  const handleOpenAuth = (mode = 'login', isPartner = false) => {
+  const handleOpenAuth = (mode = 'login') => {
     setAuthMode(mode);
-    setIsPartnerFlow(isPartner); // Set flow type based on button clicked
     setShowAuth(true);
   };
 
   const handleLoginSuccess = (user) => {
+    // 2. Save user to Local Storage on login
+    localStorage.setItem('goodinnez_user', JSON.stringify(user));
     setCurrentUser(user);
     setShowAuth(false);
-    setIsPartnerFlow(false); // Reset flow
     alert(`Welcome back, ${user.firstName}!`);
   };
 
   const handleLogout = () => {
+    // 3. Remove user from Local Storage on logout
+    localStorage.removeItem('goodinnez_user');
     setCurrentUser(null);
     alert("You have been logged out.");
+    window.location.href = '/'; // Force redirect to home
   };
 
   const renderAuthComponent = () => {
-    const commonProps = { 
-        onClose: () => setShowAuth(false),
-        isPartnerFlow: isPartnerFlow // Pass flow state to modals
-    };
+    const commonProps = { onClose: () => setShowAuth(false) };
     
     if (authMode === 'login') {
       return (
@@ -82,7 +83,6 @@ function App() {
     <Router>
       <div className="app">
         
-        {/* Global Header */}
         <Header 
           onOpenAuth={handleOpenAuth} 
           user={currentUser}
@@ -91,7 +91,7 @@ function App() {
 
         <main>
           <Routes>
-            {/* --- GUEST ROUTES --- */}
+            {/* Guest Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/search" element={<ListingPage />} />
             <Route path="/hotel/:id" element={<HotelDetails />} />
@@ -102,21 +102,19 @@ function App() {
             <Route path="/messages" element={<MessagesPage user={currentUser} onLogout={handleLogout} />} />
             <Route path="/notifications" element={<NotificationsPage user={currentUser} onLogout={handleLogout} />} />
 
-            {/* --- HOST ROUTES --- */}
+            {/* Host Routes */}
             <Route path="/host" element={<HostProperties user={currentUser} />} />
             <Route path="/host/properties" element={<HostProperties user={currentUser} />} />
             <Route path="/host/add" element={<AddProperty user={currentUser} />} />
             <Route path="/host/reservations" element={<HostReservations user={currentUser} />} />
-            <Route path="/host" element={<HostDashboard user={currentUser} />} />
-            <Route path="/host/transactions" element={<HostTransactions />} />
+            <Route path="/host/dashboard" element={<HostDashboard user={currentUser} />} />
+            <Route path="/host/transactions" element={<HostTransactions user={currentUser} />} />
 
           </Routes>
         </main>
         
-        {/* Global Footer */}
         <Footer />
         
-        {/* Auth Modal */}
         {showAuth && renderAuthComponent()}
       </div>
     </Router>

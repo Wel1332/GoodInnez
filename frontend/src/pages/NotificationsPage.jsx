@@ -1,52 +1,28 @@
 import React from 'react';
-import './NotificationsPage.css';
-
-const BellIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>);
-const CloseIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
+import { Bell, X } from 'lucide-react';
 
 export default function NotificationsPage() {
   return (
-    <div className="notif-page">
-      {/* REMOVED: <Header ... /> */}
-      
-      <main className="notif-container">
-        <div className="notif-card-main">
-          <div className="notif-header">
-            <h1>All Notifications</h1>
-            <button className="mark-read-btn">Mark all as read</button>
-          </div>
-
-          <div className="notif-list">
-            <div className="notif-row unread">
-               <div className="notif-icon alert"><BellIcon /></div>
-               <div className="notif-details">
-                 <h4>Invite Your Friends!</h4>
-                 <p>Get $50 credit for every friend who books a trip with your referral code.</p>
-                 <span className="time">Just now</span>
-               </div>
-               <button className="dismiss-btn"><CloseIcon /></button>
+    <div className="bg-gray-50 min-h-screen pt-28 pb-16">
+      <main className="max-w-[800px] mx-auto px-6">
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-8 border-b border-gray-100 flex justify-between items-center">
+                <h1 className="text-3xl font-extrabold text-black">Notifications</h1>
+                <button className="text-gray-400 font-bold hover:text-black">Mark all read</button>
             </div>
-
-            <div className="notif-row">
-               <div className="notif-icon"><BellIcon /></div>
-               <div className="notif-details">
-                 <h4>Booking Confirmed</h4>
-                 <p>Your reservation at Luxury Hotel Stay is confirmed for March 12.</p>
-                 <span className="time">2 hours ago</span>
-               </div>
-               <button className="dismiss-btn"><CloseIcon /></button>
+            <div className="flex flex-col">
+                {[1,2,3].map(i => (
+                    <div key={i} className="flex gap-6 p-6 border-b border-gray-50 hover:bg-gray-50 transition-colors items-start">
+                        <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-black shrink-0"><Bell size={20}/></div>
+                        <div className="flex-1">
+                            <h4 className="font-bold text-black mb-1">New Reservation Alert</h4>
+                            <p className="text-gray-500 text-sm leading-relaxed">Alice Smith booked Luxury Room for Dec 24.</p>
+                            <span className="text-xs text-gray-400 font-bold mt-2 block">2 hours ago</span>
+                        </div>
+                        <button className="text-gray-300 hover:text-black"><X size={20}/></button>
+                    </div>
+                ))}
             </div>
-
-            <div className="notif-row">
-               <div className="notif-icon"><BellIcon /></div>
-               <div className="notif-details">
-                 <h4>New Privacy Alert</h4>
-                 <p>We've updated our privacy policy to better protect your data.</p>
-                 <span className="time">12 Mar 2021</span>
-               </div>
-               <button className="dismiss-btn"><CloseIcon /></button>
-            </div>
-          </div>
         </div>
       </main>
     </div>

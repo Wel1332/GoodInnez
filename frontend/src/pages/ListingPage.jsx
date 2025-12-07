@@ -1,126 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import './ListingPage.css';
-
-const categories = ["All Rooms", "Standard", "Deluxe", "Suite", "Family", "Ocean View"];
+import { useNavigate } from 'react-router-dom';
+import { SlidersHorizontal } from 'lucide-react';
+import HotelCard from '../components/HotelCard';
+import { api } from '../services/api';
 
 export default function ListingPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  const [activeCategory, setActiveCategory] = useState("All Rooms");
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
-  const searchParams = location.state || {}; 
-  const searchLocation = searchParams.location || ""; 
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/hotels')
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch');
-        return response.json();
-      })
-      .then(data => {
-        const filtered = searchLocation 
-          ? data.filter(h => 
-              (h.name && h.name.toLowerCase().includes(searchLocation.toLowerCase())) ||
-              (h.address && h.address.toLowerCase().includes(searchLocation.toLowerCase()))
-            )
-          : data;
-
-        setHotels(filtered);
+    api.getHotels().then(data => {
+        setHotels(data.map((h, i) => ({ ...h, id: h.hotelID, image: i % 2 === 0 ? '/hop-inn-hotel.jpg' : '/seda-ayala-center.jpg' })));
         setLoading(false);
-      })
-      .catch(error => {
-        console.error("Error loading hotels:", error);
-        setLoading(false);
-      });
-  }, [searchLocation]);
-
-  const handleCardClick = (id) => {
-    navigate(`/hotel/${id}`);
-  };
+    });
+  }, []);
 
   return (
-    <div className="listing-container">
-        
-        {/* --- Filter Bar --- */}
-        <div className="filter-bar">
-          <div className="categories">
-            {categories.map((cat) => (
-              <button 
-                key={cat}
-                className={`cat-link ${activeCategory === cat ? 'active' : ''}`}
-                onClick={() => setActiveCategory(cat)}
-              >
-                {cat}
-              </button>
+    <div className="bg-white min-h-screen pt-24 pb-20">
+      <div className="max-w-[1400px] mx-auto px-8">
+        <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
+          <div className="flex gap-8 overflow-x-auto pb-2">
+            {["All Rooms", "Standard", "Deluxe", "Suite"].map(cat => (
+                <button key={cat} className="text-gray-500 font-semibold hover:text-black hover:border-b-2 border-gold pb-1 transition-all">{cat}</button>
             ))}
           </div>
-          <button className="filter-btn">Filters ⚙️</button>
+          <button className="flex items-center gap-2 border border-gray-300 px-5 py-2 rounded-full font-semibold hover:border-black transition-colors">
+            Filters <SlidersHorizontal size={16}/>
+          </button>
         </div>
 
-        {/* --- Search Results Header --- */}
-        <div className="results-header">
-          <h2>
-            {searchLocation ? `Stays in "${searchLocation}"` : "All Available Stays"}
-          </h2>
-          <p>{hotels.length} properties found</p>
-        </div>
-
-        {/* --- Listings Grid --- */}
-        {loading ? (
-          <div className="loading-container">
-            <p>Loading properties...</p>
-          </div>
-        ) : (
-          <div className="listings-grid">
-            {hotels.map((hotel, index) => (
-              <div 
-                key={hotel.hotelID || index} 
-                className="listing-card"
-                onClick={() => handleCardClick(hotel.hotelID)}
-              >
-                
-                <div className="listing-image-box">
-                  <img 
-                    src={index % 2 === 0 ? 
-                      "/colorful-modern-hotel-room.jpg" : 
-                      "/luxury-hotel-room.png"
-                    } 
-                    alt={hotel.name} 
-                  />
-                  <button className="card-heart" onClick={(e) => e.stopPropagation()}>♡</button>
-                  <div className="card-price">$100 - 300 / night</div>
-                </div>
-                
-                <div className="listing-info">
-                  <div className="listing-title-row">
-                    <h3>{hotel.name}</h3>
-                    <div className="star-rating">
-                      {'★'.repeat(hotel.stars || 0)}
-                      <span className="star-empty">{'★'.repeat(5 - (hotel.stars || 0))}</span>
-                    </div>
-                  </div>
-                  
-                  <p className="listing-location">📍 {hotel.address}</p>
-                  <p className="listing-phone">📞 {hotel.phone || "Contact for details"}</p>
-                  
-                  <button className="check-rates-btn">Check Rates</button>
-                </div>
-              </div>
-            ))}
-          </div>
+        <h2 className="text-3xl font-extrabold mb-8 text-black">All Available Stays</h2>
+        {loading ? <p>Loading...</p> : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {hotels.map(hotel => (<div key={hotel.id} onClick={() => navigate(`/hotel/${hotel.id}`)}><HotelCard hotel={hotel} /></div>))}
+            </div>
         )}
-
-        {!loading && hotels.length === 0 && (
-          <div className="no-results">
-            <h3>No properties found matching your search.</h3>
-          </div>
-        )}
-
-        <div className="pagination">Pagination or Load on scroll...</div>
-
+      </div>
     </div>
   );
 }

@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
-import './GuestProfile.css';
-
-// --- ICONS ---
-const CheckIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>);
+import { Check, Edit, MapPin } from 'lucide-react';
 
 export default function GuestProfile({ user }) {
   const navigate = useNavigate();
@@ -15,20 +12,18 @@ export default function GuestProfile({ user }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // --- 1. NEW: Form State for Editing ---
+  // Form State
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    address: '',
-    email: '',
-    phone: ''
+    firstName: '', lastName: '', address: '', email: '', phone: ''
   });
 
-  // Redirect if not logged in
+  useEffect(() => {
+    if (location.state && location.state.tab) setActiveTab(location.state.tab);
+  }, [location.state]);
+
   useEffect(() => {
     if (!user) navigate('/');
     else {
-      // Initialize form with user data
       setFormData({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
@@ -39,170 +34,140 @@ export default function GuestProfile({ user }) {
     }
   }, [user, navigate]);
 
-  // Handle Tab Switching
-  useEffect(() => {
-    if (location.state && location.state.tab) {
-      setActiveTab(location.state.tab);
-    }
-  }, [location.state]);
-
-  // Fetch Bookings
   useEffect(() => {
     if (user) {
-      fetch('http://localhost:8080/api/bookings')
-        .then(res => res.json())
+      api.getBookings()
         .then(data => {
-          const myBookings = data.filter(b => b.guestID === user.guestID);
-          setBookings(myBookings);
-          setLoading(false);
+            setBookings(data.filter(b => b.guestID === user.guestID));
+            setLoading(false);
         })
-        .catch(err => setLoading(false));
+        .catch(() => setLoading(false));
     }
   }, [user]);
 
-  // --- 2. NEW: Input Change Handler ---
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  // --- 3. NEW: Save Profile Handler ---
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     try {
-      // Call the update API (Ensure updateGuest is in api.js)
       await api.updateGuest(user.guestID, formData);
       alert("Profile updated successfully!");
-      // Optional: Reload to show new data if your app doesn't auto-refresh user context
-      // window.location.reload();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to update profile.");
+    } catch (error) { alert("Failed to update profile."); }
+  };
+
+  const handleCancel = async (id) => {
+    if (window.confirm("Cancel this reservation?")) {
+        await api.cancelBooking(id);
+        setBookings(prev => prev.filter(b => b.bookingID !== id));
     }
   };
 
-  const handleCancel = async (id) => { /* ... cancel logic ... */ };
-
-  const filteredBookings = bookings.filter(booking => {
-    const checkOutDate = new Date(booking.checkoutTime);
-    return bookingTab === 'upcoming' ? checkOutDate >= new Date() : checkOutDate < new Date();
+  const filteredBookings = bookings.filter(b => {
+    const isPast = new Date(b.checkoutTime) < new Date();
+    return bookingTab === 'upcoming' ? !isPast : isPast;
   });
 
   if (!user) return null;
 
   return (
-    <div className="profile-page">
-      <div className="profile-container">
+    <div className="bg-white min-h-screen pt-20 pb-24 text-black">
+      <div className="max-w-[1120px] mx-auto px-8 py-12 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-20 items-start">
         
-        {/* Sidebar (Left) */}
-        <div className="profile-sidebar">
-          <div className="identity-card">
-            <div className="avatar-section">
-              <div className="avatar-circle-large">{user.firstName.charAt(0).toUpperCase()}</div>
-              <button className="upload-btn">Update Photo</button>
+        {/* Sidebar */}
+        <div className="border border-gray-200 rounded-3xl p-8 text-center bg-white shadow-sm sticky top-28">
+            <div className="w-32 h-32 bg-black text-white rounded-full mx-auto mb-4 flex items-center justify-center text-5xl font-bold">
+                {user.firstName.charAt(0).toUpperCase()}
             </div>
-            {/* ... Identity Verification Section ... */}
-             <div className="identity-section">
-              <h3>Identity Verification</h3>
-              <p className="identity-desc">Show others you're really you with the identity verification badge.</p>
-              <div className="verification-list">
-                 <div className="verified-item"><div className="check-circle"><CheckIcon /></div><span>Email Confirmed</span></div>
-                 <div className="verified-item"><div className="check-circle"><CheckIcon /></div><span>Mobile Confirmed</span></div>
-              </div>
+            <button className="text-sm font-bold underline cursor-pointer mb-8 block mx-auto text-black">Update Photo</button>
+            
+            <h3 className="text-lg font-extrabold mb-2 text-left">Identity Verification</h3>
+            <p className="text-sm text-gray-500 text-left mb-6 leading-relaxed">Show others you're really you with the identity verification badge.</p>
+            
+            <div className="flex flex-col gap-2 text-left">
+                <div className="flex items-center gap-3 text-sm text-gray-700 font-medium"><Check size={16}/> Email Confirmed</div>
+                <div className="flex items-center gap-3 text-sm text-gray-700 font-medium"><Check size={16}/> Mobile Confirmed</div>
             </div>
-            <hr className="sidebar-divider" />
-            <div className="user-meta">
-               <h3>{user.firstName} confirmed</h3>
-               <div className="verified-item"><div className="check-circle"><CheckIcon /></div><span>Payment Methods</span></div>
+
+            <div className="border-t border-gray-100 my-8"></div>
+            
+            <div className="text-left">
+                <h3 className="text-lg font-extrabold mb-4">Confirmed info</h3>
+                <div className="flex items-center gap-3 text-sm text-gray-700 font-medium"><Check size={16}/> Payment Methods</div>
             </div>
-          </div>
+
+            {/* Mini Nav */}
+            <div className="mt-8 flex flex-col gap-2">
+                 <button className={`text-left text-sm font-bold py-2 hover:text-black transition-colors ${activeTab === 'profile' ? 'text-black underline' : 'text-gray-400'}`} onClick={() => setActiveTab('profile')}>Edit Profile</button>
+                 <button className={`text-left text-sm font-bold py-2 hover:text-black transition-colors ${activeTab === 'bookings' ? 'text-black underline' : 'text-gray-400'}`} onClick={() => setActiveTab('bookings')}>Reservations</button>
+            </div>
         </div>
 
-        {/* Content (Right) */}
-        <div className="profile-content">
-          
-          {/* EDIT PROFILE TAB */}
+        {/* Content */}
+        <div>
+          {/* Edit Profile */}
           {activeTab === 'profile' && (
-            <div className="content-wrapper fade-in">
-               <div className="content-header">
-                 <div className="header-text">
-                    <h1>Hello, {user.firstName}</h1>
-                    <p className="sub-text">Joined in 2024</p>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <div className="flex justify-between items-start mb-12">
+                 <div>
+                    <h1 className="text-4xl font-extrabold mb-1">Hello, {user.firstName}</h1>
+                    <p className="text-gray-500 text-sm">Joined in 2024</p>
                  </div>
-                 {/* This button can just scroll to form or be decorative since form is below */}
-                 <button className="secondary-btn">Edit Profile</button>
+                 <button className="border border-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-50 transition-colors">Edit Profile</button>
                </div>
 
-               {/* --- CONNECTED FORM --- */}
-               <form className="modern-form" onSubmit={handleSaveProfile}>
-                  
-                  <div className="form-row">
-                    <div className="input-group">
-                        <label>First Name</label>
-                        <input 
-                          type="text" 
-                          name="firstName" 
-                          value={formData.firstName} 
-                          onChange={handleInputChange} 
-                        />
-                    </div>
+               <form className="flex flex-col gap-6" onSubmit={handleSaveProfile}>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div><label className="block text-sm font-bold mb-2">First Name</label><input type="text" className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:border-black transition-colors" value={formData.firstName} onChange={e=>setFormData({...formData, firstName:e.target.value})} /></div>
+                    <div><label className="block text-sm font-bold mb-2">Last Name</label><input type="text" className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:border-black transition-colors" value={formData.lastName} onChange={e=>setFormData({...formData, lastName:e.target.value})} /></div>
                   </div>
+                  <div><label className="block text-sm font-bold mb-2">Location</label><input type="text" className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:border-black transition-colors" placeholder="Add location" value={formData.address} onChange={e=>setFormData({...formData, address:e.target.value})} /></div>
+                  <div><label className="block text-sm font-bold mb-2">About</label><textarea rows="4" className="w-full p-4 border border-gray-300 rounded-xl outline-none focus:border-black transition-colors resize-none" placeholder="Tell us about yourself..."></textarea></div>
 
-                  <div className="form-row">
-                    <div className="input-group">
-                        <label>Last Name</label>
-                        <input 
-                          type="text" 
-                          name="lastName" 
-                          value={formData.lastName} 
-                          onChange={handleInputChange} 
-                        />
-                    </div>
-                  </div>
-                  
-                  <div className="form-row">
-                    <div className="input-group">
-                        <label>Location / Address</label>
-                        <input 
-                          type="text" 
-                          name="address" 
-                          placeholder="Add your location"
-                          value={formData.address} 
-                          onChange={handleInputChange} 
-                        />
-                    </div>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="input-group">
-                        <label>Phone</label>
-                        <input 
-                          type="text" 
-                          name="phone" 
-                          placeholder="Add phone number"
-                          value={formData.phone} 
-                          onChange={handleInputChange} 
-                        />
-                    </div>
-                  </div>
-
-                  <div className="form-actions">
-                     <button type="button" className="text-btn">Cancel</button>
-                     <button type="submit" className="primary-btn">Save Changes</button>
+                  <div className="flex justify-end gap-6 pt-8 border-t border-gray-100 mt-4">
+                     <button type="button" className="font-bold text-sm hover:underline">Cancel</button>
+                     <button type="submit" className="bg-black text-white px-8 py-3 rounded-full font-bold text-sm hover:opacity-90">Save Changes</button>
                   </div>
                </form>
             </div>
           )}
 
-          {/* ... Reservations Tab Code (Unchanged) ... */}
-           {activeTab === 'bookings' && (
-            <div className="content-wrapper fade-in">
-              {/* ... existing reservations code ... */}
-              <div className="content-header"><h1>Your Reservations</h1></div>
-              {/* ... etc ... */}
+          {/* Reservations */}
+          {activeTab === 'bookings' && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h1 className="text-3xl font-extrabold mb-8">Your Reservations</h1>
+              
+              <div className="flex gap-6 border-b border-gray-200 mb-8">
+                {['upcoming', 'past'].map(tab => (
+                    <button key={tab} onClick={() => setBookingTab(tab)} className={`pb-4 text-sm font-bold border-b-2 transition-colors capitalize ${bookingTab === tab ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>{tab}</button>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-6">
+                {loading ? <p>Loading...</p> : filteredBookings.length > 0 ? (
+                  filteredBookings.map((booking) => (
+                    <div key={booking.bookingID} className="flex gap-6 p-6 border border-gray-100 rounded-2xl items-center hover:shadow-md transition-shadow">
+                      <div className="w-32 h-24 rounded-xl overflow-hidden bg-gray-200 shrink-0"><img src="/colorful-modern-hotel-room.jpg" className="w-full h-full object-cover" /></div>
+                      <div className="flex-1">
+                        <h4 className="text-lg font-bold mb-1">Luxury Hotel Stay</h4>
+                        <div className="flex gap-2 items-center text-sm">
+                            <span className="bg-gray-50 px-3 py-1 rounded-lg font-medium">{new Date(booking.checkinTime).toLocaleDateString()}</span>
+                            <span className="text-gray-400">→</span>
+                            <span className="bg-gray-50 px-3 py-1 rounded-lg font-medium">{new Date(booking.checkoutTime).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                         <p className="text-lg font-extrabold mb-2">${booking.totalPrice}</p>
+                         {bookingTab === 'upcoming' && <button className="bg-white border border-red-200 text-red-500 px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-50" onClick={() => handleCancel(booking.bookingID)}>Cancel</button>}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-20 bg-gray-50 rounded-2xl">
+                    <p className="text-gray-400 font-medium">No {bookingTab} trips found.</p>
+                    <button className="mt-4 bg-gold px-6 py-2 rounded-full font-bold text-sm" onClick={() => navigate('/')}>Start Exploring</button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
-
         </div>
       </div>
     </div>

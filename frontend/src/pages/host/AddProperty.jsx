@@ -1,216 +1,137 @@
-// src/pages/AddHotel.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
-import './AddProperty.css';
+import { ChevronLeft, Check, Plus, Minus } from 'lucide-react';
 
 export default function AddProperty({ user }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   
-  // Store all form data
   const [formData, setFormData] = useState({
-    propertyType: '', // Step 1
-    name: '',         // Step 2 (Title)
-    description: '',  // Step 2
-    address: '',      // Step 2
-    bedrooms: 0,      // Step 3
-    bathrooms: 0,     // Step 3
-    parking: 0,       // Step 3
-    amenities: [],    // Step 4
-    safety: []        // Step 5
+    propertyType: '', name: '', description: '', address: '',
+    bedrooms: 0, bathrooms: 0, parking: 0, amenities: [], safety: []
   });
 
-  // Helper to update state
-  const updateData = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
+  const updateData = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
   const toggleItem = (field, item) => {
-    setFormData(prev => {
-      const list = prev[field];
-      if (list.includes(item)) {
-        return { ...prev, [field]: list.filter(i => i !== item) };
-      } else {
-        return { ...prev, [field]: [...list, item] };
-      }
-    });
+    setFormData(prev => ({
+      ...prev, [field]: prev[field].includes(item) ? prev[field].filter(i => i !== item) : [...prev[field], item]
+    }));
   };
 
-  // Final Submit
   const handleSubmit = async () => {
     try {
-      // Convert wizard data to your API format
       const apiPayload = {
-        name: formData.name,
-        address: formData.address,
-        // We use 'description' field for the combined description + type for now
-        // In a real app, you'd add new columns to your DB
+        name: formData.name, address: formData.address,
         description: `Type: ${formData.propertyType}. ${formData.description}`,
         stars: 5, 
       };
-      
       await api.createHotel(apiPayload);
       alert("Property Listed Successfully!");
-      navigate('/search'); 
-    } catch (error) {
-      alert("Failed to list property.");
-    }
+      navigate('/host/properties'); 
+    } catch (error) { alert("Failed to list property."); }
   };
 
   return (
-    <div className="add-hotel-page">
-      {/* REMOVED: <Header /> */}
-      
-      <main className="wizard-container">
+    <div className="bg-gray-50 min-h-screen pt-20 flex justify-center pb-20">
+      <main className="w-full max-w-[800px] p-8">
         
-        {/* --- STEP 1: PROPERTY TYPE --- */}
-        {step === 1 && (
-          <div className="wizard-step fade-in">
-            <h1>What kind of place will you host?</h1>
-            <div className="grid-options">
-              {['Apartment', 'Flat', 'Room', 'Villa'].map(type => (
-                <div 
-                  key={type}
-                  className={`option-card ${formData.propertyType === type ? 'selected' : ''}`}
-                  onClick={() => updateData('propertyType', type)}
-                >
-                  <div className="option-placeholder"></div>
-                  <span>{type}</span>
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200 h-2 rounded-full mb-10 overflow-hidden">
+            <div className="bg-black h-full transition-all duration-300" style={{width: `${(step/5)*100}%`}}></div>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-3xl p-10 shadow-sm relative animate-in fade-in zoom-in-95 duration-300">
+            {step > 1 && (
+                <button onClick={() => setStep(step - 1)} className="absolute top-10 left-10 text-gray-400 hover:text-black transition-colors">
+                    <ChevronLeft size={24} />
+                </button>
+            )}
+
+            {/* Step 1 */}
+            {step === 1 && (
+                <div className="text-center">
+                    <h1 className="text-3xl font-bold text-black mb-8">What kind of place will you host?</h1>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        {['Apartment', 'Flat', 'Room', 'Villa'].map(type => (
+                            <div key={type} onClick={() => updateData('propertyType', type)} 
+                                className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center gap-4 hover:border-gray-400 ${formData.propertyType === type ? 'border-black bg-gray-50' : 'border-gray-100'}`}>
+                                <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                                <span className="font-bold text-sm">{type}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <button className="bg-black text-white px-10 py-3 rounded-full font-bold hover:bg-gold transition-colors disabled:opacity-50" onClick={() => setStep(2)} disabled={!formData.propertyType}>Next</button>
                 </div>
-              ))}
-            </div>
-            <button className="next-btn" onClick={() => setStep(2)} disabled={!formData.propertyType}>Next</button>
-          </div>
-        )}
+            )}
 
-        {/* --- STEP 2: DESCRIPTION --- */}
-        {step === 2 && (
-          <div className="wizard-step fade-in">
-            <h1>Add a short description of your place.</h1>
-            
-            <div className="form-group">
-              <label>Title</label>
-              <input 
-                type="text" 
-                placeholder="e.g. Luxury Condo in Cebu" 
-                value={formData.name}
-                onChange={(e) => updateData('name', e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Address</label>
-              <input 
-                type="text" 
-                placeholder="Full Address" 
-                value={formData.address}
-                onChange={(e) => updateData('address', e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Description</label>
-              <textarea 
-                rows="4" 
-                placeholder="Tell guests about your place..." 
-                value={formData.description}
-                onChange={(e) => updateData('description', e.target.value)}
-              />
-            </div>
-            
-            <div className="wizard-actions">
-              <button className="back-btn-text" onClick={() => setStep(1)}>Back</button>
-              <button className="next-btn" onClick={() => setStep(3)}>Next</button>
-            </div>
-          </div>
-        )}
-
-        {/* --- STEP 3: FACILITIES --- */}
-        {step === 3 && (
-          <div className="wizard-step fade-in">
-            <h1>Add facilities available at your place.</h1>
-            
-            <div className="counter-row">
-               <span>Bedrooms</span>
-               <div className="counter-controls">
-                 <button onClick={() => updateData('bedrooms', Math.max(0, formData.bedrooms - 1))}>-</button>
-                 <span>{formData.bedrooms}</span>
-                 <button onClick={() => updateData('bedrooms', formData.bedrooms + 1)}>+</button>
-               </div>
-            </div>
-
-            <div className="counter-row">
-               <span>Bathrooms</span>
-               <div className="counter-controls">
-                 <button onClick={() => updateData('bathrooms', Math.max(0, formData.bathrooms - 1))}>-</button>
-                 <span>{formData.bathrooms}</span>
-                 <button onClick={() => updateData('bathrooms', formData.bathrooms + 1)}>+</button>
-               </div>
-            </div>
-
-            <div className="counter-row">
-               <span>Parking</span>
-               <div className="counter-controls">
-                 <button onClick={() => updateData('parking', Math.max(0, formData.parking - 1))}>-</button>
-                 <span>{formData.parking}</span>
-                 <button onClick={() => updateData('parking', formData.parking + 1)}>+</button>
-               </div>
-            </div>
-
-            <div className="wizard-actions">
-              <button className="back-btn-text" onClick={() => setStep(2)}>Back</button>
-              <button className="next-btn" onClick={() => setStep(4)}>Next</button>
-            </div>
-          </div>
-        )}
-
-        {/* --- STEP 4: AMENITIES --- */}
-        {step === 4 && (
-          <div className="wizard-step fade-in">
-            <h1>Add amenities available at your place.</h1>
-            <div className="grid-options small">
-              {['Television', 'Wifi', 'Washer', 'Balcony', 'Cleaner', 'Radio', 'Lift', 'Other'].map(item => (
-                <div 
-                  key={item}
-                  className={`option-card ${formData.amenities.includes(item) ? 'selected' : ''}`}
-                  onClick={() => toggleItem('amenities', item)}
-                >
-                  <div className="option-placeholder small"></div>
-                  <span>{item}</span>
+            {/* Step 2 */}
+            {step === 2 && (
+                <div>
+                    <h1 className="text-3xl font-bold text-black mb-8 text-center">Describe your place</h1>
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block font-bold text-sm mb-2">Title</label>
+                            <input type="text" className="w-full p-4 border border-gray-300 rounded-xl focus:border-black outline-none" placeholder="e.g. Luxury Condo" value={formData.name} onChange={(e) => updateData('name', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="block font-bold text-sm mb-2">Address</label>
+                            <input type="text" className="w-full p-4 border border-gray-300 rounded-xl focus:border-black outline-none" placeholder="Full Address" value={formData.address} onChange={(e) => updateData('address', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="block font-bold text-sm mb-2">Description</label>
+                            <textarea rows="4" className="w-full p-4 border border-gray-300 rounded-xl focus:border-black outline-none resize-none" placeholder="Tell guests about your place..." value={formData.description} onChange={(e) => updateData('description', e.target.value)} />
+                        </div>
+                        <div className="flex justify-end mt-8"><button className="bg-black text-white px-10 py-3 rounded-full font-bold hover:bg-gold" onClick={() => setStep(3)}>Next</button></div>
+                    </div>
                 </div>
-              ))}
-            </div>
-            <div className="wizard-actions">
-              <button className="back-btn-text" onClick={() => setStep(3)}>Back</button>
-              <button className="next-btn" onClick={() => setStep(5)}>Next</button>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* --- STEP 5: SAFETY --- */}
-        {step === 5 && (
-          <div className="wizard-step fade-in">
-            <h1>Add safety available at your place.</h1>
-            <div className="grid-options small">
-              {['Sanitizers', 'Fire Extinguisher', 'First Aid', 'Smoke Detector'].map(item => (
-                <div 
-                  key={item}
-                  className={`option-card ${formData.safety.includes(item) ? 'selected' : ''}`}
-                  onClick={() => toggleItem('safety', item)}
-                >
-                  <div className="option-placeholder small"></div>
-                  <span>{item}</span>
+            {/* Step 3 */}
+            {step === 3 && (
+                <div>
+                    <h1 className="text-3xl font-bold text-black mb-8 text-center">Add details</h1>
+                    <div className="space-y-4">
+                        {['bedrooms', 'bathrooms', 'parking'].map(field => (
+                            <div key={field} className="flex justify-between items-center p-4 border-b border-gray-100">
+                                <span className="font-bold capitalize text-lg">{field}</span>
+                                <div className="flex items-center gap-4">
+                                    <button className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:border-black" onClick={() => updateData(field, Math.max(0, formData[field] - 1))}><Minus size={16}/></button>
+                                    <span className="font-bold w-4 text-center">{formData[field]}</span>
+                                    <button className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:border-black" onClick={() => updateData(field, formData[field] + 1)}><Plus size={16}/></button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex justify-end mt-10"><button className="bg-black text-white px-10 py-3 rounded-full font-bold hover:bg-gold" onClick={() => setStep(4)}>Next</button></div>
                 </div>
-              ))}
-            </div>
-            <div className="wizard-actions">
-              <button className="back-btn-text" onClick={() => setStep(4)}>Back</button>
-              <button className="next-btn finish" onClick={handleSubmit}>Post My Property</button>
-            </div>
-          </div>
-        )}
+            )}
 
+            {/* Step 4 & 5 (Combined logic for brevity) */}
+            {(step === 4 || step === 5) && (
+                <div>
+                    <h1 className="text-3xl font-bold text-black mb-8 text-center">{step === 4 ? "Amenities" : "Safety Features"}</h1>
+                    <div className="grid grid-cols-2 gap-4 mb-8">
+                        {(step === 4 ? ['Wifi', 'TV', 'Kitchen', 'Washer', 'AC', 'Pool'] : ['Smoke Alarm', 'First Aid', 'Fire Extinguisher']).map(item => {
+                             const field = step === 4 ? 'amenities' : 'safety';
+                             const isSelected = formData[field].includes(item);
+                             return (
+                                <div key={item} onClick={() => toggleItem(field, item)} className={`p-4 border rounded-xl cursor-pointer flex items-center justify-between transition-all hover:border-black ${isSelected ? 'border-black bg-gray-50' : 'border-gray-200'}`}>
+                                    <span className="font-bold">{item}</span>
+                                    {isSelected && <Check size={18} />}
+                                </div>
+                             )
+                        })}
+                    </div>
+                    <div className="flex justify-end mt-8">
+                        {step === 4 
+                            ? <button className="bg-black text-white px-10 py-3 rounded-full font-bold hover:bg-gold" onClick={() => setStep(5)}>Next</button>
+                            : <button className="bg-black text-white px-10 py-3 rounded-full font-bold hover:bg-green-600" onClick={handleSubmit}>Publish</button>
+                        }
+                    </div>
+                </div>
+            )}
+        </div>
       </main>
     </div>
   );

@@ -1,22 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
-import './HostDashboard.css';
-
-// --- ICONS ---
-const HomeIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>);
-const CalendarIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>);
-const DollarIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>);
-const ChatIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>);
-const BellIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>);
-const UserIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>);
-const SendIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>);
+import { Home, Calendar, DollarSign, MessageSquare, Bell, User, Send, CheckCircle, XCircle } from 'lucide-react';
 
 export default function HostDashboard({ user }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('properties'); // properties, reservations, transactions, messages, notifications, profile
-  
-  // Data States
+  const [activeTab, setActiveTab] = useState('properties'); 
   const [myHotels, setMyHotels] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -26,174 +15,237 @@ export default function HostDashboard({ user }) {
     if (!user) navigate('/');
   }, [user, navigate]);
 
-  // Fetch Data based on Tab
   useEffect(() => {
     setLoading(true);
-    if (activeTab === 'properties') {
-      api.getHotels().then(data => { setMyHotels(data); setLoading(false); });
-    } else if (activeTab === 'reservations') {
-      fetch('http://localhost:8080/api/bookings').then(res => res.json()).then(data => { setReservations(data); setLoading(false); });
-    } else {
-      setLoading(false); // Other tabs are static/mock for now
-    }
+    const fetchData = async () => {
+        try {
+            if (activeTab === 'properties') {
+                const data = await api.getHotels();
+                setMyHotels(data);
+            } else if (activeTab === 'reservations') {
+                const data = await api.getBookings(); // Using the api wrapper instead of raw fetch
+                setReservations(data);
+            } else if (activeTab === 'transactions') {
+                // Mock Transactions
+                setTransactions([
+                    { id: 1, title: "Payout for Booking #102", date: "12 Mar 2024 at 2:00 PM", amount: 1000 },
+                    { id: 2, title: "Payout for Booking #98", date: "10 Mar 2024 at 9:00 AM", amount: 2500 },
+                ]);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchData();
   }, [activeTab]);
 
-  // Handlers (Same as before)
-  const handleDeleteProperty = async (id) => { /* ... delete logic ... */ };
+  const handleDeleteProperty = async (id) => {
+    if (window.confirm("Delete this property?")) {
+      await api.deleteHotel(id);
+      setMyHotels(prev => prev.filter(h => h.hotelID !== id));
+    }
+  };
+
   const handleApprove = (id) => alert(`Booking ${id} Approved!`);
   const handleReject = (id) => alert(`Booking ${id} Rejected.`);
 
   return (
-    <div className="host-page">
-      <div className="host-container">
+    <div className="bg-gray-50 min-h-screen pt-20 pb-16 text-gray-900">
+      <div className="max-w-[1200px] mx-auto px-5 py-12 grid grid-cols-1 md:grid-cols-[280px_1fr] gap-12 items-start">
         
         {/* --- SIDEBAR --- */}
-        <div className="host-sidebar">
-          <div className="host-profile-card">
-            <div className="host-avatar">{user?.firstName.charAt(0).toUpperCase()}</div>
-            <h3>{user?.firstName} {user?.lastName}</h3>
-            <span className="host-badge">SUPERHOST</span>
+        <div className="flex flex-col gap-8">
+          <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center">
+            <div className="w-20 h-20 bg-black text-white rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold">
+                {user?.firstName.charAt(0).toUpperCase()}
+            </div>
+            <h3 className="text-lg font-bold">{user?.firstName} {user?.lastName}</h3>
+            <span className="inline-block bg-gray-100 text-gray-600 text-xs font-extrabold px-3 py-1 rounded-full tracking-wider mt-2">SUPERHOST</span>
           </div>
           
-          <div className="host-menu">
-            <button className={`host-menu-item ${activeTab === 'properties' ? 'active' : ''}`} onClick={() => setActiveTab('properties')}>
-              <HomeIcon /> My Properties
-            </button>
-            <button className={`host-menu-item ${activeTab === 'reservations' ? 'active' : ''}`} onClick={() => setActiveTab('reservations')}>
-              <CalendarIcon /> Reservations
-            </button>
-            <button className={`host-menu-item ${activeTab === 'transactions' ? 'active' : ''}`} onClick={() => setActiveTab('transactions')}>
-              <DollarIcon /> Transactions
-            </button>
+          <div className="flex flex-col gap-2">
+            {[
+                { id: 'properties', icon: Home, label: 'My Properties' },
+                { id: 'reservations', icon: Calendar, label: 'Reservations' },
+                { id: 'transactions', icon: DollarSign, label: 'Transactions' },
+            ].map((item) => (
+                <button 
+                    key={item.id}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left text-sm font-semibold transition-all ${activeTab === item.id ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:bg-gray-100 hover:text-black'}`}
+                    onClick={() => setActiveTab(item.id)}
+                >
+                    <item.icon size={18} /> {item.label}
+                </button>
+            ))}
             
-            <div className="menu-divider"></div>
+            <div className="h-px bg-gray-200 my-2"></div>
             
-            <button className={`host-menu-item ${activeTab === 'messages' ? 'active' : ''}`} onClick={() => setActiveTab('messages')}>
-              <ChatIcon /> Messages
-            </button>
-            <button className={`host-menu-item ${activeTab === 'notifications' ? 'active' : ''}`} onClick={() => setActiveTab('notifications')}>
-              <BellIcon /> Notifications
-            </button>
-            <button className={`host-menu-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
-              <UserIcon /> Account
-            </button>
+            {[
+                { id: 'messages', icon: MessageSquare, label: 'Messages' },
+                { id: 'notifications', icon: Bell, label: 'Notifications' },
+                { id: 'profile', icon: User, label: 'Account' },
+            ].map((item) => (
+                <button 
+                    key={item.id}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left text-sm font-semibold transition-all ${activeTab === item.id ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:bg-gray-100 hover:text-black'}`}
+                    onClick={() => setActiveTab(item.id)}
+                >
+                    <item.icon size={18} /> {item.label}
+                </button>
+            ))}
           </div>
         </div>
 
         {/* --- CONTENT AREA --- */}
-        <div className="host-content">
+        <div>
           
-          {/* 1. PROPERTIES (Existing) */}
+          {/* 1. PROPERTIES */}
           {activeTab === 'properties' && (
-            <div className="content-wrapper fade-in">
-              <div className="content-header-row">
-                <h1>Listed Properties</h1>
-                <button className="add-btn" onClick={() => navigate('/host/add')}>+ Add New</button>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-extrabold">Listed Properties</h1>
+                <button className="bg-black text-white px-6 py-2 rounded-full font-semibold text-sm hover:bg-gold transition-colors" onClick={() => navigate('/host/add')}>+ Add New</button>
               </div>
-              <div className="host-grid-list">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {myHotels.map(hotel => (
-                  <div key={hotel.hotelID} className="host-item-card">
-                    <div className="host-img-box"><img src="/colorful-modern-hotel-room.jpg" alt="Hotel" /></div>
-                    <div className="host-info">
-                      <h4>{hotel.name}</h4>
-                      <p>{hotel.address}</p>
+                  <div key={hotel.hotelID} className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="w-full h-48 bg-gray-300">
+                        <img src="/colorful-modern-hotel-room.jpg" alt="Hotel" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="p-4">
+                      <h4 className="text-lg font-bold mb-1">{hotel.name}</h4>
+                      <p className="text-sm text-gray-500">{hotel.address}</p>
+                    </div>
+                    <div className="p-4 border-t border-gray-100 flex gap-3">
+                      <button className="flex-1 py-2 bg-gray-50 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-100">Modify</button>
+                      <button className="flex-1 py-2 bg-white border border-gray-200 text-red-600 rounded-lg text-xs font-bold hover:bg-red-50" onClick={() => handleDeleteProperty(hotel.hotelID)}>Remove</button>
                     </div>
                   </div>
                 ))}
+                {myHotels.length === 0 && !loading && <p className="text-gray-400 italic">No properties listed yet.</p>}
               </div>
             </div>
           )}
 
-          {/* 2. RESERVATIONS (Existing) */}
+          {/* 2. RESERVATIONS */}
           {activeTab === 'reservations' && (
-            <div className="content-wrapper fade-in">
-               <h1>Reservations</h1>
-               {/* ... your reservation list code ... */}
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <h1 className="text-3xl font-extrabold mb-8">Reservations</h1>
+               <div className="flex flex-col gap-4">
+                 {reservations.map(res => (
+                   <div key={res.bookingID} className="flex items-center gap-6 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                      <div className="flex-1">
+                        <h4 className="text-lg font-bold text-black mb-1">{res.roomID ? `Room #${res.roomID}` : "Luxury Apartment"}</h4>
+                        <p className="text-sm text-gray-500">Guest ID: {res.guestID}</p>
+                      </div>
+                      <div className="text-right flex flex-col items-end">
+                        <span className="text-sm text-gray-600 mb-1">Check-in: {new Date(res.checkinTime).toLocaleDateString()}</span>
+                        <span className="text-lg font-bold text-gold">${res.totalPrice}</span>
+                      </div>
+                      <div className="flex gap-3 pl-4 border-l border-gray-100">
+                        <button className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-gold hover:text-black transition-colors" onClick={() => handleApprove(res.bookingID)}>Approve</button>
+                        <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-xs font-bold hover:bg-red-50 hover:text-red-600 transition-colors" onClick={() => handleReject(res.bookingID)}>Reject</button>
+                      </div>
+                   </div>
+                 ))}
+                 {reservations.length === 0 && !loading && <p className="text-gray-400 italic">No reservations found.</p>}
+               </div>
             </div>
           )}
 
-          {/* 3. TRANSACTIONS (Existing) */}
+          {/* 3. TRANSACTIONS */}
           {activeTab === 'transactions' && (
-             <div className="content-wrapper fade-in">
-               <h1>Transaction History</h1>
-               {/* ... your transaction list code ... */}
+             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <div className="flex justify-between items-center mb-8">
+                 <h1 className="text-3xl font-extrabold">Transaction History</h1>
+                 <button className="text-sm font-bold text-gray-500 hover:text-black underline">Download CSV</button>
+               </div>
+
+               <div className="flex flex-col gap-4">
+                  {transactions.map(trans => (
+                    <div key={trans.id} className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-200">
+                       <div>
+                          <h4 className="font-bold text-black mb-1">{trans.title}</h4>
+                          <span className="text-sm text-gray-500">{trans.date}</span>
+                       </div>
+                       <div className="text-xl font-extrabold text-black">
+                          $ {trans.amount} USD
+                       </div>
+                    </div>
+                  ))}
+               </div>
              </div>
           )}
 
-          {/* 4. MESSAGES (New - Matches host messages.jpg) */}
+          {/* 4. MESSAGES */}
           {activeTab === 'messages' && (
-            <div className="content-wrapper fade-in full-height">
-                <div className="messages-container">
-                    <div className="msg-sidebar">
-                        <h2 className="msg-header">All Messages</h2>
-                        <div className="msg-list">
-                            <div className="msg-item active">
-                                <div className="msg-avatar">JD</div>
-                                <div className="msg-text-group">
-                                    <div className="msg-top"><strong>John Doberman</strong><span>10:30 AM</span></div>
-                                </div>
-                            </div>
-                            <div className="msg-item">
-                                <div className="msg-avatar">HP</div>
-                                <div className="msg-text-group">
-                                    <div className="msg-top"><strong>Harry Parker</strong><span>Yesterday</span></div>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 h-[600px]">
+                <div className="grid grid-cols-[300px_1fr] border border-gray-200 rounded-2xl h-full bg-white overflow-hidden shadow-sm">
+                    <div className="border-r border-gray-200 bg-gray-50 flex flex-col">
+                        <h2 className="p-6 text-lg font-bold border-b border-gray-200 bg-white m-0">All Messages</h2>
+                        <div className="overflow-y-auto flex-1">
+                            <div className="flex gap-3 p-4 cursor-pointer bg-white border-l-4 border-black">
+                                <div className="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center font-bold text-sm">JD</div>
+                                <div className="flex-1 overflow-hidden">
+                                    <div className="flex justify-between mb-1"><strong className="text-sm text-black">John Doberman</strong><span className="text-xs text-gray-400">10:30 AM</span></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="msg-window">
-                         <div className="chat-empty-state">
-                             <h3>Message Body</h3>
-                             <p>Select a conversation to start messaging</p>
+                    <div className="flex flex-col relative bg-white">
+                         <div className="flex-1 flex flex-col items-center justify-center text-gray-300">
+                             <h3 className="text-gray-600 text-xl font-bold mb-2">Message Body</h3>
+                             <p className="text-sm">Select a conversation to start messaging</p>
                          </div>
-                         <div className="chat-input-area">
-                             <input type="text" placeholder="Type your message..." />
-                             <button className="chat-send-btn"><SendIcon /></button>
+                         <div className="p-6 border-t border-gray-200 flex gap-3 bg-white">
+                             <input type="text" placeholder="Type your message..." className="flex-1 px-6 py-3 border border-gray-200 rounded-full outline-none bg-gray-50 focus:bg-white focus:border-black transition-colors" />
+                             <button className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center hover:scale-105 transition-transform"><Send size={18} /></button>
                          </div>
                     </div>
                 </div>
             </div>
           )}
 
-          {/* 5. NOTIFICATIONS (New - Matches Host Notifications.jpg) */}
+          {/* 5. NOTIFICATIONS */}
           {activeTab === 'notifications' && (
-            <div className="content-wrapper fade-in">
-                <h1>All Notifications</h1>
-                <div className="notifications-list">
-                    <div className="notif-card">
-                        <div className="notif-body">
-                            <strong>New Reservation Alert</strong>
-                            <span>12 Mar 2021</span>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <h1 className="text-3xl font-extrabold mb-8">All Notifications</h1>
+                <div className="flex flex-col gap-4 max-w-3xl">
+                    {[{title:"New Reservation", msg:"Alice booked for Dec 24", time:"Just now"}, {title:"Cancelled", msg:"John cancelled.", time:"2 hrs ago"}].map((n, i) => (
+                        <div key={i} className="flex justify-between items-center p-6 border-b border-gray-100 bg-white rounded-xl shadow-sm first:border-l-4 first:border-l-gold">
+                            <div>
+                                <strong className="block text-black mb-1">{n.title}</strong>
+                                <span className="text-sm text-gray-500">{n.msg}</span>
+                            </div>
+                            <button className="text-gray-300 hover:text-black"><XCircle size={20}/></button>
                         </div>
-                        <button className="notif-close">×</button>
-                    </div>
-                    <div className="notif-card">
-                        <div className="notif-body">
-                            <strong>John Doe cancelled the reservation.</strong>
-                            <span>12 Mar 2021</span>
-                        </div>
-                        <button className="notif-close">×</button>
-                    </div>
+                    ))}
                 </div>
             </div>
           )}
 
-          {/* 6. ACCOUNT PROFILE (New - Matches host account.jpg) */}
+          {/* 6. ACCOUNT PROFILE */}
           {activeTab === 'profile' && (
-            <div className="content-wrapper fade-in">
-               <div className="content-header-row">
-                  <h1>Hello, {user.firstName}</h1>
-                  <button className="secondary-btn">Edit Profile</button>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <div className="flex justify-between items-start mb-10">
+                  <div>
+                    <h1 className="text-4xl font-extrabold mb-2">Hello, {user.firstName}</h1>
+                    <button className="bg-white border border-black rounded-full px-5 py-2 font-bold text-sm hover:bg-gray-50 transition-colors">Edit Profile</button>
+                  </div>
                </div>
-               <div className="host-id-card">
-                  <div className="avatar-large">{user.firstName.charAt(0)}</div>
-                  <button className="upload-text">Upload a Photo</button>
+               <div className="max-w-md border border-gray-200 rounded-2xl p-8 text-center bg-white">
+                  <div className="w-24 h-24 bg-black text-white rounded-full mx-auto mb-4 flex items-center justify-center text-4xl font-bold">{user.firstName.charAt(0)}</div>
+                  <button className="text-black underline font-bold text-sm mb-8">Upload a Photo</button>
                   
-                  <h3>Identity Verification</h3>
-                  <p className="id-desc">Show others you're really you with the identity verification badge.</p>
+                  <h3 className="text-lg font-bold mb-2 text-left">Identity Verification</h3>
+                  <p className="text-sm text-gray-500 text-left mb-6 leading-relaxed">Show others you're really you with the identity verification badge.</p>
                   
-                  <div className="verified-item">✓ Email Confirmed</div>
-                  <div className="verified-item">✓ Mobile Confirmed</div>
+                  <div className="flex flex-col gap-3 text-left">
+                    <div className="flex items-center gap-3 text-sm text-gray-700 font-medium"><CheckCircle size={16} /> Email Confirmed</div>
+                    <div className="flex items-center gap-3 text-sm text-gray-700 font-medium"><CheckCircle size={16} /> Mobile Confirmed</div>
+                  </div>
                </div>
             </div>
           )}

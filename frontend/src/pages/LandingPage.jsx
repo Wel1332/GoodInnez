@@ -5,11 +5,10 @@ import ActivitiesSection from '../components/ActivitiesSection';
 
 export default function LandingPage() {
   return (
-    <>
-      {/* This component wraps your entire Home Page layout */}
+    <div className="bg-white">
       <HeroSection />
       <HotelsSection />
       <ActivitiesSection />
-    </>
+    </div>
   );
 }

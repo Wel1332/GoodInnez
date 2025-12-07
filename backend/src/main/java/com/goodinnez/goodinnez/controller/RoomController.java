@@ -37,6 +37,14 @@ public class RoomController {
         return roomRepository.findById(id).map(this::toDTO).orElse(null);
     }
 
+    @GetMapping("/hotel/{hotelId}")
+    public List<Room> getByHotel(@PathVariable Integer hotelId) {
+        return roomRepository.findByHotel_HotelID(hotelId)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     @PostMapping
     public Room create(@RequestBody com.goodinnez.goodinnez.entity.Room room) {
         return toDTO(roomRepository.save(room));

@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Header.css';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Menu, User, LogOut, MessageSquare, Bell, CalendarDays, Building2, HelpCircle, LogIn, UserPlus } from 'lucide-react';
 
 export default function Header({ onOpenAuth, user, onLogout }) {
   const navigate = useNavigate(); 
+  const location = useLocation();
   const [authDropdownOpen, setAuthDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -22,104 +23,80 @@ export default function Header({ onOpenAuth, user, onLogout }) {
     if (action) action();
   };
 
+  const scrollToSection = (id) => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      const element = document.getElementById(id);
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <header className="header">
-      <div className="header-container">
-        <div className="logo" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>Good Innez</div>
+    <header className="bg-[#1a1a1a] border-b border-[#333] sticky top-0 z-50 py-4 px-8">
+      <div className="max-w-[1900px] mx-auto flex justify-between items-center">
+        <div className="text-2xl font-bold text-white cursor-pointer hover:text-gold transition-colors" onClick={() => navigate('/')}>
+          Good Innez
+        </div>
         
-        <div className="header-right-group">
-          <nav className="nav">
-            <a href="#hotels">Find a Hotel</a>
-            <a href="#guides">Local Guides</a>
-            <a href="#partners">Our Partners</a>
+        <div className="flex items-center gap-8">
+          <nav className="hidden md:flex gap-8 items-center">
+            {[{id: 'hotels', label: 'Find a Hotel'}, {id: 'activities', label: 'Local Guides'}, {id: 'footer', label: 'Our Partners'}].map(link => (
+              <a 
+                key={link.id} 
+                href={`#${link.id}`} 
+                onClick={(e) => { e.preventDefault(); scrollToSection(link.id); }}
+                className="text-gray-300 hover:text-gold transition-colors text-sm font-medium"
+              >
+                {link.label}
+              </a>
+            ))}
           </nav>
 
-          <div className="header-actions">
-            
-            {/* --- UPDATED BUTTON: Become a Partner --- */}
+          <div className="flex items-center gap-4">
             <button 
-              className="book-btn" 
-              onClick={() => {
-                  if (user) {
-                      navigate('/host/properties');
-                  } else {
-                      // Trigger Signup in PARTNER MODE
-                      onOpenAuth('signup', true); 
-                  }
-              }}
+              className="hidden md:block bg-gold text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-yellow-600 transition-colors"
+              onClick={() => user ? navigate('/host/properties') : onOpenAuth('login')}
             >
               Become a Partner
             </button>
             
-            <div className="auth-dropdown-container" ref={dropdownRef}>
-                {user ? (
-                    // LOGGED IN VIEW
-                    <div className="user-profile-group">
-                        <div className="user-avatar" title={`Logged in as ${user.firstName}`}>
-                            {user.firstName.charAt(0).toUpperCase()}
-                        </div>
-                        <button 
-                            className={`login-burger-btn ${authDropdownOpen ? 'active' : ''}`}
-                            onClick={() => setAuthDropdownOpen(!authDropdownOpen)}
-                        >
-                            <span className="burger-icon">☰</span>
-                        </button>
-                    </div>
-                ) : (
-                    // GUEST VIEW
-                    <button 
-                        className={`login-burger-btn ${authDropdownOpen ? 'active' : ''}`}
-                        onClick={() => setAuthDropdownOpen(!authDropdownOpen)}
-                    >
-                        <span className="burger-icon">☰</span>
-                    </button>
-                )}
+            <div className="relative" ref={dropdownRef}>
+                <button 
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white hover:border-gold hover:text-gold transition-all"
+                    onClick={() => setAuthDropdownOpen(!authDropdownOpen)}
+                >
+                    {user ? (
+                       <span className="font-bold text-sm">{user.firstName.charAt(0).toUpperCase()}</span>
+                    ) : (
+                       <Menu size={20} />
+                    )}
+                </button>
 
-                {/* DROPDOWN MENU */}
                 {authDropdownOpen && (
-                    <div className="auth-dropdown-menu">
+                    <div className="absolute top-[120%] right-0 w-48 bg-[#1a1a1a] border border-white/20 rounded-xl shadow-2xl overflow-hidden py-2 backdrop-blur-md">
                         {user ? (
                             <>
-                                <button onClick={() => handleMenuClick(() => navigate('/messages'))}>
-                                    Messages
-                                </button>
-                                <button onClick={() => handleMenuClick(() => navigate('/notifications'))}>
-                                    Notifications
-                                </button>
-                                
-                                <div className="menu-divider"></div>
-
-                                <button onClick={() => handleMenuClick(() => navigate('/profile'))}>
-                                    My Profile
-                                </button>
-                                <button onClick={() => handleMenuClick(() => navigate('/profile', { state: { tab: 'bookings' } }))}>
-                                    Reservations
-                                </button>
-                                
-                                <div className="menu-divider"></div>
-                                
-                                <button onClick={() => handleMenuClick(() => navigate('/host/properties'))}>
-                                    Switch to Hosting
-                                </button>
-
-                                <div className="menu-divider"></div>
-                                <button className="logout-btn" onClick={() => handleMenuClick(onLogout)}>
-                                    Log out
-                                </button>
+                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/messages'))}><MessageSquare size={16} /> Messages</button>
+                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/notifications'))}><Bell size={16} /> Notifications</button>
+                                <div className="h-px bg-white/10 my-1"></div>
+                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/profile'))}><User size={16} /> My Profile</button>
+                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/profile', { state: { tab: 'bookings' } }))}><CalendarDays size={16} /> Reservations</button>
+                                <div className="h-px bg-white/10 my-1"></div>
+                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/host/properties'))}><Building2 size={16} /> Switch to Hosting</button>
+                                <div className="h-px bg-white/10 my-1"></div>
+                                <button className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-900/20 flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(onLogout)}><LogOut size={16} /> Log out</button>
                             </>
                         ) : (
                             <>
-                                {/* Explicitly pass false for standard guest login */}
-                                <button onClick={() => handleMenuClick(() => onOpenAuth('login', false))}>
-                                    Login
-                                </button>
-                                <button onClick={() => handleMenuClick(() => onOpenAuth('signup', false))}>
-                                    Sign Up
-                                </button>
-                                <div className="menu-divider"></div>
-                                <button onClick={() => handleMenuClick()}>
-                                    Help Center
-                                </button>
+                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => onOpenAuth('login'))}><LogIn size={16} /> Login</button>
+                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => onOpenAuth('signup'))}><UserPlus size={16} /> Sign Up</button>
+                                <div className="h-px bg-white/10 my-1"></div>
+                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick()}><HelpCircle size={16} /> Help Center</button>
                             </>
                         )}
                     </div>
@@ -129,5 +106,5 @@ export default function Header({ onOpenAuth, user, onLogout }) {
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -1,37 +1,33 @@
-// src/components/HotelsSection.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import HotelCard from './HotelCard';
-import { hotels } from '../data/hotels';
-import './HotelsSection.css';
+import { api } from '../services/api';
+import { MapPin } from 'lucide-react';
 
 export default function HotelsSection() {
-  
-  const handleShowMap = () => {
-    window.open('https://www.google.com/maps/search/Hostels+in+Cebu+City', '_blank');
-  };
+  const navigate = useNavigate();
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.getHotels().then(data => {
+        const mapped = data.map((h, i) => ({ ...h, id: h.hotelID, image: i % 2 === 0 ? '/hop-inn-hotel.jpg' : '/seda-ayala-center.jpg', stars: h.stars }));
+        setHotels(mapped.slice(0, 4));
+        setLoading(false);
+      }).catch(() => setLoading(false));
+  }, []);
+
+  const handleShowMap = () => window.open('https://www.google.com/maps/search/hotels+in+Cebu+City', '_blank');
 
   return (
-    <section className="hotels-section">
-      
-      {/* Container for Header */}
-      <div className="section-header-glass">
-        
-        {/* Left: Title */}
-        <h2 className="header-title">
-          <span className="underline-text">Nearby Hostels</span> in Cebu City
-        </h2>
-
-        {/* Right: Button */}
-        <button className="map-btn" onClick={handleShowMap}>
-          <span className="icon">📍</span> Show On Map
-        </button>
-
+    <section id="hotels" className="relative py-32 bg-[#1a1a1a]">
+      <div className="relative z-10 max-w-[1200px] mx-auto px-8 mb-16 flex flex-col md:flex-row justify-between items-center bg-white/5 backdrop-blur-md border border-white/10 rounded-full py-4 px-10 shadow-lg">
+        <h2 className="text-2xl font-bold text-white"><span className="border-b-4 border-gold pb-1 mr-2">Nearby Hostels</span> in Cebu City</h2>
+        <button onClick={handleShowMap} className="flex items-center gap-2 text-white font-semibold hover:text-gold transition-colors text-sm"><MapPin size={16} /> Show On Map</button>
       </div>
 
-      <div className="hotels-container">
-        {hotels.map(hotel => (
-          <HotelCard key={hotel.id} hotel={hotel} />
-        ))}
+      <div className="relative z-10 flex flex-wrap justify-center gap-8 max-w-[1400px] mx-auto px-8">
+        {loading ? <p className="text-white">Loading...</p> : hotels.map(hotel => (<div key={hotel.id} onClick={() => navigate(`/hotel/${hotel.id}`)}><HotelCard hotel={hotel} /></div>))}
       </div>
     </section>
   );

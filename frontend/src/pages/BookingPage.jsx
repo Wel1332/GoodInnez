@@ -1,155 +1,117 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
-import './BookingPage.css';
+import { ChevronLeft } from 'lucide-react';
 
 export default function BookingPage({ user }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { hotel, dates } = location.state || {}; 
-  const safeHotel = hotel || {
-    name: "Sample Hotel",
-    address: "Cebu City",
-    price: "1000",
-    image: "/colorful-modern-hotel-room.jpg"
-  };
+  const { hotel, dates, room } = location.state || {}; 
+  
+  const safeHotel = hotel || { name: "Sample Hotel", address: "Cebu City" };
+  const safeRoom = room || { name: "Standard Room", price: 1000, id: 1 };
 
   const [formData, setFormData] = useState({
     fullName: user ? `${user.firstName} ${user.lastName}` : '',
     email: user ? user.email : '',
-    phone: user ? user.phone : '',
-    specialRequests: ''
   });
 
   const handleConfirm = async (e) => {
     e.preventDefault();
-    if (!user) {
-      alert("You must be logged in to book a room.");
-      return;
-    }
+    if(!user) return alert("Login required");
+
     const bookingPayload = {
       checkinTime: dates?.checkIn ? `${dates.checkIn}T14:00:00` : null,
       checkoutTime: dates?.checkOut ? `${dates.checkOut}T11:00:00` : null,
-      totalPrice: safeHotel.price || 1000,
-      guest: { guestID: user.guestID }, 
-      room: { roomID: 1 }
+      totalPrice: safeRoom.price, 
+      guest: { guestID: user.guestID },
+      room: { roomID: safeRoom.id } 
     };
 
     try {
-      await api.createBooking(bookingPayload);
-      alert("Booking Successful! Thank you.");
-      navigate('/');
-    } catch (error) {
-      console.error("Booking Error:", error);
-      alert("Booking failed. Please try again.");
+        await api.createBooking(bookingPayload);
+        navigate('/booking-success', { state: { bookingId: "NEW" } }); 
+    } catch(err) {
+        alert("Booking Failed");
     }
   };
 
   return (
-    <div className="booking-page">
-      
-      <main className="booking-container">
+    <div className="bg-white min-h-screen pt-24 pb-20">
+      <main className="max-w-[1200px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16">
         
-        <div className="booking-layout">
-          
-          {/* --- LEFT SIDE: Form Section --- */}
-          <div className="booking-left">
-            <h1>Reservation Form</h1>
-            <p className="sub-text">
-              Please review your details and complete the reservation.
-            </p>
-
-            <button type="button" className="back-link" onClick={() => navigate(-1)}>
-              &larr; Back
+        {/* Left Side: Form */}
+        <div>
+            <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-black font-bold hover:underline mb-8">
+                <ChevronLeft size={20} /> Back
             </button>
-
-            {/* The Actual Form */}
-            <form className="reservation-form" onSubmit={handleConfirm}>
-              <div className="form-group">
-                <label>Full Name</label>
-                <input 
-                  type="text" 
-                  className="input-field" 
-                  value={formData.fullName} 
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  required 
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>Email Address</label>
-                <input 
-                  type="email" 
-                  className="input-field" 
-                  value={formData.email} 
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  required 
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Phone Number</label>
-                <input 
-                  type="tel" 
-                  className="input-field" 
-                  value={formData.phone} 
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Special Requests</label>
-                <textarea 
-                  rows="4" 
-                  className="input-field"
-                  placeholder="Any special requirements?"
-                  value={formData.specialRequests}
-                  onChange={(e) => setFormData({...formData, specialRequests: e.target.value})}
-                ></textarea>
-              </div>
-
-              <button type="submit" className="confirm-btn">Confirm Booking</button>
+            <h1 className="text-4xl font-extrabold mb-2 text-gray-300">Confirm and pay</h1>
+            <p className="text-gray-500 mb-8">Please review your details and complete the reservation.</p>
+            
+            <form className="space-y-6" onSubmit={handleConfirm}>
+                <div>
+                    <label className="block text-sm font-bold text-black mb-2">Full Name</label>
+                    <input 
+                        type="text" 
+                        className="w-full p-4 border border-gray-200 rounded-xl bg-gray-50 outline-none focus:bg-white focus:border-gold transition-colors" 
+                        value={formData.fullName} 
+                        onChange={e => setFormData({...formData, fullName: e.target.value})} 
+                        required 
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-bold text-black mb-2">Email Address</label>
+                    <input 
+                        type="email" 
+                        className="w-full p-4 border border-gray-200 rounded-xl bg-gray-50 outline-none focus:bg-white focus:border-gold transition-colors" 
+                        value={formData.email} 
+                        onChange={e => setFormData({...formData, email: e.target.value})} 
+                        required 
+                    />
+                </div>
+                
+                <button className="bg-black text-white px-8 py-4 rounded-full font-bold hover:bg-gold hover:text-black transition-colors mt-4 w-fit">
+                    Confirm Booking
+                </button>
             </form>
-          </div>
+        </div>
 
-          {/* --- RIGHT SIDE: Summary Card --- */ }
-          <div className="booking-right">
-            <div className="summary-card">
-              
-              {/* Hotel Header */}
-              <div className="summary-header">
-                <div className="summary-image-box">
-                   <img src={safeHotel.image || "/colorful-modern-hotel-room.jpg"} alt={safeHotel.name} />
+        {/* Right Side: Summary */}
+        <div className="bg-gray-50 p-8 rounded-3xl h-fit">
+            <div className="flex gap-6 mb-8">
+                <div className="w-24 h-24 bg-gray-300 rounded-xl overflow-hidden shrink-0">
+                    <img src="/colorful-modern-hotel-room.jpg" className="w-full h-full object-cover" alt="Hotel"/>
                 </div>
-                <div className="summary-info">
-                  <h3>{safeHotel.name}</h3>
-                  <p className="summary-address">{safeHotel.address}</p>
-                  
-                  {/* Show Dates if available */}
-                  {dates && (
-                    <p style={{fontSize:'0.8rem', color:'#666', marginTop:'5px'}}>
-                      <strong>Check-in:</strong> {dates.checkIn} <br/>
-                      <strong>Check-out:</strong> {dates.checkOut}
-                    </p>
-                  )}
+                <div>
+                    <h3 className="text-lg font-bold mb-1">{safeHotel.name}</h3>
+                    <p className="text-gray-500 text-sm mb-2">{safeHotel.address}</p>
+                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+                        {safeRoom.name}
+                    </div>
                 </div>
-              </div>
-
-              <hr className="divider" />
-
-              {/* Price Details */}
-              <div className="price-details">
-                <div className="price-row">
-                  <span>Price per night</span>
-                  <span>$ {safeHotel.price || 1000}</span>
-                </div>
-                <div className="price-row total">
-                  <span>Total</span>
-                  <span>$ {safeHotel.price || 1000}</span>
-                </div>
-              </div>
             </div>
-          </div>
+            
+            <div className="border-t border-gray-200 my-8"></div>
+
+            <div className="space-y-4 text-sm">
+                <div className="flex justify-between text-gray-600">
+                    <span>Check-In</span>
+                    <span className="font-semibold text-black">{dates?.checkIn || "Not set"}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                    <span>Check-Out</span>
+                    <span className="font-semibold text-black">{dates?.checkOut || "Not set"}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                    <span>Room Price</span>
+                    <span>${safeRoom.price}</span>
+                </div>
+            </div>
+
+            <div className="flex justify-between font-extrabold text-xl text-black pt-6 border-t border-gray-200 mt-6">
+                <span>Total</span>
+                <span>${safeRoom.price}</span>
+            </div>
         </div>
       </main>
     </div>
