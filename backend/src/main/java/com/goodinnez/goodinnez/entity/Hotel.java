@@ -15,6 +15,7 @@ public class Hotel {
     private String address;
     private String phone;
     private String email;
+    private String image;
     private Integer stars;
     private LocalTime checkinTime;
     private LocalTime checkoutTime;
@@ -42,6 +43,9 @@ public class Hotel {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getImage() { return image; }
+    public void setImage(String image) { this.image = image; }
 
     public Integer getStars() { return stars; }
     public void setStars(Integer stars) { this.stars = stars; }

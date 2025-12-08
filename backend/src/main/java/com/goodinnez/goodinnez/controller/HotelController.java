@@ -2,8 +2,11 @@ package com.goodinnez.goodinnez.controller;
 
 import com.goodinnez.goodinnez.model.Hotel;
 import com.goodinnez.goodinnez.repository.HotelRepository;
+import com.goodinnez.goodinnez.service.CloudinaryService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,9 +16,12 @@ import java.util.stream.Collectors;
 public class HotelController {
 
     private final HotelRepository hotelRepository;
+    private final CloudinaryService cloudinaryService;
 
-    public HotelController(HotelRepository hotelRepository) {
+    // 4. Update Constructor to include CloudinaryService
+    public HotelController(HotelRepository hotelRepository, CloudinaryService cloudinaryService) {
         this.hotelRepository = hotelRepository;
+        this.cloudinaryService = cloudinaryService;
     }
 
     private Hotel toDTO(com.goodinnez.goodinnez.entity.Hotel h) {
@@ -28,6 +34,8 @@ public class HotelController {
         dto.stars = h.getStars();
         dto.checkinTime = h.getCheckinTime();
         dto.checkoutTime = h.getCheckoutTime();
+        dto.image = h.getImage(); 
+        
         return dto;
     }
 
@@ -42,7 +50,15 @@ public class HotelController {
     }
 
     @PostMapping
-    public Hotel create(@RequestBody com.goodinnez.goodinnez.entity.Hotel hotel) {
+    public Hotel create(
+            @ModelAttribute com.goodinnez.goodinnez.entity.Hotel hotel, 
+            @RequestParam("file") MultipartFile file 
+    ) throws IOException {
+        
+        String imageUrl = cloudinaryService.uploadFile(file);
+        
+        hotel.setImage(imageUrl);
+        
         return toDTO(hotelRepository.save(hotel));
     }
 

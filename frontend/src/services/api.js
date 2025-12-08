@@ -17,13 +17,16 @@ export const api = {
         if (!response.ok) throw new Error("Hotel not found");
         return await response.json();
     },
-    createHotel: async (hotelData) => {
+    createHotel: async (formData) => { // 1. Argument is 'formData'
         const response = await fetch(`${API_BASE_URL}/hotels`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(hotelData),
+            body: formData, // 2. So we must send 'formData' here
         });
-        if (!response.ok) throw new Error("Failed to create hotel");
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || "Failed to list property");
+        }
         return await response.json();
     },
     deleteHotel: async (id) => {

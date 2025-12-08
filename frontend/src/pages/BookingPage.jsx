@@ -16,23 +16,32 @@ export default function BookingPage({ user }) {
     email: user ? user.email : '',
   });
 
+  // --- UPDATED HANDLER ---
   const handleConfirm = async (e) => {
     e.preventDefault();
     if(!user) return alert("Login required");
 
     const bookingPayload = {
+      // 1. Format dates correctly for Java (Backend requires ISO format usually)
+      // Assuming dates are "YYYY-MM-DD" strings from the date picker
       checkinTime: dates?.checkIn ? `${dates.checkIn}T14:00:00` : null,
       checkoutTime: dates?.checkOut ? `${dates.checkOut}T11:00:00` : null,
+      
+      // 2. Use real price and Room ID
       totalPrice: safeRoom.price, 
       guest: { guestID: user.guestID },
       room: { roomID: safeRoom.id } 
     };
 
     try {
-        await api.createBooking(bookingPayload);
-        navigate('/booking-success', { state: { bookingId: "NEW" } }); 
+        // 3. Call API and get response
+        const newBooking = await api.createBooking(bookingPayload);
+        
+        // 4. Navigate to Success Page with the new ID
+        navigate('/booking-success', { state: { bookingId: newBooking.bookingID } }); 
     } catch(err) {
-        alert("Booking Failed");
+        console.error("Booking Error:", err);
+        alert("Booking Failed. Please try again.");
     }
   };
 
@@ -45,7 +54,7 @@ export default function BookingPage({ user }) {
             <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-black font-bold hover:underline mb-8">
                 <ChevronLeft size={20} /> Back
             </button>
-            <h1 className="text-4xl font-extrabold mb-2 text-gray-300">Confirm and pay</h1>
+            <h1 className="text-4xl font-extrabold mb-2 text-black">Confirm and pay</h1>
             <p className="text-gray-500 mb-8">Please review your details and complete the reservation.</p>
             
             <form className="space-y-6" onSubmit={handleConfirm}>
@@ -77,7 +86,7 @@ export default function BookingPage({ user }) {
         </div>
 
         {/* Right Side: Summary */}
-        <div className="bg-gray-50 p-8 rounded-3xl h-fit">
+        <div className="bg-gray-50 p-8 rounded-3xl h-fit border border-gray-100 shadow-sm">
             <div className="flex gap-6 mb-8">
                 <div className="w-24 h-24 bg-gray-300 rounded-xl overflow-hidden shrink-0">
                     <img src="/colorful-modern-hotel-room.jpg" className="w-full h-full object-cover" alt="Hotel"/>
@@ -85,7 +94,7 @@ export default function BookingPage({ user }) {
                 <div>
                     <h3 className="text-lg font-bold mb-1">{safeHotel.name}</h3>
                     <p className="text-gray-500 text-sm mb-2">{safeHotel.address}</p>
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+                    <div className="text-xs font-bold text-gold uppercase tracking-wide bg-yellow-50 px-2 py-1 rounded-md w-fit">
                         {safeRoom.name}
                     </div>
                 </div>

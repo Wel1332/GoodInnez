@@ -8,6 +8,7 @@ public class Hotel {
     public String address;
     public String phone;
     public String email;
+    public String image;
     public Integer stars;
     public LocalTime checkinTime;
     public LocalTime checkoutTime;

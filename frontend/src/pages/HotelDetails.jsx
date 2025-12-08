@@ -36,26 +36,41 @@ export default function HotelDetails() {
   const handleReserve = () => {
     if (!dates.checkIn || !dates.checkOut) return alert("Select dates.");
     if (!selectedRoom) return alert("Select a room.");
+    
     const roomToBook = availableRooms.find(r => r.typeID === selectedRoom.typeID && r.status !== 'Occupied');
     if (!roomToBook) return alert("No rooms available.");
 
     navigate('/booking', { 
-      state: { hotel, dates, guests, room: { id: roomToBook.roomID, name: selectedRoom.name, price: selectedRoom.pricePerNight } } 
+      state: { 
+        hotel, // Contains the image URL
+        dates, 
+        guests, 
+        room: { id: roomToBook.roomID, name: selectedRoom.name, price: selectedRoom.pricePerNight } 
+      } 
     });
   };
 
   if (loading) return <div className="pt-32 text-center">Loading...</div>;
+  if (!hotel) return <div className="pt-32 text-center">Hotel not found.</div>;
 
   return (
     <div className="bg-white min-h-screen pt-24 pb-20 text-black">
       <div className="max-w-[1200px] mx-auto px-8">
+        
+        {/* Gallery */}
         <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-4 h-[450px] mb-12 rounded-3xl overflow-hidden">
-            <img src="/colorful-modern-hotel-room.jpg" className="w-full h-full object-cover" />
+            {/* --- CRITICAL FIX: Use hotel.image --- */}
+            <img 
+              src={hotel.image || "/colorful-modern-hotel-room.jpg"} 
+              alt={hotel.name} 
+              className="w-full h-full object-cover" 
+            />
+            
             <div className="grid grid-rows-2 gap-4">
                 <img src="/luxury-hotel-room.png" className="w-full h-full object-cover" />
                 <div className="relative">
                     <img src="/colorful-modern-bedroom-green.jpg" className="w-full h-full object-cover" />
-                    <button className="absolute inset-0 bg-black/40 text-white font-bold text-xl flex items-center justify-center">+2 Photos</button>
+                    <button className="absolute inset-0 bg-black/40 text-white font-bold text-xl flex items-center justify-center hover:bg-black/50 transition-colors">+2 Photos</button>
                 </div>
             </div>
         </div>
@@ -63,7 +78,10 @@ export default function HotelDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-16">
             <div>
                 <div className="flex justify-between items-start mb-6">
-                    <div><h1 className="text-4xl font-extrabold mb-2">{hotel?.name}</h1><p className="text-gray-500 text-lg">📍 {hotel?.address}</p></div>
+                    <div>
+                        <h1 className="text-4xl font-extrabold mb-2">{hotel.name}</h1>
+                        <p className="text-gray-500 text-lg">📍 {hotel.address}</p>
+                    </div>
                     <div className="flex gap-4"><button className="p-2 hover:bg-gray-100 rounded-full"><Heart /></button><button className="p-2 hover:bg-gray-100 rounded-full"><Share2 /></button></div>
                 </div>
 
@@ -74,7 +92,7 @@ export default function HotelDetails() {
                 </div>
 
                 <div className="mb-10"><h3 className="text-2xl font-bold mb-4">Select Room</h3><div className="flex flex-col gap-4">
-                    {uniqueTypesAvailable.map(typeId => {
+                    {uniqueTypesAvailable.length > 0 ? uniqueTypesAvailable.map(typeId => {
                         const typeDetails = getTypeDetails(typeId);
                         const isSelected = selectedRoom?.typeID === typeId;
                         return (
@@ -83,7 +101,7 @@ export default function HotelDetails() {
                             <div className="text-right"><p className="text-2xl font-extrabold">${typeDetails.pricePerNight}</p></div>
                           </div>
                         );
-                    })}
+                    }) : <p>No rooms available.</p>}
                 </div></div>
             </div>
 
@@ -91,11 +109,11 @@ export default function HotelDetails() {
                 <div className="flex items-baseline gap-2 mb-6"><span className="text-3xl font-bold">${selectedRoom ? selectedRoom.pricePerNight : '---'}</span><span className="text-gray-500">/ night</span></div>
                 <div className="border border-gray-300 rounded-xl mb-4 overflow-hidden">
                     <div className="flex border-b border-gray-300">
-                        <div className="flex-1 p-3 border-r border-gray-300"><label className="block text-[10px] font-bold uppercase">Check-In</label><input type="date" className="w-full outline-none text-sm" onChange={e=>setDates({...dates, checkIn:e.target.value})} /></div>
-                        <div className="flex-1 p-3"><label className="block text-[10px] font-bold uppercase">Check-Out</label><input type="date" className="w-full outline-none text-sm" onChange={e=>setDates({...dates, checkOut:e.target.value})} /></div>
+                        <div className="flex-1 p-3 border-r border-gray-300"><label className="block text-[10px] font-bold text-gray-800 uppercase tracking-wide">Check-In</label><input type="date" className="w-full outline-none text-sm bg-transparent" value={dates.checkIn} onChange={(e) => setDates({...dates, checkIn: e.target.value})} /></div>
+                        <div className="flex-1 p-3"><label className="block text-[10px] font-bold text-gray-800 uppercase tracking-wide">Check-Out</label><input type="date" className="w-full outline-none text-sm bg-transparent" value={dates.checkOut} onChange={(e) => setDates({...dates, checkOut: e.target.value})} /></div>
                     </div>
                 </div>
-                <button className="w-full bg-gold text-black py-4 rounded-xl font-bold text-lg hover:bg-yellow-600 transition-colors" onClick={handleReserve}>Reserve</button>
+                <button className="w-full bg-gold text-black py-4 rounded-xl font-bold text-lg hover:bg-yellow-600 transition-colors" onClick={handleReserve}>{selectedRoom ? `Reserve ${selectedRoom.name}` : "Select a Room"}</button>
             </div>
         </div>
       </div>

@@ -15,6 +15,7 @@ import BookingPage from './pages/BookingPage';
 import GuestProfile from './pages/GuestProfile';
 import MessagesPage from './pages/MessagesPage';
 import NotificationsPage from './pages/NotificationsPage';
+import BookingSuccess from './pages/BookingSuccess';
 
 // Host Pages
 import HostProperties from './pages/host/HostProperties';
@@ -26,8 +27,6 @@ import HostTransactions from './pages/host/HostTransactions';
 import './App.css';
 
 function App() {
-  // --- Auth State with Persistence ---
-  // 1. Initialize state by checking Local Storage first
   const [currentUser, setCurrentUser] = useState(() => {
     const savedUser = localStorage.getItem('goodinnez_user');
     return savedUser ? JSON.parse(savedUser) : null;
@@ -43,7 +42,6 @@ function App() {
   };
 
   const handleLoginSuccess = (user) => {
-    // 2. Save user to Local Storage on login
     localStorage.setItem('goodinnez_user', JSON.stringify(user));
     setCurrentUser(user);
     setShowAuth(false);
@@ -51,11 +49,10 @@ function App() {
   };
 
   const handleLogout = () => {
-    // 3. Remove user from Local Storage on logout
     localStorage.removeItem('goodinnez_user');
     setCurrentUser(null);
     alert("You have been logged out.");
-    window.location.href = '/'; // Force redirect to home
+    window.location.href = '/';
   };
 
   const renderAuthComponent = () => {
@@ -98,6 +95,7 @@ function App() {
             
             {/* Protected Guest Routes */}
             <Route path="/booking" element={<BookingPage user={currentUser} />} />
+            <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/profile" element={<GuestProfile user={currentUser} onLogout={handleLogout} />} />
             <Route path="/messages" element={<MessagesPage user={currentUser} onLogout={handleLogout} />} />
             <Route path="/notifications" element={<NotificationsPage user={currentUser} onLogout={handleLogout} />} />
