@@ -159,5 +159,19 @@ export const api = {
     },
     approveBooking: async (id) => {
         return new Promise((resolve) => setTimeout(resolve, 500)); 
-    }
+    },
+
+    // --- PAYMENTS (NEW) ---
+    createPayment: async (paymentData) => {
+        const response = await fetch(`${API_BASE_URL}/payments`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(paymentData),
+        });
+
+        if (!response.ok) {
+            throw new Error("Payment failed");
+        }
+        return await response.json();
+    },
 };
