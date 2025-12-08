@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { api } from '../services/api';
-import { Eye, EyeOff, X } from 'lucide-react';
+import { Eye, EyeOff, X, User, Briefcase } from 'lucide-react';
 
 export default function Signup({ onClose, onSwitchToLogin }) {
     const maxDate = new Date().toISOString().split("T")[0];
+    
+    // Toggle States
+    const [isPartner, setIsPartner] = useState(false); // Guest vs Partner
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -12,10 +18,9 @@ export default function Signup({ onClose, onSwitchToLogin }) {
         dateOfBirth: '',
         email: '',
         password: '',
+        confirmPassword: '',
         agreedToTerms: false
     });
-
-    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -29,11 +34,22 @@ export default function Signup({ onClose, onSwitchToLogin }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        // 1. Validation
+        if (formData.password !== formData.confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
         if (!formData.agreedToTerms) {
             alert('You must agree to the Terms of Service.');
             return;
         }
-        api.registerGuest(formData)
+
+        // 2. Select API based on Role
+        const registerCall = isPartner ? api.registerEmployee : api.registerGuest;
+
+        // 3. Submit
+        registerCall(formData)
             .then(() => {
                 alert('Account created! Please log in.');
                 onSwitchToLogin(); 
@@ -51,9 +67,25 @@ export default function Signup({ onClose, onSwitchToLogin }) {
                     <X size={24} />
                 </button>
                 
+                {/* --- ROLE TOGGLE --- */}
+                <div className="flex bg-white/5 p-1 rounded-xl mb-6">
+                    <button 
+                        className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold transition-all ${!isPartner ? 'bg-white text-black shadow-md' : 'text-gray-400 hover:text-white'}`}
+                        onClick={() => setIsPartner(false)}
+                    >
+                        <User size={16} /> Guest
+                    </button>
+                    <button 
+                        className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold transition-all ${isPartner ? 'bg-gold text-black shadow-md' : 'text-gray-400 hover:text-white'}`}
+                        onClick={() => setIsPartner(true)}
+                    >
+                        <Briefcase size={16} /> Partner
+                    </button>
+                </div>
+
                 <div className="text-center mb-6">
                     <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
-                    <p className="text-gray-400">Join Good Innez today!</p>
+                    <p className="text-gray-400">{isPartner ? "Become a Host Partner" : "Join Good Innez today!"}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -73,7 +105,7 @@ export default function Signup({ onClose, onSwitchToLogin }) {
                     {/* Contact Info */}
                     <div>
                         <label className="block text-sm font-bold text-gray-300 mb-1">Phone Number</label>
-                        <input type="tel" name="phone" placeholder="+1 234 567 890" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-gold transition-colors" value={formData.phone} onChange={handleChange} required />
+                        <input type="tel" name="phone" placeholder="+63 234 567 890" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-gold transition-colors" value={formData.phone} onChange={handleChange} required />
                     </div>
 
                     <div>
@@ -113,6 +145,26 @@ export default function Signup({ onClose, onSwitchToLogin }) {
                         </div>
                     </div>
 
+                    {/* Confirm Password */}
+                    <div>
+                        <label className="block text-sm font-bold text-gray-300 mb-1">Confirm Password</label>
+                        <div className="relative">
+                            <input 
+                                type={showConfirmPassword ? "text" : "password"} 
+                                name="confirmPassword" 
+                                placeholder="Re-enter password" 
+                                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-gold transition-colors pr-10" 
+                                value={formData.confirmPassword} 
+                                onChange={handleChange} 
+                                minLength="8" 
+                                required 
+                            />
+                            <button type="button" className="absolute right-3 top-3 text-gray-400 hover:text-white" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
+                    </div>
+
                     {/* Terms Checkbox */}
                     <div className="flex items-center gap-2">
                         <input 
@@ -129,7 +181,7 @@ export default function Signup({ onClose, onSwitchToLogin }) {
                     </div>
 
                     <button type="submit" className="w-full bg-gold text-black font-bold py-3 rounded-xl hover:bg-yellow-600 transition-colors mt-2">
-                        Sign Up
+                        {isPartner ? "Register as Partner" : "Sign Up"}
                     </button>
                 </form>
 

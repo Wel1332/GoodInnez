@@ -54,3 +54,33 @@ input, textarea, select {
   font-family: inherit;
   color: var(--text-black);
 }
+
+/* --- 4. CUSTOM SCROLLBAR (Modern & Sleek) --- */
+
+/* Width for vertical scrollbars */
+::-webkit-scrollbar {
+  width: 6px; /* Very thin */
+  height: 6px; /* Very thin for horizontal */
+}
+
+/* The background track (transparent looks best) */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* The moving handle (Thumb) */
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2); /* Light grey */
+  border-radius: 20px; /* Fully rounded */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4); /* Darker grey when grabbing */
+}
+
+/* Support for Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
