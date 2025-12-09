@@ -16,6 +16,7 @@ public class Payment implements Serializable {
     private Integer guestID;
 
     @Id
+    @Column(name = "room_number")
     private Integer roomNumber;
 
     private LocalDateTime checkinTime;
@@ -31,7 +32,7 @@ public class Payment implements Serializable {
     private Guest guest;
 
     @ManyToOne
-    @JoinColumn(name = "roomNumber", insertable = false, updatable = false)
+    @JoinColumn(name = "room_number", insertable = false, updatable = false, referencedColumnName = "roomID")
     private Room room;
 
     // Getters and Setters

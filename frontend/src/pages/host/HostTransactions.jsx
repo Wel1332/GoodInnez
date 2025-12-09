@@ -47,7 +47,7 @@ export default function HostTransactions({ user }) {
                     <h4 className="font-bold text-black mb-1">{trans.title}</h4>
                     <span className="text-sm text-gray-500">{trans.date}</span>
                  </div>
-                 <div className="text-xl font-extrabold text-black">$ {trans.amount} USD</div>
+                 <div className="text-xl font-extrabold text-black">₱{trans.amount}</div>
               </div>
            ))}
         </div>

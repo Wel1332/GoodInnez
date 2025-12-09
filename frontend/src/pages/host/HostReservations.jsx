@@ -72,7 +72,7 @@ export default function HostReservations({ user }) {
                     <span className="text-gray-300">•</span>
                     <span>Guest ID: {res.guestID}</span>
                   </div>
-                  <p className="text-gold font-bold text-lg">${res.totalPrice}</p>
+                  <p className="text-gold font-bold text-lg">₱{res.totalPrice}</p>
                 </div>
 
                 <div className="flex gap-3 mt-4 md:mt-0">

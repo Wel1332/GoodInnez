@@ -142,7 +142,7 @@ export default function HostDashboard({ user }) {
                       </div>
                       <div className="text-right flex flex-col items-end">
                         <span className="text-sm text-gray-600 mb-1">Check-in: {new Date(res.checkinTime).toLocaleDateString()}</span>
-                        <span className="text-lg font-bold text-gold">${res.totalPrice}</span>
+                        <span className="text-lg font-bold text-gold">₱{res.totalPrice}</span>
                       </div>
                       <div className="flex gap-3 pl-4 border-l border-gray-100">
                         <button className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-gold hover:text-black transition-colors" onClick={() => handleApprove(res.bookingID)}>Approve</button>
@@ -171,7 +171,7 @@ export default function HostDashboard({ user }) {
                           <span className="text-sm text-gray-500">{trans.date}</span>
                        </div>
                        <div className="text-xl font-extrabold text-black">
-                          $ {trans.amount} USD
+                          ₱{trans.amount}
                        </div>
                     </div>
                   ))}

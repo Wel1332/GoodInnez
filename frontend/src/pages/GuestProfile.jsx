@@ -154,7 +154,7 @@ export default function GuestProfile({ user }) {
                         </div>
                       </div>
                       <div className="text-right">
-                         <p className="text-lg font-extrabold mb-2">${booking.totalPrice}</p>
+                         <p className="text-lg font-extrabold mb-2">₱{booking.totalPrice}</p>
                          {bookingTab === 'upcoming' && <button className="bg-white border border-red-200 text-red-500 px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-50" onClick={() => handleCancel(booking.bookingID)}>Cancel</button>}
                       </div>
                     </div>

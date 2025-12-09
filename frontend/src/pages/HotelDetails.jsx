@@ -128,7 +128,7 @@ export default function HotelDetails({ user }) {
                         return (
                           <div key={typeId} onClick={() => setSelectedRoom(typeDetails)} className={`p-6 border rounded-2xl cursor-pointer flex justify-between items-center transition-all ${isSelected ? 'border-gold bg-yellow-50/50' : 'border-gray-200 hover:border-black'}`}>
                             <div><h4 className="text-xl font-bold">{typeDetails.name}</h4><p className="text-gray-500 text-sm">{typeDetails.description}</p></div>
-                            <div className="text-right"><p className="text-2xl font-extrabold">${typeDetails.pricePerNight}</p></div>
+                            <div className="text-right"><p className="text-2xl font-extrabold">₱{typeDetails.pricePerNight}</p></div>
                           </div>
                         );
                     }) : <p>No rooms available.</p>}
@@ -136,7 +136,7 @@ export default function HotelDetails({ user }) {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl h-fit sticky top-28">
-                <div className="flex items-baseline gap-2 mb-6"><span className="text-3xl font-bold">${selectedRoom ? selectedRoom.pricePerNight : '---'}</span><span className="text-gray-500">/ night</span></div>
+                <div className="flex items-baseline gap-2 mb-6"><span className="text-3xl font-bold">₱{selectedRoom ? selectedRoom.pricePerNight : '---'}</span><span className="text-gray-500">/ night</span></div>
                 <div className="border border-gray-300 rounded-xl mb-4 overflow-hidden">
                     <div className="flex border-b border-gray-300">
                         <div className="flex-1 p-3 border-r border-gray-300"><label className="block text-[10px] font-bold text-gray-800 uppercase tracking-wide">Check-In</label><input type="date" className="w-full outline-none text-sm bg-transparent" value={dates.checkIn} onChange={(e) => setDates({...dates, checkIn: e.target.value})} /></div>

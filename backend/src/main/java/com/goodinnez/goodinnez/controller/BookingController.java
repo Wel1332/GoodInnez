@@ -44,29 +44,41 @@ public class BookingController {
     // --- UPDATED CREATE METHOD (With Availability Check) ---
     @PostMapping
     public ResponseEntity<?> create(@RequestBody com.goodinnez.goodinnez.entity.Booking booking) {
-        
-        // 1. Validation: Ensure we have a room and dates
-        if (booking.getRoom() == null || booking.getCheckinTime() == null || booking.getCheckoutTime() == null) {
-            return ResponseEntity.badRequest().body("Room, Check-in, and Check-out are required.");
+        try {
+            // 1. Validation: Ensure we have a room and dates
+            if (booking.getRoom() == null || booking.getRoom().getRoomID() == null) {
+                return ResponseEntity.badRequest().body("Room ID is required.");
+            }
+            if (booking.getCheckinTime() == null) {
+                return ResponseEntity.badRequest().body("Check-in time is required.");
+            }
+            if (booking.getCheckoutTime() == null) {
+                return ResponseEntity.badRequest().body("Check-out time is required.");
+            }
+            if (booking.getGuest() == null || booking.getGuest().getGuestID() == null) {
+                return ResponseEntity.badRequest().body("Guest ID is required.");
+            }
+
+            // 2. Availability Check: Call the custom Repository method
+            boolean isOccupied = bookingRepository.existsByRoomAndDates(
+                    booking.getRoom().getRoomID(),
+                    booking.getCheckinTime(),
+                    booking.getCheckoutTime()
+            );
+
+            if (isOccupied) {
+                // Return 409 Conflict if taken
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Sorry, this room is already booked for the selected dates.");
+            }
+
+            // 3. Save if free
+            com.goodinnez.goodinnez.entity.Booking savedBooking = bookingRepository.save(booking);
+            return ResponseEntity.ok(toDTO(savedBooking));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating booking: " + e.getMessage());
         }
-
-        // 2. Availability Check: Call the custom Repository method
-        // (Make sure you updated BookingRepository.java as shown below!)
-        boolean isOccupied = bookingRepository.existsByRoomAndDates(
-                booking.getRoom().getRoomID(),
-                booking.getCheckinTime(),
-                booking.getCheckoutTime()
-        );
-
-        if (isOccupied) {
-            // Return 409 Conflict if taken
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Sorry, this room is already booked for the selected dates.");
-        }
-
-        // 3. Save if free
-        com.goodinnez.goodinnez.entity.Booking savedBooking = bookingRepository.save(booking);
-        return ResponseEntity.ok(toDTO(savedBooking));
     }
 
     @PutMapping("/{id}")

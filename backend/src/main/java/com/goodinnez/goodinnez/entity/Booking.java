@@ -21,7 +21,7 @@ public class Booking {
     private Guest guest;
 
     @ManyToOne
-    @JoinColumn(name = "room_number")
+    @JoinColumn(name = "room_number", referencedColumnName = "roomID")
     @JsonBackReference(value = "room-booking")  // <--- UNIQUE NAME 2
     private Room room;
 
