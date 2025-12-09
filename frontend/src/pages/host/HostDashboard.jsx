@@ -12,7 +12,7 @@ export default function HostDashboard({ user }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) navigate('/');
+    if (!user || user.userType !== 'employee') navigate('/');
   }, [user, navigate]);
 
   useEffect(() => {

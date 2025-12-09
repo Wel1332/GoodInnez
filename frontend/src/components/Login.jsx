@@ -8,14 +8,18 @@ export default function Login({ onClose, onSwitchToSignup, onLoginSuccess }) {
   const [isPartner, setIsPartner] = useState(false); // Toggle state
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const loginCall = isPartner ? api.loginEmployee : api.login;
-    
-    loginCall(formData)
-      .then(onLoginSuccess)
-      .catch(() => setError("Invalid Credentials"));
-  };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const loginCall = isPartner ? api.loginEmployee : api.login;
+
+        loginCall(formData)
+            .then(data => {
+                // Tag the returned user so the app can distinguish employees vs guests
+                const user = { ...data, userType: isPartner ? 'employee' : 'guest' };
+                onLoginSuccess(user);
+            })
+            .catch(() => setError("Invalid Credentials"));
+    };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[1000] p-4">

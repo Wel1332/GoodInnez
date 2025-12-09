@@ -58,12 +58,14 @@ export default function Header({ onOpenAuth, user, onLogout }) {
           </nav>
 
           <div className="flex items-center gap-4">
-            <button 
-              className="hidden md:block bg-gold text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-yellow-600 transition-colors"
-              onClick={() => user ? navigate('/host/properties') : onOpenAuth('login')}
-            >
-              Become a Partner
-            </button>
+            {(!user || user.userType === 'employee') && (
+              <button 
+                className="hidden md:block bg-gold text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-yellow-600 transition-colors"
+                onClick={() => (user && user.userType === 'employee') ? navigate('/host/properties') : onOpenAuth('login')}
+              >
+                Become a Partner
+              </button>
+            )}
             
             <div className="relative" ref={dropdownRef}>
                 <button 
@@ -87,7 +89,9 @@ export default function Header({ onOpenAuth, user, onLogout }) {
                                 <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/profile'))}><User size={16} /> My Profile</button>
                                 <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/profile', { state: { tab: 'bookings' } }))}><CalendarDays size={16} /> Reservations</button>
                                 <div className="h-px bg-white/10 my-1"></div>
-                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/host/properties'))}><Building2 size={16} /> Switch to Hosting</button>
+                                {user && user.userType === 'employee' && (
+                                  <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/host/properties'))}><Building2 size={16} /> Switch to Hosting</button>
+                                )}
                                 <div className="h-px bg-white/10 my-1"></div>
                                 <button className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-900/20 flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(onLogout)}><LogOut size={16} /> Log out</button>
                             </>

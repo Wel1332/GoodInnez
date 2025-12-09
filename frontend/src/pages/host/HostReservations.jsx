@@ -10,7 +10,10 @@ export default function HostReservations({ user }) {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { if (!user) navigate('/'); }, [user, navigate]);
+  useEffect(() => {
+    if (!user || user.userType !== 'employee') navigate('/');
+  }, [user, navigate]);
+
 
   useEffect(() => {
     fetch('http://localhost:8080/api/bookings')

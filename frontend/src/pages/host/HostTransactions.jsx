@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import HostHeader from '../../components/HostHeader';
 import { Download } from 'lucide-react';
 
@@ -7,7 +8,13 @@ const mockTransactions = [
   { id: 2, title: "Payout for Booking #98", date: "10 Mar 2021", amount: 1000, status: "completed" },
 ];
 
-export default function HostTransactions() {
+export default function HostTransactions({ user }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || user.userType !== 'employee') navigate('/');
+  }, [user, navigate]);
+
   const [activeTab, setActiveTab] = useState('completed');
 
   return (

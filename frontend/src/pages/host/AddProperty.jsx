@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { ChevronLeft, Check, Plus, Minus, UploadCloud } from 'lucide-react'; // Added UploadCloud
 
 export default function AddProperty({ user }) {
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!user || user.userType !== 'employee') navigate('/');
+  }, [user, navigate]);
   const [step, setStep] = useState(1);
   
   // New State for the Image

@@ -10,7 +10,6 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer uniqueID;
-    // ... other fields ...
     private String password;
     private String firstName;
     private String lastName;
