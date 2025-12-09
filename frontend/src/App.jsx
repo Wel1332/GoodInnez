@@ -92,6 +92,8 @@ function App() {
             {/* Guest Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/search" element={<ListingPage />} />
+            {/* Backwards-compatible route: /listings */}
+            <Route path="/listings" element={<ListingPage />} />
             <Route path="/hotel/:id" element={<HotelDetails user={currentUser} />} />
             
             {/* Protected Guest Routes */}
