@@ -2,6 +2,7 @@ package com.goodinnez.goodinnez.controller;
 
 import com.goodinnez.goodinnez.model.Booking;
 import com.goodinnez.goodinnez.repository.BookingRepository;
+import com.goodinnez.goodinnez.repository.PaymentRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +16,11 @@ import java.util.stream.Collectors;
 public class BookingController {
 
     private final BookingRepository bookingRepository;
+    private final PaymentRepository paymentRepository;
 
-    public BookingController(BookingRepository bookingRepository) {
+    public BookingController(BookingRepository bookingRepository, PaymentRepository paymentRepository) {
         this.bookingRepository = bookingRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     private Booking toDTO(com.goodinnez.goodinnez.entity.Booking b) {
@@ -94,7 +97,22 @@ public class BookingController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
-        bookingRepository.deleteById(id);
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
+        try {
+            if (!bookingRepository.existsById(id)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Booking not found with ID: " + id);
+            }
+            // Delete related payments first (due to foreign key constraint)
+            var payments = paymentRepository.findByBookingID(id);
+            paymentRepository.deleteAll(payments);
+            
+            // Then delete the booking
+            bookingRepository.deleteById(id);
+            return ResponseEntity.ok("Booking cancelled successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error cancelling booking: " + e.getMessage());
+        }
     }
 }

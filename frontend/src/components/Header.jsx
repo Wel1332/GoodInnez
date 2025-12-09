@@ -87,7 +87,7 @@ export default function Header({ onOpenAuth, user, onLogout }) {
                                 <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/notifications'))}><Bell size={16} /> Notifications</button>
                                 <div className="h-px bg-white/10 my-1"></div>
                                 <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/profile'))}><User size={16} /> My Profile</button>
-                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/profile', { state: { tab: 'bookings' } }))}><CalendarDays size={16} /> Reservations</button>
+                                <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/my-bookings'))}><CalendarDays size={16} /> My Bookings</button>
                                 <div className="h-px bg-white/10 my-1"></div>
                                 {user && user.userType === 'employee' && (
                                   <button className="w-full text-left px-4 py-3 text-gray-200 hover:bg-white/10 hover:text-gold flex items-center gap-3 text-sm transition-colors" onClick={() => handleMenuClick(() => navigate('/host/properties'))}><Building2 size={16} /> Switch to Hosting</button>

@@ -13,6 +13,7 @@ import ListingPage from './pages/ListingPage';
 import HotelDetails from './pages/HotelDetails';
 import BookingPage from './pages/BookingPage';
 import GuestProfile from './pages/GuestProfile';
+import MyBookings from './pages/MyBookings';
 import MessagesPage from './pages/MessagesPage';
 import NotificationsPage from './pages/NotificationsPage';
 import BookingSuccess from './pages/BookingSuccess';
@@ -97,6 +98,7 @@ function App() {
             <Route path="/booking" element={<BookingPage user={currentUser} />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/profile" element={<GuestProfile user={currentUser} onLogout={handleLogout} />} />
+            <Route path="/my-bookings" element={<MyBookings user={currentUser} />} />
             <Route path="/messages" element={<MessagesPage user={currentUser} onLogout={handleLogout} />} />
             <Route path="/notifications" element={<NotificationsPage user={currentUser} onLogout={handleLogout} />} />
 
