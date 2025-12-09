@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Heart, Share2, BedDouble, Bath, Car, PawPrint } from 'lucide-react';
 
-export default function HotelDetails() {
+export default function HotelDetails({ user }) {
   const { id } = useParams();
   const navigate = useNavigate();
   
@@ -12,10 +12,21 @@ export default function HotelDetails() {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [shareTooltip, setShareTooltip] = useState(false);
 
   // Booking State
   const [dates, setDates] = useState({ checkIn: '', checkOut: '' });
   const [guests, setGuests] = useState(1);
+
+  const handleShare = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      setShareTooltip(true);
+      setTimeout(() => setShareTooltip(false), 2000);
+    }).catch(() => {
+      alert("Failed to copy URL. Try again.");
+    });
+  };
 
   useEffect(() => {
     Promise.all([
@@ -24,24 +35,37 @@ export default function HotelDetails() {
       api.getRoomTypes()
     ]).then(([hotelData, roomsData, typesData]) => {
       setHotel(hotelData);
-      setAvailableRooms(roomsData);
-      setRoomTypes(typesData);
+      setAvailableRooms(roomsData || []);
+      setRoomTypes(typesData || []);
+      if (roomsData && roomsData.length > 0 && typesData && typesData.length > 0) {
+        const firstTypeId = roomsData[0].typeID;
+        const firstType = typesData.find(t => t.typeID === firstTypeId);
+        if (firstType) setSelectedRoom(firstType);
+      }
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(err => {
+      console.error("Error fetching hotel details:", err);
+      setLoading(false);
+    });
   }, [id]);
 
   const getTypeDetails = (typeId) => roomTypes.find(t => t.typeID === typeId) || { name: 'Unknown', pricePerNight: 0, description: '' };
   const uniqueTypesAvailable = [...new Set(availableRooms.map(r => r.typeID))];
 
   const handleReserve = () => {
-    if (!dates.checkIn || !dates.checkOut) return alert("Select dates.");
-    if (!selectedRoom) return alert("Select a room.");
+    if (!user) return alert("Please log in to make a booking.");
+    if (!user.guestID) return alert("User profile incomplete. Please update your profile.");
+    if (!dates.checkIn) return alert("Please select a check-in date.");
+    if (!dates.checkOut) return alert("Please select a check-out date.");
+    if (new Date(dates.checkOut) <= new Date(dates.checkIn)) return alert("Check-out date must be after check-in date.");
+    if (!selectedRoom) return alert("Please select a room type.");
     
     const roomToBook = availableRooms.find(r => r.typeID === selectedRoom.typeID && r.status !== 'Occupied');
     if (!roomToBook) return alert("No rooms available.");
 
     navigate('/booking', { 
       state: { 
+        user,
         hotel, // Contains the image URL
         dates, 
         guests, 
@@ -82,7 +106,13 @@ export default function HotelDetails() {
                         <h1 className="text-4xl font-extrabold mb-2">{hotel.name}</h1>
                         <p className="text-gray-500 text-lg">📍 {hotel.address}</p>
                     </div>
-                    <div className="flex gap-4"><button className="p-2 hover:bg-gray-100 rounded-full"><Heart /></button><button className="p-2 hover:bg-gray-100 rounded-full"><Share2 /></button></div>
+                    <div className="flex gap-4">
+                      <button className="p-2 hover:bg-gray-100 rounded-full"><Heart /></button>
+                      <div className="relative">
+                        <button className="p-2 hover:bg-gray-100 rounded-full" onClick={handleShare}><Share2 /></button>
+                        {shareTooltip && <div className="absolute -bottom-10 right-0 bg-black text-white text-xs px-3 py-1 rounded whitespace-nowrap">Copied to clipboard!</div>}
+                      </div>
+                    </div>
                 </div>
 
                 <div className="flex gap-4 mb-10">

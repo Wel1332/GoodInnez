@@ -91,7 +91,7 @@ function App() {
             {/* Guest Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/search" element={<ListingPage />} />
-            <Route path="/hotel/:id" element={<HotelDetails />} />
+            <Route path="/hotel/:id" element={<HotelDetails user={currentUser} />} />
             
             {/* Protected Guest Routes */}
             <Route path="/booking" element={<BookingPage user={currentUser} />} />

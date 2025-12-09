@@ -10,11 +10,13 @@ export default function ListingPage() {
   
   // 1. Get Search Params (Location, Dates, Guests)
   const searchParams = location.state || {}; 
-  const searchLocation = searchParams.location || ""; 
+  const initialLocation = searchParams.location || ""; 
 
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All Rooms");
+  const [resultCount, setResultCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState(initialLocation);
 
   useEffect(() => {
     setLoading(true);
@@ -25,25 +27,58 @@ export default function ListingPage() {
           ...h,
           id: h.hotelID,
           // If DB has image, use it. Else use placeholder.
-          image: h.image || (i % 2 === 0 ? '/hop-inn-hotel.jpg' : '/seda-ayala-center.jpg') 
+          image: h.image || (i % 2 === 0 ? '/hop-inn-hotel.jpg' : '/seda-ayala-center.jpg')
         }));
 
-        // 3. Filter by Search Term (Case insensitive)
-        const filtered = searchLocation 
-          ? mappedHotels.filter(h => 
-              (h.name && h.name.toLowerCase().includes(searchLocation.toLowerCase())) ||
-              (h.address && h.address.toLowerCase().includes(searchLocation.toLowerCase()))
-            )
-          : mappedHotels;
+        // 3. Apply search and category filters together
+        const term = (searchTerm || '').trim().toLowerCase();
+
+        const matchesCategory = (hotel, category) => {
+          if (!category || category === 'All Rooms') return true;
+          const c = category.toLowerCase();
+          // Try several common shapes that backend might use
+          if (hotel.roomType && typeof hotel.roomType === 'string') {
+            if (hotel.roomType.toLowerCase().includes(c)) return true;
+          }
+          if (Array.isArray(hotel.roomTypes)) {
+            if (hotel.roomTypes.some(rt => {
+              if (!rt) return false;
+              if (typeof rt === 'string') return rt.toLowerCase().includes(c);
+              // rt may be object with name/type
+              return (rt.name || rt.type || '').toString().toLowerCase().includes(c);
+            })) return true;
+          }
+          if (Array.isArray(hotel.rooms)) {
+            if (hotel.rooms.some(r => (r.roomType || r.type || r.name || '').toString().toLowerCase().includes(c))) return true;
+          }
+          // Fallback: check hotel's categories or tags
+          if (Array.isArray(hotel.categories) && hotel.categories.some(cat => cat.toString().toLowerCase().includes(c))) return true;
+          // No match found
+          return false;
+        };
+
+        const filtered = mappedHotels.filter(h => {
+          // search term match
+          const matchesTerm = term === '' || (
+            (h.name && h.name.toLowerCase().includes(term)) ||
+            (h.address && h.address.toLowerCase().includes(term))
+          );
+
+          // category match
+          const matchesCat = matchesCategory(h, activeCategory);
+
+          return matchesTerm && matchesCat;
+        });
 
         setHotels(filtered);
+        setResultCount(filtered.length);
         setLoading(false);
       })
       .catch(error => {
         console.error("Error loading hotels:", error);
         setLoading(false);
       });
-  }, [searchLocation]); 
+  }, [searchTerm, activeCategory]); 
 
   // 4. Handle Click (Pass search params forward!)
   const handleCardClick = (id) => {
@@ -60,26 +95,35 @@ export default function ListingPage() {
         
         {/* Filter Bar */}
         <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
-          <div className="flex gap-8 overflow-x-auto pb-2">
-            {["All Rooms", "Standard", "Deluxe", "Suite"].map(cat => (
-                <button 
-                  key={cat} 
-                  onClick={() => setActiveCategory(cat)}
-                  className={`text-gray-500 font-semibold hover:text-black hover:border-b-2 border-gold pb-1 transition-all ${activeCategory === cat ? 'text-black border-b-2 border-gold' : ''}`}
-                >
-                  {cat}
-                </button>
-            ))}
+          <div className="flex-1 flex items-center gap-6">
+            <form onSubmit={(e) => { e.preventDefault(); }} className="flex-1">
+              <input
+                type="search"
+                placeholder="Search city, hotel or address"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-white/5 border border-black/10 rounded-full p-3 text-black bo placeholder:text-gray-400 outline-none focus:border-gold transition-colors"
+              />
+            </form>
+            <div className="flex gap-8 overflow-x-auto pb-2">
+              {["All Rooms", "Standard", "Deluxe", "Suite"].map(cat => (
+                  <button 
+                    key={cat} 
+                    onClick={() => setActiveCategory(cat)}
+                    className={`text-gray-500 font-semibold hover:text-black hover:border-b-2 border-gold pb-1 transition-all ${activeCategory === cat ? 'text-black border-b-2 border-gold' : ''}`}
+                  >
+                    {cat}
+                  </button>
+              ))}
+            </div>
           </div>
-          <button className="flex items-center gap-2 border border-gray-300 px-5 py-2 rounded-full font-semibold hover:border-black transition-colors">
-            Filters <SlidersHorizontal size={16}/>
-          </button>
         </div>
 
         {/* Results Header */}
-        <h2 className="text-3xl font-extrabold mb-8 text-black">
-          {searchLocation ? `Stays in "${searchLocation}"` : "All Available Stays"}
+        <h2 className="text-3xl font-extrabold mb-2 text-black">
+          {searchTerm ? `Stays in "${searchTerm}"` : "All Available Stays"}
         </h2>
+        <p className="text-sm text-gray-500 mb-6">{loading ? 'Searching...' : `${resultCount} result${resultCount !== 1 ? 's' : ''}`} · Category: <span className="font-semibold text-gray-700">{activeCategory}</span></p>
         
         {/* Grid */}
         {loading ? <p className="text-center py-20 text-gray-500">Loading properties...</p> : (
@@ -92,9 +136,10 @@ export default function ListingPage() {
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                    <p className="text-gray-400 font-medium">No properties found matching "{searchLocation}".</p>
-                </div>
+            <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+              <p className="text-gray-400 font-medium">No properties found matching "{searchTerm}" for category "{activeCategory}".</p>
+              <p className="text-sm text-gray-500 mt-3">Try clearing filters or searching a nearby city.</p>
+            </div>
             )
         )}
       </div>
