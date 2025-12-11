@@ -122,7 +122,6 @@ export default function GuestProfile({ onLogout }) {
             <div className="w-32 h-32 bg-black text-white rounded-full mx-auto mb-4 flex items-center justify-center text-5xl font-bold">
                 {user.firstName?.charAt(0).toUpperCase()}
             </div>
-            <button className="text-sm font-bold underline cursor-pointer mb-8 block mx-auto text-black">Update Photo</button>
             
             <h3 className="text-lg font-extrabold mb-2 text-left">Identity Verification</h3>
             <p className="text-sm text-gray-500 text-left mb-6 leading-relaxed">Show others you're really you with the identity verification badge.</p>
@@ -148,13 +147,6 @@ export default function GuestProfile({ onLogout }) {
                  </button>
                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/my-bookings')}>
                     <List size={16} /> All Bookings
-                 </button>
-                 <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/wishlist')}>
-                    <Heart size={16} /> Wishlist
-                 </button>
-                 <div className="border-t border-gray-100 my-2"></div>
-                 <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400">
-                    <Settings size={16} /> Settings
                  </button>
                  {/* FIX: Use handleLogoutClick instead of direct localStorage manipulation */}
                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors" onClick={handleLogoutClick}>

@@ -1,23 +1,24 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CheckCircle, Home, CalendarDays } from 'lucide-react';
+import { Clock, Home, CalendarDays } from 'lucide-react'; // Changed CheckCircle to Clock
 
 export default function BookingSuccess() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { bookingId } = location.state || {}; // Get ID passed from BookingPage
+  const { bookingId } = location.state || {}; 
 
   return (
     <div className="bg-white min-h-screen flex items-center justify-center pt-20 pb-20 px-4">
       <div className="max-w-lg w-full bg-white border border-gray-200 rounded-3xl p-10 text-center shadow-xl animate-in fade-in zoom-in-95 duration-300">
         
         <div className="flex justify-center mb-6">
-          <CheckCircle size={64} className="text-green-500" />
+          {/* Using Clock icon for Pending status */}
+          <Clock size={64} className="text-orange-500" />
         </div>
         
-        <h1 className="text-3xl font-extrabold text-black mb-3">Booking Confirmed!</h1>
+        <h1 className="text-3xl font-extrabold text-black mb-3">Booking Pending!</h1>
         <p className="text-gray-500 mb-8 leading-relaxed">
-          You are all set! We have sent a confirmation email to your inbox.
+          Your reservation has been sent to the host. You will be notified once it is approved.
         </p>
 
         {bookingId && (

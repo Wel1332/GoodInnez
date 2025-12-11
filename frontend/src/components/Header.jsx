@@ -72,7 +72,7 @@ export default function Header({ onOpenAuth, user, onLogout }) {
             {/* BUTTON 2: FOR PARTNERS -> Goes to Dashboard */}
             {user && user.userType === 'employee' && (
                <button 
-                className="hidden md:block bg-gray-100 text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-200 transition-colors"
+                className="hidden md:block bg-gold text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-yellow-600 transition-colors"
                 onClick={() => navigate('/host/properties')}
               >
                 Host Dashboard
