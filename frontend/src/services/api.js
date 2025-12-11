@@ -1,6 +1,6 @@
 const API_BASE_URL = "http://localhost:8080/api";
 
-// Token management
+// Token management (Keep existing implementation)
 const TOKEN_KEY = 'goodinnez_token';
 const USER_KEY = 'goodinnez_user';
 
@@ -17,7 +17,7 @@ export const tokenService = {
     isAuthenticated: () => !!localStorage.getItem(TOKEN_KEY),
 };
 
-// Request/Response interceptor
+// Request/Response interceptor (Keep existing implementation)
 const httpClient = async (url, options = {}) => {
     const token = tokenService.getToken();
     const headers = {
@@ -37,7 +37,6 @@ const httpClient = async (url, options = {}) => {
     try {
         const response = await fetch(url, config);
 
-        // Handle 401 Unauthorized
         if (response.status === 401) {
             tokenService.removeToken();
             tokenService.removeUser();
@@ -82,18 +81,14 @@ export const api = {
         try {
             return await httpClient(`${API_BASE_URL}/hotels`);
         } catch (error) {
-            console.error(error);
             return [];
         }
     },
     
     getMyHotels: async (employeeId) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/hotels/partner/${employeeId}`);
-            if (!response.ok) throw new Error("Failed to fetch my hotels");
-            return await response.json();
+            return await httpClient(`${API_BASE_URL}/hotels/partner/${employeeId}`);
         } catch (error) {
-            console.error(error);
             return [];
         }
     },
@@ -118,23 +113,50 @@ export const api = {
         return await httpClient(`${API_BASE_URL}/hotels/${id}`, { method: "DELETE" });
     },
 
+    updateHotel: async (id, hotelData) => {
+        const token = tokenService.getToken();
+        return await fetch(`${API_BASE_URL}/hotels/${id}`, {
+            method: "PUT",
+            headers: { 
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {}) 
+            },
+            body: JSON.stringify(hotelData),
+        }).then(res => {
+            if (!res.ok) throw new Error("Failed to update property");
+            return res.json();
+        });
+    },
     // --- ROOMS ---
+    createRoom: async (roomData) => {
+        return await httpClient(`${API_BASE_URL}/rooms`, {
+            method: "POST",
+            body: JSON.stringify(roomData),
+        });
+    },
     getRoomsByHotel: async (hotelId) => {
         try {
             return await httpClient(`${API_BASE_URL}/rooms/hotel/${hotelId}`);
         } catch (error) {
-            console.error(error);
             return [];
         }
+    },
+
+    getRoomById: async (id) => {
+        return await httpClient(`${API_BASE_URL}/rooms/${id}`);
     },
     
     getRoomTypes: async () => {
         try {
             return await httpClient(`${API_BASE_URL}/roomtypes`);
         } catch (error) {
-            console.error(error);
             return [];
         }
+    },
+
+    // NEW: Needed to fetch price/name for modification
+    getRoomTypeById: async (id) => {
+        return await httpClient(`${API_BASE_URL}/roomtypes/${id}`);
     },
 
     // --- GUESTS ---
@@ -212,10 +234,22 @@ export const api = {
     getBookings: async () => {
         return await httpClient(`${API_BASE_URL}/bookings`);
     },
+
+    getBookingById: async (id) => {
+        return await httpClient(`${API_BASE_URL}/bookings/${id}`);
+    },
     
     createBooking: async (bookingData) => {
         return await httpClient(`${API_BASE_URL}/bookings`, {
             method: "POST",
+            body: JSON.stringify(bookingData),
+        });
+    },
+
+    // NEW: Update Booking
+    updateBooking: async (id, bookingData) => {
+        return await httpClient(`${API_BASE_URL}/bookings/${id}`, {
+            method: "PUT",
             body: JSON.stringify(bookingData),
         });
     },

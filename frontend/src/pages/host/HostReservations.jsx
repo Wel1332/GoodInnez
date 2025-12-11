@@ -1,45 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
+import { toastService } from '../../lib/toast';
+import { useAuthStore } from '../../store/authStore';
 import HostHeader from '../../components/HostHeader';
 
-export default function HostReservations({ user: propUser }) {
+export default function HostReservations() {
   const navigate = useNavigate();
-  
-  // FAILSAFE
-  const [user, setUser] = useState(() => {
-    if (propUser) return propUser;
-    const saved = localStorage.getItem('goodinnez_user');
-    return saved ? JSON.parse(saved) : null;
-  });
-
+  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState('upcoming'); 
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (propUser) setUser(propUser);
-  }, [propUser]);
-
-  useEffect(() => {
     if (!user || user.userType !== 'employee') {
-        // Handle error visually instead of redirect loop
+        navigate('/');
         return;
     }
 
-    // Only fetch if valid user
-    fetch('http://localhost:8080/api/bookings')
-      .then(res => res.json())
-      .then(data => { setReservations(data); setLoading(false); })
-      .catch(err => setLoading(false));
-  }, [user]);
+    api.getBookings()
+      .then(data => { 
+          setReservations(data); 
+          setLoading(false); 
+      })
+      .catch(err => {
+          console.error(err);
+          toastService.error("Failed to load reservations");
+          setLoading(false);
+      });
+  }, [user, navigate]);
 
-  const handleApprove = async (id) => { alert("Booking Approved!"); };
+  const handleApprove = async (id) => { 
+      // await api.approveBooking(id);
+      toastService.success("Booking Approved!"); 
+  };
 
   const handleReject = async (id) => {
     if (window.confirm("Reject this reservation?")) {
-      await api.rejectBooking(id);
-      setReservations(prev => prev.filter(b => b.bookingID !== id));
+      try {
+        await api.rejectBooking(id);
+        setReservations(prev => prev.filter(b => b.bookingID !== id));
+        toastService.success("Booking rejected");
+      } catch (e) {
+        toastService.error("Failed to reject booking");
+      }
     }
   };
 
@@ -51,7 +55,7 @@ export default function HostReservations({ user: propUser }) {
     return false; 
   });
 
-  if (!user || user.userType !== 'employee') return <div className="pt-32 text-center text-red-500">Access Denied</div>;
+  if (!user) return null;
 
   return (
     <div className="bg-white min-h-screen">

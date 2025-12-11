@@ -187,6 +187,15 @@ function App() {
                 } 
               />
 
+              {/* --- NEW ROUTE FOR EDITING --- */}
+              <Route 
+                path="/host/edit/:id" 
+                element={
+                  <ProtectedRoute requiresPartner={true}>
+                    <AddProperty />
+                  </ProtectedRoute>
+                } 
+              />
             </Routes>
           </main>
           
