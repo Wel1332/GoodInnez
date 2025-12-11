@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
-import { Check, Edit, MapPin, LogOut, Heart, MessageSquare } from 'lucide-react';
+import { 
+  Check, Edit, MapPin, LogOut, Heart, Settings, 
+  List, CalendarDays, Trash2, Star, History, ArrowRight, 
+  Calendar 
+} from 'lucide-react';
 
 export default function GuestProfile({ user }) {
   const navigate = useNavigate();
@@ -39,20 +43,6 @@ export default function GuestProfile({ user }) {
       api.getBookings()
         .then(data => {
             const userBookings = data.filter(b => b.guestID === user.guestID);
-            
-            // If no bookings, add sample data for demonstration
-            // if (userBookings.length === 0) {
-            //   userBookings.push({
-            //     bookingID: 999,
-            //     guestID: user.guestID,
-            //     roomID: 1,
-            //     checkinTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            //     checkoutTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            //     totalPrice: 5000,
-            //     room: { roomID: 1, name: "Deluxe Room" }
-            //   });
-            // }
-            
             setBookings(userBookings);
             setLoading(false);
         })
@@ -130,13 +120,25 @@ export default function GuestProfile({ user }) {
 
             {/* Mini Nav */}
             <div className="mt-8 flex flex-col gap-2">
-                 <button className={`text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'profile' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('profile')}>✏️ Edit Profile</button>
-                 <button className={`text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'bookings' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('bookings')}>📅 Reservations</button>
-                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/my-bookings')}>🗂️ All Bookings</button>
-                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/wishlist')}>❤️ Wishlist</button>
-                 <div className="border-t border-gray-100 my-2"></div>
-                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400">⚙️ Settings</button>
-                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors" onClick={() => { localStorage.clear(); navigate('/'); }}>🚪 Logout</button>
+                  <button className={`flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'profile' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('profile')}>
+                    <Edit size={16} /> Edit Profile
+                  </button>
+                  <button className={`flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'bookings' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('bookings')}>
+                    <CalendarDays size={16} /> Reservations
+                  </button>
+                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/my-bookings')}>
+                    <List size={16} /> All Bookings
+                  </button>
+                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/wishlist')}>
+                    <Heart size={16} /> Wishlist
+                  </button>
+                  <div className="border-t border-gray-100 my-2"></div>
+                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400">
+                    <Settings size={16} /> Settings
+                  </button>
+                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors" onClick={() => { localStorage.clear(); navigate('/'); }}>
+                    <LogOut size={16} /> Logout
+                  </button>
             </div>
         </div>
 
@@ -147,7 +149,7 @@ export default function GuestProfile({ user }) {
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                <div className="flex justify-between items-start mb-12">
                  <div>
-                    <h1 className="text-5xl font-extrabold mb-2 text-black">Hello, {user.firstName}! 👋</h1>
+                    <h1 className="text-5xl font-extrabold mb-2 text-black">Hello, {user.firstName}!</h1>
                     <p className="text-gray-500 text-base">Manage your account settings and preferences</p>
                  </div>
                </div>
@@ -221,7 +223,9 @@ export default function GuestProfile({ user }) {
 
                   <div className="flex justify-end gap-6 pt-8 border-t border-gray-100">
                      <button type="button" className="font-bold text-black px-8 py-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors" onClick={() => window.location.reload()}>Cancel</button>
-                     <button type="submit" className="bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors">✓ Save Changes</button>
+                     <button type="submit" className="bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors flex items-center gap-2">
+                        <Check size={18} /> Save Changes
+                     </button>
                   </div>
                </form>
             </div>
@@ -237,8 +241,13 @@ export default function GuestProfile({ user }) {
               
               <div className="flex gap-6 border-b border-gray-200 mb-8 bg-white px-8 py-4 rounded-t-2xl">
                 {['upcoming', 'past'].map(tab => (
-                    <button key={tab} onClick={() => setBookingTab(tab)} className={`pb-4 text-sm font-bold border-b-2 transition-colors capitalize ${bookingTab === tab ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>
-                      {tab === 'upcoming' ? '📅 Upcoming' : '✓ Past'} ({bookings.filter(b => {
+                    <button 
+                        key={tab} 
+                        onClick={() => setBookingTab(tab)} 
+                        className={`pb-4 text-sm font-bold border-b-2 transition-colors capitalize flex items-center gap-2 ${bookingTab === tab ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                    >
+                      {tab === 'upcoming' ? <Calendar size={16}/> : <History size={16}/>}
+                      {tab} ({bookings.filter(b => {
                         const isPast = new Date(b.checkoutTime) < new Date();
                         return tab === 'upcoming' ? !isPast : isPast;
                       }).length})
@@ -280,7 +289,7 @@ export default function GuestProfile({ user }) {
                           <div className="flex flex-wrap gap-4 items-center text-sm mb-4">
                             <div className="flex items-center gap-2">
                               <span className="bg-gray-50 px-3 py-1 rounded-lg font-medium">{checkinDate.toLocaleDateString()}</span>
-                              <span className="text-gray-400">→</span>
+                              <span className="text-gray-400"><ArrowRight size={14}/></span>
                               <span className="bg-gray-50 px-3 py-1 rounded-lg font-medium">{checkoutDate.toLocaleDateString()}</span>
                             </div>
                             <span className="text-gray-500">•</span>
@@ -290,31 +299,31 @@ export default function GuestProfile({ user }) {
                         <div className="flex flex-col items-end justify-between">
                           <div>
                             <p className="text-right text-sm text-gray-500 mb-1">Total Price</p>
-                            <p className="text-3xl font-extrabold text-black">₱{booking.totalPrice.toLocaleString()}</p>
+                            <p className="text-3xl font-extrabold text-black">₱{booking.totalPrice?.toLocaleString()}</p>
                           </div>
                           <div className="flex flex-col gap-2 mt-4">
                             {!isPast && (
                               <>
                                 <button 
                                   onClick={() => handleModify(booking)}
-                                  className="bg-black text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors"
+                                  className="bg-black text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
                                 >
-                                  ✏️ Modify
+                                  <Edit size={14} /> Modify
                                 </button>
                                 <button 
-                                  className="bg-red-50 border border-red-200 text-red-500 px-6 py-2 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors"
+                                  className="bg-red-50 border border-red-200 text-red-500 px-6 py-2 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
                                   onClick={() => handleCancel(booking.bookingID)}
                                 >
-                                  🗑️ Cancel
+                                  <Trash2 size={14} /> Cancel
                                 </button>
                               </>
                             )}
                             {isPast && (
                               <button 
                                 onClick={() => handleReview(booking.bookingID)}
-                                className="bg-black text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors"
+                                className="bg-black text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
                               >
-                                ⭐ Write Review
+                                <Star size={14} /> Write Review
                               </button>
                             )}
                           </div>

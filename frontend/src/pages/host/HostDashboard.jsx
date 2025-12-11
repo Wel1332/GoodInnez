@@ -20,13 +20,15 @@ export default function HostDashboard({ user }) {
     const fetchData = async () => {
         try {
             if (activeTab === 'properties') {
-                const data = await api.getHotels();
-                setMyHotels(data);
+                if (user && user.uniqueID) {
+                    // --- FETCH ONLY MY HOTELS ---
+                    const data = await api.getMyHotels(user.uniqueID);
+                    setMyHotels(data);
+                }
             } else if (activeTab === 'reservations') {
-                const data = await api.getBookings(); // Using the api wrapper instead of raw fetch
+                const data = await api.getBookings(); 
                 setReservations(data);
             } else if (activeTab === 'transactions') {
-                // Mock Transactions
                 setTransactions([
                     { id: 1, title: "Payout for Booking #102", date: "12 Mar 2024 at 2:00 PM", amount: 1000 },
                     { id: 2, title: "Payout for Booking #98", date: "10 Mar 2024 at 9:00 AM", amount: 2500 },
@@ -39,7 +41,7 @@ export default function HostDashboard({ user }) {
         }
     };
     fetchData();
-  }, [activeTab]);
+  }, [activeTab, user]);
 
   const handleDeleteProperty = async (id) => {
     if (window.confirm("Delete this property?")) {
@@ -112,7 +114,7 @@ export default function HostDashboard({ user }) {
                 {myHotels.map(hotel => (
                   <div key={hotel.hotelID} className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                     <div className="w-full h-48 bg-gray-300">
-                        <img src="/colorful-modern-hotel-room.jpg" alt="Hotel" className="w-full h-full object-cover" />
+                        <img src={hotel.image || "/colorful-modern-hotel-room.jpg"} alt="Hotel" className="w-full h-full object-cover" />
                     </div>
                     <div className="p-4">
                       <h4 className="text-lg font-bold mb-1">{hotel.name}</h4>
@@ -132,10 +134,10 @@ export default function HostDashboard({ user }) {
           {/* 2. RESERVATIONS */}
           {activeTab === 'reservations' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <h1 className="text-3xl font-extrabold mb-8">Reservations</h1>
-               <div className="flex flex-col gap-4">
-                 {reservations.map(res => (
-                   <div key={res.bookingID} className="flex items-center gap-6 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <h1 className="text-3xl font-extrabold mb-8">Reservations</h1>
+                <div className="flex flex-col gap-4">
+                  {reservations.map(res => (
+                    <div key={res.bookingID} className="flex items-center gap-6 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
                       <div className="flex-1">
                         <h4 className="text-lg font-bold text-black mb-1">{res.roomID ? `Room #${res.roomID}` : "Luxury Apartment"}</h4>
                         <p className="text-sm text-gray-500">Guest ID: {res.guestID}</p>
@@ -148,22 +150,22 @@ export default function HostDashboard({ user }) {
                         <button className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-gold hover:text-black transition-colors" onClick={() => handleApprove(res.bookingID)}>Approve</button>
                         <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-xs font-bold hover:bg-red-50 hover:text-red-600 transition-colors" onClick={() => handleReject(res.bookingID)}>Reject</button>
                       </div>
-                   </div>
-                 ))}
-                 {reservations.length === 0 && !loading && <p className="text-gray-400 italic">No reservations found.</p>}
-               </div>
+                    </div>
+                  ))}
+                  {reservations.length === 0 && !loading && <p className="text-gray-400 italic">No reservations found.</p>}
+                </div>
             </div>
           )}
 
           {/* 3. TRANSACTIONS */}
           {activeTab === 'transactions' && (
-             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <div className="flex justify-between items-center mb-8">
-                 <h1 className="text-3xl font-extrabold">Transaction History</h1>
-                 <button className="text-sm font-bold text-gray-500 hover:text-black underline">Download CSV</button>
-               </div>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-extrabold">Transaction History</h1>
+                <button className="text-sm font-bold text-gray-500 hover:text-black underline">Download CSV</button>
+              </div>
 
-               <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4">
                   {transactions.map(trans => (
                     <div key={trans.id} className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-200">
                        <div>
@@ -229,13 +231,13 @@ export default function HostDashboard({ user }) {
           {/* 6. ACCOUNT PROFILE */}
           {activeTab === 'profile' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <div className="flex justify-between items-start mb-10">
+                <div className="flex justify-between items-start mb-10">
                   <div>
                     <h1 className="text-4xl font-extrabold mb-2">Hello, {user.firstName}</h1>
                     <button className="bg-white border border-black rounded-full px-5 py-2 font-bold text-sm hover:bg-gray-50 transition-colors">Edit Profile</button>
                   </div>
-               </div>
-               <div className="max-w-md border border-gray-200 rounded-2xl p-8 text-center bg-white">
+                </div>
+                <div className="max-w-md border border-gray-200 rounded-2xl p-8 text-center bg-white">
                   <div className="w-24 h-24 bg-black text-white rounded-full mx-auto mb-4 flex items-center justify-center text-4xl font-bold">{user.firstName.charAt(0)}</div>
                   <button className="text-black underline font-bold text-sm mb-8">Upload a Photo</button>
                   
@@ -246,7 +248,7 @@ export default function HostDashboard({ user }) {
                     <div className="flex items-center gap-3 text-sm text-gray-700 font-medium"><CheckCircle size={16} /> Email Confirmed</div>
                     <div className="flex items-center gap-3 text-sm text-gray-700 font-medium"><CheckCircle size={16} /> Mobile Confirmed</div>
                   </div>
-               </div>
+                </div>
             </div>
           )}
 

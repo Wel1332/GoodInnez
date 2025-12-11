@@ -3,6 +3,18 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 import { ChevronLeft, CreditCard, Lock } from 'lucide-react';
 
+// --- Helper Function to Calculate Nights ---
+const calculateNights = (start, end) => {
+  if (!start || !end) return 1;
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  // Calculate difference in time
+  const diffTime = Math.abs(endDate - startDate);
+  // Calculate difference in days (1000ms * 60s * 60m * 24h)
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+  return diffDays > 0 ? diffDays : 1; // Default to 1 night if invalid
+};
+
 export default function BookingPage({ user }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -10,6 +22,10 @@ export default function BookingPage({ user }) {
   
   const safeHotel = hotel || { name: "Sample Hotel", address: "Cebu City" };
   const safeRoom = room || { name: "Standard Room", price: 1000, id: 1 };
+
+  // --- Calculate Duration and Total Cost ---
+  const nights = calculateNights(dates?.checkIn, dates?.checkOut);
+  const totalCost = safeRoom.price * nights;
 
   const [formData, setFormData] = useState({
     fullName: user ? `${user.firstName} ${user.lastName}` : '',
@@ -25,7 +41,6 @@ export default function BookingPage({ user }) {
   // Validation Functions
   const validateCardNumber = (cardNum) => {
     const cleaned = cardNum.replace(/\s+/g, '');
-    // Accept any 13-19 digit card number (no Luhn check for testing)
     return /^\d{13,19}$/.test(cleaned);
   };
 
@@ -35,10 +50,12 @@ export default function BookingPage({ user }) {
     const m = parseInt(month, 10);
     const y = parseInt(year, 10);
     if (m < 1 || m > 12) return false;
+    
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear() % 100;
     const currentMonth = currentDate.getMonth() + 1;
     const fullYear = y < 50 ? 2000 + y : 1900 + y;
+    
     if (fullYear < new Date().getFullYear()) return false;
     if (fullYear === new Date().getFullYear() && m < currentMonth) return false;
     return true;
@@ -71,7 +88,7 @@ export default function BookingPage({ user }) {
     const bookingPayload = {
       checkinTime: dates?.checkIn ? `${dates.checkIn}T14:00:00` : null,
       checkoutTime: dates?.checkOut ? `${dates.checkOut}T11:00:00` : null,
-      totalPrice: safeRoom.price, 
+      totalPrice: totalCost, // <--- Sending calculated total
       guest: { guestID: user.guestID },
       room: { roomID: safeRoom.id } 
     };
@@ -87,7 +104,7 @@ export default function BookingPage({ user }) {
             bookingID: newBooking.bookingID,
             guestID: user.guestID,
             roomNumber: safeRoom.id,
-            totalPrice: safeRoom.price,
+            totalPrice: totalCost, // <--- Using calculated total
             checkinTime: bookingPayload.checkinTime,
             checkoutTime: bookingPayload.checkoutTime
         };
@@ -222,12 +239,12 @@ export default function BookingPage({ user }) {
                 </div>
                 
                 <button className="w-full bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gold hover:text-black transition-colors shadow-lg">
-                    Confirm & Pay ₱{safeRoom.price}
+                    Confirm & Pay ₱{totalCost.toLocaleString()}
                 </button>
             </form>
         </div>
 
-        {/* Right Side: Summary (Unchanged) */}
+        {/* Right Side: Summary */}
         <div className="bg-gray-50 p-8 rounded-3xl h-fit border border-gray-100 shadow-sm sticky top-28">
             <div className="flex gap-6 mb-8">
                 <div className="w-24 h-24 bg-gray-300 rounded-xl overflow-hidden shrink-0">
@@ -254,8 +271,12 @@ export default function BookingPage({ user }) {
                     <span className="font-semibold text-black">{dates?.checkOut || "Not set"}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                    <span>Room Price</span>
-                    <span>₱{safeRoom.price}</span>
+                    <span>Duration</span>
+                    <span className="font-semibold text-black">{nights} {nights === 1 ? 'night' : 'nights'}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                    <span>Price per night</span>
+                    <span>₱{safeRoom.price.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                     <span>Service Fee</span>
@@ -265,7 +286,7 @@ export default function BookingPage({ user }) {
 
             <div className="flex justify-between font-extrabold text-xl text-black pt-6 border-t border-gray-200 mt-6">
                 <span>Total</span>
-                <span>₱{safeRoom.price}</span>
+                <span>₱{totalCost.toLocaleString()}</span>
             </div>
         </div>
       </main>

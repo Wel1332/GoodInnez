@@ -14,16 +14,19 @@ export default function HostProperties({ user }) {
   }, [user, navigate]);
 
   useEffect(() => {
-    api.getHotels()
-      .then(data => {
-        setMyHotels(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
+    // --- LOAD ONLY PARTNER'S HOTELS ---
+    if (user && user.uniqueID) {
+        api.getMyHotels(user.uniqueID)
+          .then(data => {
+            setMyHotels(data);
+            setLoading(false);
+          })
+          .catch(err => {
+            console.error(err);
+            setLoading(false);
+          });
+    }
+  }, [user]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to remove this property?")) {
@@ -58,16 +61,12 @@ export default function HostProperties({ user }) {
             {myHotels.map(hotel => (
               <div key={hotel.hotelID} className="flex flex-col gap-4 group">
                 
-                {/* --- IMAGE BOX UPDATE --- */}
                 <div className="w-full h-[250px] bg-gray-200 rounded-xl overflow-hidden relative shadow-sm">
                   <img 
                     src={hotel.image || "/colorful-modern-hotel-room.jpg"} 
                     alt={hotel.name} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                   />
-                  
-                  {/* Optional: Add status badge if needed */}
-                  {/* <div className="absolute top-3 left-3 bg-white/90 px-3 py-1 rounded-full text-xs font-bold text-green-600">Active</div> */}
                 </div>
                 
                 <div>

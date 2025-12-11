@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import { Calendar, MapPin, DollarSign, Trash2 } from 'lucide-react';
+import { 
+  Calendar, MapPin, DollarSign, Trash2, 
+  CheckCircle, XCircle, Edit, Star 
+} from 'lucide-react';
 
 export default function MyBookings({ user }) {
   const navigate = useNavigate();
@@ -15,41 +18,14 @@ export default function MyBookings({ user }) {
 
   useEffect(() => {
     if (user) {
-      console.log("User data:", user);
       api.getBookings()
         .then(data => {
-          console.log("All bookings from API:", data);
-          console.log("User guestID:", user.guestID);
-          const userBookings = data.filter(b => {
-            console.log("Booking:", b, "guestID:", b.guestID);
-            return b.guestID === user.guestID;
-          });
-          console.log("Filtered user bookings:", userBookings);
-          
-          // If no bookings, add a sample booking for testing
-          // if (userBookings.length === 0) {
-          //   console.log("No bookings found, adding sample data");
-          //   userBookings.push({
-          //     bookingID: 999,
-          //     guestID: user.guestID,
-          //     roomID: 1,
-          //     checkinTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          //     checkoutTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          //     totalPrice: 5000,
-          //     room: {
-          //       roomID: 1,
-          //       name: "Deluxe Room",
-          //       roomType: { name: "Deluxe Room", typeID: 1 }
-          //     }
-          //   });
-          // }
-          
+          const userBookings = data.filter(b => b.guestID === user.guestID);
           setBookings(userBookings);
           setLoading(false);
         })
         .catch(err => {
           console.error("Failed to fetch bookings:", err);
-          alert("Error loading bookings: " + err.message);
           setLoading(false);
         });
     }
@@ -69,7 +45,6 @@ export default function MyBookings({ user }) {
   };
 
   const handleModify = (booking) => {
-    // Navigate to booking page with modification intent
     navigate('/booking', { 
       state: { 
         bookingId: booking.bookingID,
@@ -106,13 +81,16 @@ export default function MyBookings({ user }) {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-4 text-sm font-bold border-b-2 transition-colors capitalize ${
+              className={`pb-4 text-sm font-bold border-b-2 transition-colors capitalize flex items-center gap-2 ${
                 activeTab === tab 
                   ? 'border-black text-black' 
                   : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
             >
-              {tab === 'upcoming' ? '📅 Upcoming' : tab === 'past' ? '✓ Past' : '❌ Cancelled'}
+              {tab === 'upcoming' && <Calendar size={16} />}
+              {tab === 'past' && <CheckCircle size={16} />}
+              {tab === 'cancelled' && <XCircle size={16} />}
+              {tab}
             </button>
           ))}
         </div>
@@ -206,9 +184,9 @@ export default function MyBookings({ user }) {
                             <>
                               <button 
                                 onClick={() => handleModify(booking)}
-                                className="bg-black text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-gray-800 transition-colors"
+                                className="bg-black text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
                               >
-                                ✏️ Modify
+                                <Edit size={16} /> Modify
                               </button>
                               <button 
                                 onClick={() => handleCancel(booking.bookingID)}
@@ -221,9 +199,9 @@ export default function MyBookings({ user }) {
                           {isPast && (
                             <button 
                               onClick={() => handleReview(booking.bookingID)}
-                              className="bg-black text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-gray-800 transition-colors"
+                              className="bg-black text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
                             >
-                              ⭐ Write Review
+                              <Star size={16} /> Write Review
                             </button>
                           )}
                         </div>

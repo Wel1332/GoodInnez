@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
-import { ChevronLeft, Check, Plus, Minus, UploadCloud } from 'lucide-react'; // Added UploadCloud
+import { ChevronLeft, Check, Plus, Minus, UploadCloud } from 'lucide-react';
 
 export default function AddProperty({ user }) {
   const navigate = useNavigate();
@@ -11,7 +11,6 @@ export default function AddProperty({ user }) {
   }, [user, navigate]);
   const [step, setStep] = useState(1);
   
-  // New State for the Image
   const [imageFile, setImageFile] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -27,7 +26,6 @@ export default function AddProperty({ user }) {
     }));
   };
 
-  // Handle File Selection
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
@@ -36,26 +34,28 @@ export default function AddProperty({ user }) {
 
   const handleSubmit = async () => {
     try {
-      // 1. Create FormData object (Required for file uploads)
       const data = new FormData();
       
-      // 2. Append text fields
       data.append("name", formData.name);
       data.append("address", formData.address);
       data.append("description", `Type: ${formData.propertyType}. ${formData.description}`);
       data.append("stars", 5);
-      // You can append other fields like user email if needed by your backend logic
-      // data.append("ownerEmail", user.email); 
+      
+      // --- LINK TO PARTNER ---
+      if (user && user.uniqueID) {
+          data.append("ownerId", user.uniqueID);
+      } else {
+          alert("User session invalid. Please log in again.");
+          return;
+      }
 
-      // 3. Append the File
       if (imageFile) {
-        data.append("file", imageFile); // 'file' must match the @RequestParam in Spring Boot
+        data.append("file", imageFile); 
       } else {
         alert("Please upload a cover photo!");
         return;
       }
 
-      // 4. Send to API
       await api.createHotel(data);
       alert("Property Listed Successfully!");
       navigate('/host/properties'); 
@@ -115,7 +115,6 @@ export default function AddProperty({ user }) {
                             <textarea rows="4" className="w-full p-4 border border-gray-300 rounded-xl focus:border-black outline-none resize-none transition-colors" placeholder="Tell guests about your place..." value={formData.description} onChange={(e) => updateData('description', e.target.value)} />
                         </div>
                         
-                        {/* --- IMAGE UPLOAD UI --- */}
                         <div>
                             <label className="block font-bold text-sm mb-2 text-black">Cover Photo</label>
                             <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer relative flex flex-col items-center justify-center gap-2">
@@ -164,14 +163,14 @@ export default function AddProperty({ user }) {
                     <h1 className="text-3xl font-bold text-black mb-8 text-center">{step === 4 ? "Amenities" : "Safety Features"}</h1>
                     <div className="grid grid-cols-2 gap-4 mb-8">
                         {(step === 4 ? ['Wifi', 'TV', 'Kitchen', 'Washer', 'AC', 'Pool'] : ['Smoke Alarm', 'First Aid', 'Fire Extinguisher']).map(item => {
-                             const field = step === 4 ? 'amenities' : 'safety';
-                             const isSelected = formData[field].includes(item);
-                             return (
+                              const field = step === 4 ? 'amenities' : 'safety';
+                              const isSelected = formData[field].includes(item);
+                              return (
                                 <div key={item} onClick={() => toggleItem(field, item)} className={`p-4 border rounded-xl cursor-pointer flex items-center justify-between transition-all hover:border-black ${isSelected ? 'border-black bg-gray-50' : 'border-gray-200'}`}>
                                     <span className="font-bold text-black">{item}</span>
                                     {isSelected && <Check size={18} className="text-black" />}
                                 </div>
-                             )
+                              )
                         })}
                     </div>
                     <div className="flex justify-end mt-8">

@@ -21,9 +21,8 @@ public class BookingController {
 
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
-    private final RoomRepository roomRepository; // 1. Add RoomRepository
+    private final RoomRepository roomRepository;
 
-    // 2. Update Constructor
     public BookingController(BookingRepository bookingRepository, PaymentRepository paymentRepository, RoomRepository roomRepository) {
         this.bookingRepository = bookingRepository;
         this.paymentRepository = paymentRepository;
@@ -55,18 +54,21 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody com.goodinnez.goodinnez.entity.Booking booking) {
         try {
-            // --- VALIDATION ---
+            // 1. Validation
             if (booking.getRoom() == null || booking.getRoom().getRoomID() == null) {
                 return ResponseEntity.badRequest().body("Room ID is required.");
             }
-            if (booking.getCheckinTime() == null || booking.getCheckoutTime() == null) {
-                return ResponseEntity.badRequest().body("Check-in and Check-out times are required.");
+            if (booking.getCheckinTime() == null) {
+                return ResponseEntity.badRequest().body("Check-in time is required.");
+            }
+            if (booking.getCheckoutTime() == null) {
+                return ResponseEntity.badRequest().body("Check-out time is required.");
             }
             if (booking.getGuest() == null || booking.getGuest().getGuestID() == null) {
                 return ResponseEntity.badRequest().body("Guest ID is required.");
             }
 
-            // --- AVAILABILITY CHECK ---
+            // 2. Availability Check
             boolean isOccupied = bookingRepository.existsByRoomAndDates(
                     booking.getRoom().getRoomID(),
                     booking.getCheckinTime(),
@@ -78,25 +80,27 @@ public class BookingController {
                         .body("Sorry, this room is already booked for the selected dates.");
             }
 
-            // --- PRICE CALCULATION (NEW) ---
-            // 1. Fetch the Room to get the Price Per Night
+            // 3. Price Calculation (FIXED)
             Room room = roomRepository.findById(booking.getRoom().getRoomID())
                     .orElseThrow(() -> new RuntimeException("Room not found"));
 
-            // 2. Calculate number of nights
-            long nights = ChronoUnit.DAYS.between(booking.getCheckinTime(), booking.getCheckoutTime());
-            if (nights < 1) nights = 1; // Minimum charge of 1 night
+            // FIX: Convert to LocalDate to ignore the time component (14:00 vs 11:00)
+            long nights = ChronoUnit.DAYS.between(
+                    booking.getCheckinTime().toLocalDate(), 
+                    booking.getCheckoutTime().toLocalDate()
+            );
+            
+            if (nights < 1) nights = 1;
 
-            // 3. Calculate Total: PricePerNight * Nights
             BigDecimal pricePerNight = room.getRoomType().getPricePerNight();
             BigDecimal calculatedTotal = pricePerNight.multiply(BigDecimal.valueOf(nights));
 
-            // 4. Set the calculated price (Overrides whatever the frontend sent)
             booking.setTotalPrice(calculatedTotal);
 
-            // --- SET DEFAULT STATUS ---
-            booking.setStatus("PENDING"); 
-            
+            // 4. Set Default Status
+            booking.setStatus("Pending");
+
+            // 5. Save
             com.goodinnez.goodinnez.entity.Booking savedBooking = bookingRepository.save(booking);
             return ResponseEntity.ok(toDTO(savedBooking));
         } catch (Exception e) {
@@ -122,16 +126,18 @@ public class BookingController {
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         try {
             if (!bookingRepository.existsById(id)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Booking not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Booking not found with ID: " + id);
             }
-            // Delete related payments first
             var payments = paymentRepository.findByBookingID(id);
             paymentRepository.deleteAll(payments);
             
             bookingRepository.deleteById(id);
+            
             return ResponseEntity.ok("Booking cancelled successfully.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error cancelling booking: " + e.getMessage());
         }
     }
 }

@@ -3,10 +3,10 @@ import { api } from '../services/api';
 import { Eye, EyeOff, X, Briefcase, User } from 'lucide-react';
 
 export default function Login({ onClose, onSwitchToSignup, onLoginSuccess }) {
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [showPassword, setShowPassword] = useState(false);
-  const [isPartner, setIsPartner] = useState(false); // Toggle state
-  const [error, setError] = useState('');
+    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false);
+    const [isPartner, setIsPartner] = useState(false); // Toggle state
+    const [error, setError] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -21,9 +21,9 @@ export default function Login({ onClose, onSwitchToSignup, onLoginSuccess }) {
             .catch(() => setError("Invalid Credentials"));
     };
 
-  return (
+    return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[1000] p-4">
-      <div className="bg-[#1a1a1a] border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in-95">
+        <div className="bg-[#1a1a1a] border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in-95">
         <button className="absolute top-4 right-4 text-gray-400 hover:text-white" onClick={onClose}><X size={24}/></button>
         
         {/* Toggle Switch */}
@@ -67,7 +67,7 @@ export default function Login({ onClose, onSwitchToSignup, onLoginSuccess }) {
         </form>
 
         <p className="text-center text-gray-400 mt-6 text-sm">Don't have an account? <button className="text-gold font-bold hover:underline" onClick={onSwitchToSignup}>Sign up</button></p>
-      </div>
+        </div>
     </div>
-  );
+    );
 }

@@ -12,6 +12,16 @@ export const api = {
             return [];
         }
     },
+    getMyHotels: async (employeeId) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/hotels/partner/${employeeId}`);
+            if (!response.ok) throw new Error("Failed to fetch my hotels");
+            return await response.json();
+        } catch (error) {
+            console.error(error);
+            return [];
+        }
+    },
     getHotelById: async (id) => {
         const response = await fetch(`${API_BASE_URL}/hotels/${id}`);
         if (!response.ok) throw new Error("Hotel not found");
