@@ -8,14 +8,23 @@ const mockTransactions = [
   { id: 2, title: "Payout for Booking #98", date: "10 Mar 2021", amount: 1000, status: "completed" },
 ];
 
-export default function HostTransactions({ user }) {
+export default function HostTransactions({ user: propUser }) {
   const navigate = useNavigate();
 
+  // FAILSAFE
+  const [user, setUser] = useState(() => {
+    if (propUser) return propUser;
+    const saved = localStorage.getItem('goodinnez_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
   useEffect(() => {
-    if (!user || user.userType !== 'employee') navigate('/');
-  }, [user, navigate]);
+    if (propUser) setUser(propUser);
+  }, [propUser]);
 
   const [activeTab, setActiveTab] = useState('completed');
+
+  if (!user || user.userType !== 'employee') return <div className="pt-32 text-center text-red-500">Access Denied</div>;
 
   return (
     <div className="bg-white min-h-screen">
