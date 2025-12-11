@@ -1,30 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
-import { Heart, Share2, BedDouble, Bath, Car, PawPrint } from 'lucide-react';
+import { toastService } from '../lib/toast';
+import { useAuthStore } from '../store/authStore';
+import { HotelDetailsSkeleton } from '../components/LoadingSkeleton';
+import { Heart, Share2, BedDouble, Bath, Car, PawPrint, Loader } from 'lucide-react';
 
-export default function HotelDetails({ user }) {
+export default function HotelDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuthStore();
   
   const [hotel, setHotel] = useState(null);
   const [roomTypes, setRoomTypes] = useState([]);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isReserving, setIsReserving] = useState(false);
   const [shareTooltip, setShareTooltip] = useState(false);
 
-  // Booking State
-  const [dates, setDates] = useState({ checkIn: '', checkOut: '' });
-  const [guests, setGuests] = useState(1);
+  // Booking State - Initialize from location.state if available
+  const [dates, setDates] = useState({ 
+    checkIn: location.state?.checkIn || '', 
+    checkOut: location.state?.checkOut || '' 
+  });
+  const [guests, setGuests] = useState(location.state?.guests || 1);
 
   const handleShare = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
-      setShareTooltip(true);
-      setTimeout(() => setShareTooltip(false), 2000);
+      toastService.success('Link copied to clipboard!');
     }).catch(() => {
-      alert("Failed to copy URL. Try again.");
+      toastService.error('Failed to copy link');
     });
   };
 
@@ -44,7 +52,7 @@ export default function HotelDetails({ user }) {
       }
       setLoading(false);
     }).catch(err => {
-      console.error("Error fetching hotel details:", err);
+      toastService.error('Failed to load hotel details');
       setLoading(false);
     });
   }, [id]);
@@ -53,29 +61,55 @@ export default function HotelDetails({ user }) {
   const uniqueTypesAvailable = [...new Set(availableRooms.map(r => r.typeID))];
 
   const handleReserve = () => {
-    if (!user) return alert("Please log in to make a booking.");
-    if (!user.guestID) return alert("User profile incomplete. Please update your profile.");
-    if (!dates.checkIn) return alert("Please select a check-in date.");
-    if (!dates.checkOut) return alert("Please select a check-out date.");
-    if (new Date(dates.checkOut) <= new Date(dates.checkIn)) return alert("Check-out date must be after check-in date.");
-    if (!selectedRoom) return alert("Please select a room type.");
+    if (!user) {
+      toastService.error('Please log in to make a booking');
+      navigate('/');
+      return;
+    }
+    if (!user.guestID) {
+      toastService.error('User profile incomplete. Please update your profile.');
+      return;
+    }
+    if (!dates.checkIn) {
+      toastService.error('Please select a check-in date');
+      return;
+    }
+    if (!dates.checkOut) {
+      toastService.error('Please select a check-out date');
+      return;
+    }
+    if (new Date(dates.checkOut) <= new Date(dates.checkIn)) {
+      toastService.error('Check-out date must be after check-in date');
+      return;
+    }
+    if (!selectedRoom) {
+      toastService.error('Please select a room type');
+      return;
+    }
     
     const roomToBook = availableRooms.find(r => r.typeID === selectedRoom.typeID && r.status !== 'Occupied');
-    if (!roomToBook) return alert("No rooms available.");
+    if (!roomToBook) {
+      toastService.error('No rooms available for selected type');
+      return;
+    }
 
-    navigate('/booking', { 
-      state: { 
-        user,
-        hotel, // Contains the image URL
-        dates, 
-        guests, 
-        room: { id: roomToBook.roomID, name: selectedRoom.name, price: selectedRoom.pricePerNight } 
-      } 
-    });
+    setIsReserving(true);
+    setTimeout(() => {
+      navigate('/booking', { 
+        state: { 
+          user,
+          hotel,
+          dates, 
+          guests, 
+          room: { id: roomToBook.roomID, name: selectedRoom.name, price: selectedRoom.pricePerNight } 
+        } 
+      });
+      setIsReserving(false);
+    }, 300);
   };
 
-  if (loading) return <div className="pt-32 text-center">Loading...</div>;
-  if (!hotel) return <div className="pt-32 text-center">Hotel not found.</div>;
+  if (loading) return <div className="pt-32 text-center"><HotelDetailsSkeleton /></div>;
+  if (!hotel) return <div className="pt-32 text-center text-gray-500">Hotel not found.</div>;
 
   return (
     <div className="bg-white min-h-screen pt-24 pb-20 text-black">
@@ -83,7 +117,6 @@ export default function HotelDetails({ user }) {
         
         {/* Gallery */}
         <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-4 h-[450px] mb-12 rounded-3xl overflow-hidden">
-            {/* --- CRITICAL FIX: Use hotel.image --- */}
             <img 
               src={hotel.image || "/colorful-modern-hotel-room.jpg"} 
               alt={hotel.name} 
@@ -107,11 +140,8 @@ export default function HotelDetails({ user }) {
                         <p className="text-gray-500 text-lg">📍 {hotel.address}</p>
                     </div>
                     <div className="flex gap-4">
-                      <button className="p-2 hover:bg-gray-100 rounded-full"><Heart /></button>
-                      <div className="relative">
-                        <button className="p-2 hover:bg-gray-100 rounded-full" onClick={handleShare}><Share2 /></button>
-                        {shareTooltip && <div className="absolute -bottom-10 right-0 bg-black text-white text-xs px-3 py-1 rounded whitespace-nowrap">Copied to clipboard!</div>}
-                      </div>
+                      <button className="p-2 hover:bg-gray-100 rounded-full transition-colors"><Heart /></button>
+                      <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" onClick={handleShare}><Share2 /></button>
                     </div>
                 </div>
 
@@ -121,7 +151,9 @@ export default function HotelDetails({ user }) {
                     ))}
                 </div>
 
-                <div className="mb-10"><h3 className="text-2xl font-bold mb-4">Select Room</h3><div className="flex flex-col gap-4">
+                <div className="mb-10">
+                  <h3 className="text-2xl font-bold mb-4">Select Room</h3>
+                  <div className="flex flex-col gap-4">
                     {uniqueTypesAvailable.length > 0 ? uniqueTypesAvailable.map(typeId => {
                         const typeDetails = getTypeDetails(typeId);
                         const isSelected = selectedRoom?.typeID === typeId;
@@ -131,19 +163,33 @@ export default function HotelDetails({ user }) {
                             <div className="text-right"><p className="text-2xl font-extrabold">₱{typeDetails.pricePerNight}</p></div>
                           </div>
                         );
-                    }) : <p>No rooms available.</p>}
-                </div></div>
+                    }) : <p className="text-gray-500">No rooms available.</p>}
+                  </div>
+                </div>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl h-fit sticky top-28">
                 <div className="flex items-baseline gap-2 mb-6"><span className="text-3xl font-bold">₱{selectedRoom ? selectedRoom.pricePerNight : '---'}</span><span className="text-gray-500">/ night</span></div>
                 <div className="border border-gray-300 rounded-xl mb-4 overflow-hidden">
                     <div className="flex border-b border-gray-300">
-                        <div className="flex-1 p-3 border-r border-gray-300"><label className="block text-[10px] font-bold text-gray-800 uppercase tracking-wide">Check-In</label><input type="date" className="w-full outline-none text-sm bg-transparent" value={dates.checkIn} onChange={(e) => setDates({...dates, checkIn: e.target.value})} /></div>
-                        <div className="flex-1 p-3"><label className="block text-[10px] font-bold text-gray-800 uppercase tracking-wide">Check-Out</label><input type="date" className="w-full outline-none text-sm bg-transparent" value={dates.checkOut} onChange={(e) => setDates({...dates, checkOut: e.target.value})} /></div>
+                        <div className="flex-1 p-3 border-r border-gray-300">
+                          <label className="block text-[10px] font-bold text-gray-800 uppercase tracking-wide">Check-In</label>
+                          <input type="date" className="w-full outline-none text-sm bg-transparent" value={dates.checkIn} onChange={(e) => setDates({...dates, checkIn: e.target.value})} />
+                        </div>
+                        <div className="flex-1 p-3">
+                          <label className="block text-[10px] font-bold text-gray-800 uppercase tracking-wide">Check-Out</label>
+                          <input type="date" className="w-full outline-none text-sm bg-transparent" value={dates.checkOut} onChange={(e) => setDates({...dates, checkOut: e.target.value})} />
+                        </div>
                     </div>
                 </div>
-                <button className="w-full bg-gold text-black py-4 rounded-xl font-bold text-lg hover:bg-yellow-600 transition-colors" onClick={handleReserve}>{selectedRoom ? `Reserve ${selectedRoom.name}` : "Select a Room"}</button>
+                <button 
+                  disabled={isReserving}
+                  className="w-full bg-gold text-black py-4 rounded-xl font-bold text-lg hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleReserve}
+                >
+                  {isReserving && <Loader size={20} className="animate-spin" />}
+                  {selectedRoom ? `Reserve ${selectedRoom.name}` : "Select a Room"}
+                </button>
             </div>
         </div>
       </div>

@@ -1,45 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import { 
-  Calendar, MapPin, DollarSign, Trash2, 
-  CheckCircle, XCircle, Edit, Star 
-} from 'lucide-react';
+import { toastService } from '../lib/toast';
+import { useAuthStore } from '../store/authStore';
+import { Calendar, MapPin, DollarSign, Trash2 } from 'lucide-react';
 
-export default function MyBookings({ user }) {
+export default function MyBookings() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('upcoming');
 
   useEffect(() => {
-    if (!user) navigate('/');
-  }, [user, navigate]);
-
-  useEffect(() => {
-    if (user) {
-      api.getBookings()
-        .then(data => {
-          const userBookings = data.filter(b => b.guestID === user.guestID);
-          setBookings(userBookings);
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error("Failed to fetch bookings:", err);
-          setLoading(false);
-        });
+    if (!user) {
+      navigate('/');
+      return;
     }
-  }, [user]);
+
+    api.getBookings()
+      .then(data => {
+        const userBookings = data.filter(b => b.guestID === user.guestID);
+        setBookings(userBookings);
+        setLoading(false);
+      })
+      .catch(err => {
+        toastService.error('Failed to load bookings');
+        setLoading(false);
+      });
+  }, [user, navigate]);
 
   const handleCancel = async (bookingID) => {
     if (window.confirm("Are you sure you want to cancel this reservation?")) {
       try {
         await api.cancelBooking(bookingID);
         setBookings(prev => prev.filter(b => b.bookingID !== bookingID));
-        alert("Booking cancelled successfully.");
+        toastService.success('Booking cancelled successfully');
       } catch (err) {
-        console.error("Cancel error:", err);
-        alert("Failed to cancel booking: " + err.message);
+        toastService.error(err.message || 'Failed to cancel booking');
       }
     }
   };
@@ -55,7 +53,7 @@ export default function MyBookings({ user }) {
   };
 
   const handleReview = (bookingID) => {
-    alert("Review feature coming soon! Thank you for staying with us.");
+    toastService.success('Review feature coming soon! Thank you for staying with us.');
   };
 
   const filteredBookings = bookings.filter(b => {
@@ -77,7 +75,7 @@ export default function MyBookings({ user }) {
 
         {/* Tabs */}
         <div className="flex gap-8 border-b border-gray-200 mb-12 bg-white px-8 py-4 rounded-t-2xl">
-          {['upcoming', 'past', 'cancelled'].map(tab => (
+          {['upcoming', 'past'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -87,10 +85,10 @@ export default function MyBookings({ user }) {
                   : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
             >
-              {tab === 'upcoming' && <Calendar size={16} />}
-              {tab === 'past' && <CheckCircle size={16} />}
-              {tab === 'cancelled' && <XCircle size={16} />}
-              {tab}
+              {tab === 'upcoming' ? '📅 Upcoming' : '✓ Past'} ({bookings.filter(b => {
+                const isPast = new Date(b.checkoutTime) < new Date();
+                return tab === 'upcoming' ? !isPast : isPast;
+              }).length})
             </button>
           ))}
         </div>

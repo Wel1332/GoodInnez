@@ -1,17 +1,92 @@
 const API_BASE_URL = "http://localhost:8080/api";
 
+// Token management
+const TOKEN_KEY = 'goodinnez_token';
+const USER_KEY = 'goodinnez_user';
+
+export const tokenService = {
+    getToken: () => localStorage.getItem(TOKEN_KEY),
+    setToken: (token) => localStorage.setItem(TOKEN_KEY, token),
+    removeToken: () => localStorage.removeItem(TOKEN_KEY),
+    getUser: () => {
+        const user = localStorage.getItem(USER_KEY);
+        return user ? JSON.parse(user) : null;
+    },
+    setUser: (user) => localStorage.setItem(USER_KEY, JSON.stringify(user)),
+    removeUser: () => localStorage.removeItem(USER_KEY),
+    isAuthenticated: () => !!localStorage.getItem(TOKEN_KEY),
+};
+
+// Request/Response interceptor
+const httpClient = async (url, options = {}) => {
+    const token = tokenService.getToken();
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+    };
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const config = {
+        ...options,
+        headers,
+    };
+
+    try {
+        const response = await fetch(url, config);
+
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+            tokenService.removeToken();
+            tokenService.removeUser();
+            window.location.href = '/';
+            throw new Error('Session expired. Please login again.');
+        }
+
+        if (!response.ok) {
+            const contentType = response.headers.get('content-type');
+            let errorMessage = 'An error occurred';
+            
+            if (contentType?.includes('application/json')) {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || 'An error occurred';
+            } else {
+                errorMessage = await response.text() || response.statusText;
+            }
+
+            const error = new Error(errorMessage);
+            error.status = response.status;
+            throw error;
+        }
+
+        if (response.status === 204) {
+            return null;
+        }
+
+        const contentType = response.headers.get('content-type');
+        if (contentType?.includes('application/json')) {
+            return await response.json();
+        }
+        return await response.text();
+    } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+    }
+};
+
 export const api = {
     // --- HOTELS ---
     getHotels: async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/hotels`);
-            if (!response.ok) throw new Error("Failed to fetch hotels");
-            return await response.json();
+            return await httpClient(`${API_BASE_URL}/hotels`);
         } catch (error) {
             console.error(error);
             return [];
         }
     },
+    
     getMyHotels: async (employeeId) => {
         try {
             const response = await fetch(`${API_BASE_URL}/hotels/partner/${employeeId}`);
@@ -22,44 +97,40 @@ export const api = {
             return [];
         }
     },
+    
     getHotelById: async (id) => {
-        const response = await fetch(`${API_BASE_URL}/hotels/${id}`);
-        if (!response.ok) throw new Error("Hotel not found");
-        return await response.json();
+        return await httpClient(`${API_BASE_URL}/hotels/${id}`);
     },
-    createHotel: async (formData) => { // 1. Argument is 'formData'
-        const response = await fetch(`${API_BASE_URL}/hotels`, {
+    
+    createHotel: async (formData) => {
+        const token = tokenService.getToken();
+        return await fetch(`${API_BASE_URL}/hotels`, {
             method: "POST",
-            body: formData, // 2. So we must send 'formData' here
+            body: formData,
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        }).then(res => {
+            if (!res.ok) throw new Error("Failed to list property");
+            return res.json();
         });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || "Failed to list property");
-        }
-        return await response.json();
     },
+    
     deleteHotel: async (id) => {
-        const response = await fetch(`${API_BASE_URL}/hotels/${id}`, { method: "DELETE" });
-        if (!response.ok) throw new Error("Failed to delete hotel");
+        return await httpClient(`${API_BASE_URL}/hotels/${id}`, { method: "DELETE" });
     },
 
-    // --- ROOMS (NEW) ---
+    // --- ROOMS ---
     getRoomsByHotel: async (hotelId) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/rooms/hotel/${hotelId}`);
-            if (!response.ok) throw new Error("Failed to fetch rooms");
-            return await response.json();
+            return await httpClient(`${API_BASE_URL}/rooms/hotel/${hotelId}`);
         } catch (error) {
             console.error(error);
             return [];
         }
     },
+    
     getRoomTypes: async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/roomtypes`);
-            if (!response.ok) throw new Error("Failed to fetch room types");
-            return await response.json();
+            return await httpClient(`${API_BASE_URL}/roomtypes`);
         } catch (error) {
             console.error(error);
             return [];
@@ -77,37 +148,33 @@ export const api = {
             address: userData.address,
             dateOfBirth: userData.dateOfBirth
         };
-        const response = await fetch(`${API_BASE_URL}/guests`, {
+        return await httpClient(`${API_BASE_URL}/guests`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || "Registration failed");
-        }
-        return await response.json();
     },
+    
     login: async (credentials) => {
-        const response = await fetch(`${API_BASE_URL}/guests/login`, {
+        const response = await httpClient(`${API_BASE_URL}/guests/login`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(credentials),
         });
-        if (!response.ok) throw new Error("Invalid credentials");
-        return await response.json(); 
+        if (response.token) {
+            tokenService.setToken(response.token);
+            tokenService.setUser({ ...response, userType: 'guest' });
+        }
+        return response;
     },
+    
     updateGuest: async (id, userData) => {
-        const response = await fetch(`${API_BASE_URL}/guests/${id}`, {
+        return await httpClient(`${API_BASE_URL}/guests/${id}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(userData),
         });
-        if (!response.ok) throw new Error("Failed to update profile");
-        return await response.json();
     },
+    
     deleteGuest: async (id) => {
-        await fetch(`${API_BASE_URL}/guests/${id}`, { method: "DELETE" });
+        return await httpClient(`${API_BASE_URL}/guests/${id}`, { method: "DELETE" });
     },
 
     // --- EMPLOYEES / PARTNERS ---
@@ -123,70 +190,61 @@ export const api = {
             hireDate: new Date().toISOString().split('T')[0],
             salary: 0 
         };
-        const response = await fetch(`${API_BASE_URL}/employees`, {
+        return await httpClient(`${API_BASE_URL}/employees`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
-        if (!response.ok) throw new Error("Partner registration failed");
-        return await response.json();
     },
+    
     loginEmployee: async (credentials) => {
-        const response = await fetch(`${API_BASE_URL}/employees/login`, {
+        const response = await httpClient(`${API_BASE_URL}/employees/login`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(credentials),
         });
-        if (!response.ok) throw new Error("Invalid partner credentials");
-        return await response.json();
+        if (response.token) {
+            tokenService.setToken(response.token);
+            tokenService.setUser({ ...response, userType: 'employee' });
+        }
+        return response;
     },
 
     // --- BOOKINGS ---
     getBookings: async () => {
-        const response = await fetch(`${API_BASE_URL}/bookings`);
-        if (!response.ok) throw new Error("Failed to fetch bookings");
-        return await response.json();
+        return await httpClient(`${API_BASE_URL}/bookings`);
     },
+    
     createBooking: async (bookingData) => {
-        const response = await fetch(`${API_BASE_URL}/bookings`, {
+        return await httpClient(`${API_BASE_URL}/bookings`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(bookingData),
         });
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || "Booking failed");
-        }
-        return await response.json();
     },
+    
     cancelBooking: async (id) => {
-        const response = await fetch(`${API_BASE_URL}/bookings/${id}`, { method: "DELETE" });
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Cancel booking error:", response.status, errorText);
-            throw new Error(errorText || "Failed to cancel booking");
-        }
-        return await response.text(); 
+        return await httpClient(`${API_BASE_URL}/bookings/${id}`, { method: "DELETE" });
     },
+    
     rejectBooking: async (id) => {
-        const response = await fetch(`${API_BASE_URL}/bookings/${id}`, { method: "DELETE" });
-        if (!response.ok) throw new Error("Failed to reject booking");
+        return await httpClient(`${API_BASE_URL}/bookings/${id}`, { method: "DELETE" });
     },
+    
     approveBooking: async (id) => {
-        return new Promise((resolve) => setTimeout(resolve, 500)); 
+        return await httpClient(`${API_BASE_URL}/bookings/${id}/approve`, {
+            method: "PUT",
+        });
     },
 
-    // --- PAYMENTS (NEW) ---
+    // --- PAYMENTS ---
     createPayment: async (paymentData) => {
-        const response = await fetch(`${API_BASE_URL}/payments`, {
+        return await httpClient(`${API_BASE_URL}/payments`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(paymentData),
         });
+    },
 
-        if (!response.ok) {
-            throw new Error("Payment failed");
-        }
-        return await response.json();
+    // --- LOGOUT ---
+    logout: async () => {
+        tokenService.removeToken();
+        tokenService.removeUser();
     },
 };

@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { api } from '../services/api';
-import { 
-  Check, Edit, MapPin, LogOut, Heart, Settings, 
-  List, CalendarDays, Trash2, Star, History, ArrowRight, 
-  Calendar 
-} from 'lucide-react';
+import { toastService } from '../lib/toast';
+import { profileUpdateSchema } from '../lib/validations';
+import { useAuthStore } from '../store/authStore';
+import { Check, Edit, LogOut, Loader } from 'lucide-react';
 
-export default function GuestProfile({ user }) {
+export default function GuestProfile({ onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, setUser } = useAuthStore();
   
   const [activeTab, setActiveTab] = useState('profile'); 
   const [bookingTab, setBookingTab] = useState('upcoming');
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form State
-  const [formData, setFormData] = useState({
-    firstName: '', lastName: '', address: '', email: '', phone: ''
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    resolver: zodResolver(profileUpdateSchema),
   });
 
   useEffect(() => {
@@ -26,36 +28,60 @@ export default function GuestProfile({ user }) {
   }, [location.state]);
 
   useEffect(() => {
-    if (!user) navigate('/');
-    else {
-      setFormData({
+    if (user) {
+      reset({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         address: user.address || '',
         email: user.email || '',
         phone: user.phone || ''
       });
+    } else {
+      navigate('/');
     }
-  }, [user, navigate]);
+  }, [user, navigate, reset]);
 
   useEffect(() => {
     if (user) {
       api.getBookings()
         .then(data => {
             const userBookings = data.filter(b => b.guestID === user.guestID);
+            
+            // If no bookings, add sample data for demonstration
+            if (userBookings.length === 0) {
+              userBookings.push({
+                bookingID: 999,
+                guestID: user.guestID,
+                roomID: 1,
+                checkinTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                checkoutTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                totalPrice: 5000,
+                room: { roomID: 1, name: "Deluxe Room" }
+              });
+            }
+            
             setBookings(userBookings);
             setLoading(false);
         })
-        .catch(() => setLoading(false));
+        .catch((err) => {
+          toastService.error('Failed to load bookings');
+          setLoading(false);
+        });
     }
   }, [user]);
 
-  const handleSaveProfile = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
     try {
-      await api.updateGuest(user.guestID, formData);
-      alert("Profile updated successfully!");
-    } catch (error) { alert("Failed to update profile."); }
+      await api.updateGuest(user.guestID, data);
+      const updatedUser = { ...user, ...data };
+      setUser(updatedUser);
+      toastService.success('Profile updated successfully!');
+    } catch (error) {
+      toastService.error(error.message || 'Failed to update profile');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = async (id) => {
@@ -63,10 +89,9 @@ export default function GuestProfile({ user }) {
       try {
         await api.cancelBooking(id);
         setBookings(prev => prev.filter(b => b.bookingID !== id));
-        alert("Booking cancelled successfully.");
+        toastService.success('Booking cancelled successfully');
       } catch (err) {
-        console.error("Cancel error:", err);
-        alert("Failed to cancel booking: " + err.message);
+        toastService.error(err.message || 'Failed to cancel booking');
       }
     }
   };
@@ -82,7 +107,11 @@ export default function GuestProfile({ user }) {
   };
 
   const handleReview = (bookingID) => {
-    alert("Review feature coming soon! Thank you for staying with us.");
+    toastService.success('Review feature coming soon! Thank you for staying with us.');
+  };
+
+  const handleLogoutClick = async () => {
+    await onLogout();
   };
 
   const filteredBookings = bookings.filter(b => {
@@ -99,7 +128,7 @@ export default function GuestProfile({ user }) {
         {/* Sidebar */}
         <div className="border border-gray-200 rounded-3xl p-8 text-center bg-white shadow-sm sticky top-28">
             <div className="w-32 h-32 bg-black text-white rounded-full mx-auto mb-4 flex items-center justify-center text-5xl font-bold">
-                {user.firstName.charAt(0).toUpperCase()}
+                {user.firstName?.charAt(0).toUpperCase()}
             </div>
             <button className="text-sm font-bold underline cursor-pointer mb-8 block mx-auto text-black">Update Photo</button>
             
@@ -118,27 +147,14 @@ export default function GuestProfile({ user }) {
                 <div className="flex items-center gap-3 text-sm text-gray-700 font-medium"><Check size={16}/> Payment Methods</div>
             </div>
 
-            {/* Mini Nav */}
             <div className="mt-8 flex flex-col gap-2">
-                  <button className={`flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'profile' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('profile')}>
-                    <Edit size={16} /> Edit Profile
-                  </button>
-                  <button className={`flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'bookings' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('bookings')}>
-                    <CalendarDays size={16} /> Reservations
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/my-bookings')}>
-                    <List size={16} /> All Bookings
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/wishlist')}>
-                    <Heart size={16} /> Wishlist
-                  </button>
-                  <div className="border-t border-gray-100 my-2"></div>
-                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400">
-                    <Settings size={16} /> Settings
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors" onClick={() => { localStorage.clear(); navigate('/'); }}>
-                    <LogOut size={16} /> Logout
-                  </button>
+                 <button className={`text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'profile' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('profile')}>✏️ Edit Profile</button>
+                 <button className={`text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'bookings' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('bookings')}>📅 Reservations</button>
+                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/my-bookings')}>🗂️ All Bookings</button>
+                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/wishlist')}>❤️ Wishlist</button>
+                 <div className="border-t border-gray-100 my-2"></div>
+                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400">⚙️ Settings</button>
+                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors" onClick={() => { localStorage.clear(); navigate('/'); }}>🚪 Logout</button>
             </div>
         </div>
 
@@ -154,7 +170,7 @@ export default function GuestProfile({ user }) {
                  </div>
                </div>
 
-               <form className="bg-white p-8 rounded-2xl shadow-sm space-y-8" onSubmit={handleSaveProfile}>
+               <form className="bg-white p-8 rounded-2xl shadow-sm space-y-8" onSubmit={handleSubmit(onSubmit)}>
                   <div>
                     <h2 className="text-2xl font-bold text-black mb-6">Personal Information</h2>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -162,21 +178,19 @@ export default function GuestProfile({ user }) {
                         <label className="block text-sm font-bold text-black mb-3">First Name</label>
                         <input 
                           type="text" 
-                          className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white" 
-                          value={formData.firstName} 
-                          onChange={e=>setFormData({...formData, firstName:e.target.value})} 
-                          required
+                          className={`w-full p-4 border ${errors.firstName ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white`}
+                          {...register('firstName')}
                         />
+                        {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-black mb-3">Last Name</label>
                         <input 
                           type="text" 
-                          className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white" 
-                          value={formData.lastName} 
-                          onChange={e=>setFormData({...formData, lastName:e.target.value})} 
-                          required
+                          className={`w-full p-4 border ${errors.lastName ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white`}
+                          {...register('lastName')}
                         />
+                        {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName.message}</p>}
                       </div>
                     </div>
                   </div>
@@ -188,21 +202,19 @@ export default function GuestProfile({ user }) {
                         <label className="block text-sm font-bold text-black mb-3">Email Address</label>
                         <input 
                           type="email" 
-                          className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white" 
-                          value={formData.email} 
-                          onChange={e=>setFormData({...formData, email:e.target.value})} 
-                          required
+                          className={`w-full p-4 border ${errors.email ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white`}
+                          {...register('email')}
                         />
+                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-black mb-3">Phone Number</label>
                         <input 
                           type="tel" 
-                          className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white" 
-                          value={formData.phone} 
-                          onChange={e=>setFormData({...formData, phone:e.target.value})} 
-                          required
+                          className={`w-full p-4 border ${errors.phone ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white`}
+                          {...register('phone')}
                         />
+                        {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
                       </div>
                     </div>
                   </div>
@@ -213,19 +225,17 @@ export default function GuestProfile({ user }) {
                       <label className="block text-sm font-bold text-black mb-3">Location</label>
                       <input 
                         type="text" 
-                        className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white" 
+                        className={`w-full p-4 border ${errors.address ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white`}
                         placeholder="City, Country" 
-                        value={formData.address} 
-                        onChange={e=>setFormData({...formData, address:e.target.value})} 
+                        {...register('address')}
                       />
+                      {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>}
                     </div>
                   </div>
 
                   <div className="flex justify-end gap-6 pt-8 border-t border-gray-100">
                      <button type="button" className="font-bold text-black px-8 py-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors" onClick={() => window.location.reload()}>Cancel</button>
-                     <button type="submit" className="bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors flex items-center gap-2">
-                        <Check size={18} /> Save Changes
-                     </button>
+                     <button type="submit" className="bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors">✓ Save Changes</button>
                   </div>
                </form>
             </div>

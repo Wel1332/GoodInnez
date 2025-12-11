@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, User, LogOut, MessageSquare, Bell, CalendarDays, Building2, HelpCircle, LogIn, UserPlus } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
 
-export default function Header({ onOpenAuth, user, onLogout }) {
+export default function Header({ onOpenAuth, onLogout }) {
   const navigate = useNavigate(); 
   const location = useLocation();
+  const { user } = useAuthStore();
   const [authDropdownOpen, setAuthDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -45,7 +47,7 @@ export default function Header({ onOpenAuth, user, onLogout }) {
         
         <div className="flex items-center gap-8">
           <nav className="hidden md:flex gap-8 items-center">
-            {[{id: 'hotels', label: 'Find a Hotel'}, {id: 'activities', label: 'Local Guides'}, {id: 'footer', label: 'Our Partners'}].map(link => (
+            {[{id: 'hotels', label: 'Find a Hotel'}, {id: 'footer', label: 'Our Partners'}].map(link => (
               <a 
                 key={link.id} 
                 href={`#${link.id}`} 
@@ -58,7 +60,7 @@ export default function Header({ onOpenAuth, user, onLogout }) {
           </nav>
 
           <div className="flex items-center gap-4">
-            {(!user || user.userType === 'employee') && (
+            {(!user || user.userType === 'guest') && (
               <button 
                 className="hidden md:block bg-gold text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-yellow-600 transition-colors"
                 onClick={() => (user && user.userType === 'employee') ? navigate('/host/properties') : onOpenAuth('login')}
@@ -73,7 +75,7 @@ export default function Header({ onOpenAuth, user, onLogout }) {
                     onClick={() => setAuthDropdownOpen(!authDropdownOpen)}
                 >
                     {user ? (
-                       <span className="font-bold text-sm">{user.firstName.charAt(0).toUpperCase()}</span>
+                       <span className="font-bold text-sm">{user.firstName?.charAt(0).toUpperCase()}</span>
                     ) : (
                        <Menu size={20} />
                     )}

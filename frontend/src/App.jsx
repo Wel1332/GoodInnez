@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
 // Components
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Guest Pages
 import LandingPage from './pages/LandingPage';
@@ -25,14 +28,13 @@ import HostReservations from './pages/host/HostReservations';
 import HostDashboard from './pages/host/HostDashboard';
 import HostTransactions from './pages/host/HostTransactions';
 
+// Store
+import { useAuthStore } from './store/authStore';
+
 import './App.css';
 
 function App() {
-  const [currentUser, setCurrentUser] = useState(() => {
-    const savedUser = localStorage.getItem('goodinnez_user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-
+  const { user, logout } = useAuthStore();
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState('login');
 
@@ -42,17 +44,12 @@ function App() {
     setShowAuth(true);
   };
 
-  const handleLoginSuccess = (user) => {
-    localStorage.setItem('goodinnez_user', JSON.stringify(user));
-    setCurrentUser(user);
+  const handleLoginSuccess = (userData) => {
     setShowAuth(false);
-    alert(`Welcome back, ${user.firstName}!`);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('goodinnez_user');
-    setCurrentUser(null);
-    alert("You have been logged out.");
+  const handleLogout = async () => {
+    await logout();
     window.location.href = '/';
   };
 
@@ -78,48 +75,127 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="app">
-        
-        <Header 
-          onOpenAuth={handleOpenAuth} 
-          user={currentUser}
-          onLogout={handleLogout}
-        />
+    <ErrorBoundary>
+      <Router>
+        <div className="app">
+          <Toaster position="top-right" />
+          
+          <Header 
+            onOpenAuth={handleOpenAuth} 
+            user={user}
+            onLogout={handleLogout}
+          />
 
-        <main>
-          <Routes>
-            {/* Guest Routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/search" element={<ListingPage />} />
-            {/* Backwards-compatible route: /listings */}
-            <Route path="/listings" element={<ListingPage />} />
-            <Route path="/hotel/:id" element={<HotelDetails user={currentUser} />} />
-            
-            {/* Protected Guest Routes */}
-            <Route path="/booking" element={<BookingPage user={currentUser} />} />
-            <Route path="/booking-success" element={<BookingSuccess />} />
-            <Route path="/profile" element={<GuestProfile user={currentUser} onLogout={handleLogout} />} />
-            <Route path="/my-bookings" element={<MyBookings user={currentUser} />} />
-            <Route path="/messages" element={<MessagesPage user={currentUser} onLogout={handleLogout} />} />
-            <Route path="/notifications" element={<NotificationsPage user={currentUser} onLogout={handleLogout} />} />
+          <main>
+            <Routes>
+              {/* Guest Routes - Public */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/search" element={<ListingPage />} />
+              <Route path="/listings" element={<ListingPage />} />
+              <Route path="/hotel/:id" element={<HotelDetails user={user} />} />
+              
+              {/* Protected Guest Routes */}
+              <Route 
+                path="/booking" 
+                element={
+                  <ProtectedRoute>
+                    <BookingPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/booking-success" element={<BookingSuccess />} />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <GuestProfile onLogout={handleLogout} />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/my-bookings" 
+                element={
+                  <ProtectedRoute>
+                    <MyBookings />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/messages" 
+                element={
+                  <ProtectedRoute>
+                    <MessagesPage onLogout={handleLogout} />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/notifications" 
+                element={
+                  <ProtectedRoute>
+                    <NotificationsPage onLogout={handleLogout} />
+                  </ProtectedRoute>
+                } 
+              />
 
-            {/* Host Routes */}
-            <Route path="/host" element={<HostProperties user={currentUser} />} />
-            <Route path="/host/properties" element={<HostProperties user={currentUser} />} />
-            <Route path="/host/add" element={<AddProperty user={currentUser} />} />
-            <Route path="/host/reservations" element={<HostReservations user={currentUser} />} />
-            <Route path="/host/dashboard" element={<HostDashboard user={currentUser} />} />
-            <Route path="/host/transactions" element={<HostTransactions user={currentUser} />} />
+              {/* Protected Partner/Host Routes */}
+              <Route 
+                path="/host" 
+                element={
+                  <ProtectedRoute requiresPartner={true}>
+                    <HostProperties />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/host/properties" 
+                element={
+                  <ProtectedRoute requiresPartner={true}>
+                    <HostProperties />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/host/add" 
+                element={
+                  <ProtectedRoute requiresPartner={true}>
+                    <AddProperty />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/host/reservations" 
+                element={
+                  <ProtectedRoute requiresPartner={true}>
+                    <HostReservations />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/host/dashboard" 
+                element={
+                  <ProtectedRoute requiresPartner={true}>
+                    <HostDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/host/transactions" 
+                element={
+                  <ProtectedRoute requiresPartner={true}>
+                    <HostTransactions />
+                  </ProtectedRoute>
+                } 
+              />
 
-          </Routes>
-        </main>
-        
-        <Footer />
-        
-        {showAuth && renderAuthComponent()}
-      </div>
-    </Router>
+            </Routes>
+          </main>
+          
+          <Footer />
+          
+          {showAuth && renderAuthComponent()}
+        </div>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

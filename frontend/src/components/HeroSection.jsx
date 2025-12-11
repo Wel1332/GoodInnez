@@ -38,7 +38,7 @@ export default function HeroSection() {
           <div className="flex flex-col md:flex-row items-baseline gap-8 pl-4">
             <h1 className="text-5xl font-black tracking-tight text-white drop-shadow-lg m-0">FIND</h1>
             <div className="flex gap-6">
-              {['hotels', 'rooms', 'activities'].map((tab) => (
+              {['hotels', 'rooms'].map((tab) => (
                 <button key={tab} className={`bg-transparent border-none text-white/80 py-2 text-lg font-bold cursor-pointer border-b-[3px] border-transparent transition-all capitalize ${activeTab === tab ? 'text-white border-white' : 'hover:text-white'}`} onClick={() => setActiveTab(tab)}>
                   {tab}
                 </button>
@@ -48,7 +48,7 @@ export default function HeroSection() {
           <form onSubmit={handleSearch} className="bg-white rounded-[24px] p-3 flex flex-col md:flex-row items-center shadow-xl relative z-20">
             <div className="flex-1 w-full relative border-b md:border-b-0 md:border-r border-gray-100 p-4" ref={wrapperRef}>
               <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-widest mb-1">Location</label>
-              <input type="text" name="location" className="w-full bg-transparent text-black text-base font-medium outline-none placeholder-gray-400" placeholder={activeTab === 'activities' ? "Where to go?" : "Which city?"} value={searchParams.location} onChange={handleChange} onFocus={() => setShowSuggestions(true)} autoComplete="off" />
+              <input type="text" name="location" className="w-full bg-transparent text-black text-base font-medium outline-none placeholder-gray-400" placeholder="Which city?" value={searchParams.location} onChange={handleChange} onFocus={() => setShowSuggestions(true)} autoComplete="off" />
               {showSuggestions && (
                 <div className="absolute top-[110%] left-0 w-[350px] bg-white rounded-2xl shadow-2xl z-50 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 border border-gray-100">
                   <div className="text-[10px] font-bold text-gray-400 px-5 py-2 uppercase tracking-wide">Popular destinations</div>
@@ -63,19 +63,17 @@ export default function HeroSection() {
             </div>
             {/* Check In */}
             <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-gray-100 p-4">
-              <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-widest mb-1">{activeTab === 'activities' ? 'Date' : 'Check In'}</label>
-              <input type="text" name="checkIn" className="w-full bg-transparent text-black text-base font-medium outline-none placeholder-gray-400" placeholder="Add Dates" onFocus={(e) => e.target.type = 'date'} onBlur={(e) => !e.target.value && (e.target.type = 'text')} onChange={handleChange} value={searchParams.checkIn} />
+              <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-widest mb-1">Check In</label>
+              <input type="date" name="checkIn" className="w-full bg-transparent text-black text-base font-medium outline-none placeholder-gray-400" onChange={handleChange} value={searchParams.checkIn} />
             </div>
             {/* Check Out */}
-            {activeTab !== 'activities' && (
-              <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-gray-100 p-4">
-                <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-widest mb-1">Check Out</label>
-                <input type="text" name="checkOut" className="w-full bg-transparent text-black text-base font-medium outline-none placeholder-gray-400" placeholder="Add Dates" onFocus={(e) => e.target.type = 'date'} onBlur={(e) => !e.target.value && (e.target.type = 'text')} onChange={handleChange} value={searchParams.checkOut} />
-              </div>
-            )}
+            <div className="flex-1 w-full border-b md:border-b-0 md:border-r border-gray-100 p-4">
+              <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-widest mb-1">Check Out</label>
+              <input type="date" name="checkOut" className="w-full bg-transparent text-black text-base font-medium outline-none placeholder-gray-400" onChange={handleChange} value={searchParams.checkOut} />
+            </div>
             {/* Guests */}
             <div className="flex-1 w-full p-4">
-              <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-widest mb-1">{activeTab === 'activities' ? 'Participants' : activeTab === 'rooms' ? 'No. of Rooms' : 'Guests'}</label>
+              <label className="block text-[11px] font-bold text-gray-800 uppercase tracking-widest mb-1">{activeTab === 'rooms' ? 'No. of Rooms' : 'Guests'}</label>
               <input type="number" name={activeTab === 'rooms' ? 'rooms' : 'guests'} min="1" className="w-full bg-transparent text-black text-base font-medium outline-none placeholder-gray-400" placeholder={activeTab === 'rooms' ? "1 Room" : "1 Person"} value={activeTab === 'rooms' ? searchParams.rooms : searchParams.guests} onChange={handleChange} />
             </div>
             <button type="submit" className="bg-black text-white w-14 h-14 rounded-full flex items-center justify-center hover:scale-105 hover:bg-gold hover:text-black transition-all shadow-lg shrink-0 m-2">

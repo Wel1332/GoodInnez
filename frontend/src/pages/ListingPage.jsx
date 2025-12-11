@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SlidersHorizontal } from 'lucide-react';
 import HotelCard from '../components/HotelCard';
+import { HotelCardSkeleton } from '../components/LoadingSkeleton';
 import { api } from '../services/api';
+import { toastService } from '../lib/toast';
 
 export default function ListingPage() {
   const navigate = useNavigate();
@@ -76,6 +78,7 @@ export default function ListingPage() {
       })
       .catch(error => {
         console.error("Error loading hotels:", error);
+        toastService.error('Failed to load hotels');
         setLoading(false);
       });
   }, [searchTerm, activeCategory]); 
@@ -84,7 +87,7 @@ export default function ListingPage() {
   const handleCardClick = (id) => {
     navigate(`/hotel/${id}`, { 
       state: { 
-        ...searchParams // Pass checkIn, checkOut, guests to the next page
+        ...searchParams // Pass checkIn, checkOut, guests, location, type to the next page
       } 
     });
   };
@@ -102,7 +105,7 @@ export default function ListingPage() {
                 placeholder="Search city, hotel or address"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white/5 border border-black/10 rounded-full p-3 text-black bo placeholder:text-gray-400 outline-none focus:border-gold transition-colors"
+                className="w-full bg-white/5 border border-black/10 rounded-full p-3 text-black placeholder:text-gray-400 outline-none focus:border-gold transition-colors"
               />
             </form>
             <div className="flex gap-8 overflow-x-auto pb-2">
@@ -110,7 +113,7 @@ export default function ListingPage() {
                   <button 
                     key={cat} 
                     onClick={() => setActiveCategory(cat)}
-                    className={`text-gray-500 font-semibold hover:text-black hover:border-b-2 border-gold pb-1 transition-all ${activeCategory === cat ? 'text-black border-b-2 border-gold' : ''}`}
+                    className={`text-gray-500 font-semibold hover:text-black hover:border-b-2 border-gold pb-1 transition-all whitespace-nowrap ${activeCategory === cat ? 'text-black border-b-2 border-gold' : ''}`}
                   >
                     {cat}
                   </button>
@@ -126,21 +129,27 @@ export default function ListingPage() {
         <p className="text-sm text-gray-500 mb-6">{loading ? 'Searching...' : `${resultCount} result${resultCount !== 1 ? 's' : ''}`} · Category: <span className="font-semibold text-gray-700">{activeCategory}</span></p>
         
         {/* Grid */}
-        {loading ? <p className="text-center py-20 text-gray-500">Loading properties...</p> : (
-            hotels.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {hotels.map(hotel => (
-                        <div key={hotel.id} onClick={() => handleCardClick(hotel.id)}>
-                            <HotelCard hotel={hotel} />
-                        </div>
-                    ))}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <HotelCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          hotels.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {hotels.map(hotel => (
+                <div key={hotel.id} onClick={() => handleCardClick(hotel.id)} className="cursor-pointer">
+                  <HotelCard hotel={hotel} />
                 </div>
-            ) : (
+              ))}
+            </div>
+          ) : (
             <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
               <p className="text-gray-400 font-medium">No properties found matching "{searchTerm}" for category "{activeCategory}".</p>
               <p className="text-sm text-gray-500 mt-3">Try clearing filters or searching a nearby city.</p>
             </div>
-            )
+          )
         )}
       </div>
     </div>
