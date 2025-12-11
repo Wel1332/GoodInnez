@@ -41,17 +41,17 @@ export default function GuestProfile({ user }) {
             const userBookings = data.filter(b => b.guestID === user.guestID);
             
             // If no bookings, add sample data for demonstration
-            if (userBookings.length === 0) {
-              userBookings.push({
-                bookingID: 999,
-                guestID: user.guestID,
-                roomID: 1,
-                checkinTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                checkoutTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                totalPrice: 5000,
-                room: { roomID: 1, name: "Deluxe Room" }
-              });
-            }
+            // if (userBookings.length === 0) {
+            //   userBookings.push({
+            //     bookingID: 999,
+            //     guestID: user.guestID,
+            //     roomID: 1,
+            //     checkinTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            //     checkoutTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            //     totalPrice: 5000,
+            //     room: { roomID: 1, name: "Deluxe Room" }
+            //   });
+            // }
             
             setBookings(userBookings);
             setLoading(false);

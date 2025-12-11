@@ -1,12 +1,16 @@
 package com.goodinnez.goodinnez.controller;
 
 import com.goodinnez.goodinnez.model.Booking;
+import com.goodinnez.goodinnez.entity.Room;
 import com.goodinnez.goodinnez.repository.BookingRepository;
 import com.goodinnez.goodinnez.repository.PaymentRepository;
+import com.goodinnez.goodinnez.repository.RoomRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,10 +21,13 @@ public class BookingController {
 
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
+    private final RoomRepository roomRepository; // 1. Add RoomRepository
 
-    public BookingController(BookingRepository bookingRepository, PaymentRepository paymentRepository) {
+    // 2. Update Constructor
+    public BookingController(BookingRepository bookingRepository, PaymentRepository paymentRepository, RoomRepository roomRepository) {
         this.bookingRepository = bookingRepository;
         this.paymentRepository = paymentRepository;
+        this.roomRepository = roomRepository;
     }
 
     private Booking toDTO(com.goodinnez.goodinnez.entity.Booking b) {
@@ -31,6 +38,7 @@ public class BookingController {
         dto.totalPrice = b.getTotalPrice();
         dto.guestID = b.getGuest() != null ? b.getGuest().getGuestID() : null;
         dto.roomID = b.getRoom() != null ? b.getRoom().getRoomID() : null;
+        dto.status = b.getStatus(); 
         return dto;
     }
 
@@ -44,25 +52,21 @@ public class BookingController {
         return bookingRepository.findById(id).map(this::toDTO).orElse(null);
     }
 
-    // --- UPDATED CREATE METHOD (With Availability Check) ---
     @PostMapping
     public ResponseEntity<?> create(@RequestBody com.goodinnez.goodinnez.entity.Booking booking) {
         try {
-            // 1. Validation: Ensure we have a room and dates
+            // --- VALIDATION ---
             if (booking.getRoom() == null || booking.getRoom().getRoomID() == null) {
                 return ResponseEntity.badRequest().body("Room ID is required.");
             }
-            if (booking.getCheckinTime() == null) {
-                return ResponseEntity.badRequest().body("Check-in time is required.");
-            }
-            if (booking.getCheckoutTime() == null) {
-                return ResponseEntity.badRequest().body("Check-out time is required.");
+            if (booking.getCheckinTime() == null || booking.getCheckoutTime() == null) {
+                return ResponseEntity.badRequest().body("Check-in and Check-out times are required.");
             }
             if (booking.getGuest() == null || booking.getGuest().getGuestID() == null) {
                 return ResponseEntity.badRequest().body("Guest ID is required.");
             }
 
-            // 2. Availability Check: Call the custom Repository method
+            // --- AVAILABILITY CHECK ---
             boolean isOccupied = bookingRepository.existsByRoomAndDates(
                     booking.getRoom().getRoomID(),
                     booking.getCheckinTime(),
@@ -70,12 +74,29 @@ public class BookingController {
             );
 
             if (isOccupied) {
-                // Return 409 Conflict if taken
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body("Sorry, this room is already booked for the selected dates.");
             }
 
-            // 3. Save if free
+            // --- PRICE CALCULATION (NEW) ---
+            // 1. Fetch the Room to get the Price Per Night
+            Room room = roomRepository.findById(booking.getRoom().getRoomID())
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
+
+            // 2. Calculate number of nights
+            long nights = ChronoUnit.DAYS.between(booking.getCheckinTime(), booking.getCheckoutTime());
+            if (nights < 1) nights = 1; // Minimum charge of 1 night
+
+            // 3. Calculate Total: PricePerNight * Nights
+            BigDecimal pricePerNight = room.getRoomType().getPricePerNight();
+            BigDecimal calculatedTotal = pricePerNight.multiply(BigDecimal.valueOf(nights));
+
+            // 4. Set the calculated price (Overrides whatever the frontend sent)
+            booking.setTotalPrice(calculatedTotal);
+
+            // --- SET DEFAULT STATUS ---
+            booking.setStatus("PENDING"); 
+            
             com.goodinnez.goodinnez.entity.Booking savedBooking = bookingRepository.save(booking);
             return ResponseEntity.ok(toDTO(savedBooking));
         } catch (Exception e) {
@@ -92,6 +113,7 @@ public class BookingController {
             b.setTotalPrice(details.getTotalPrice());
             b.setGuest(details.getGuest());
             b.setRoom(details.getRoom());
+            b.setStatus(details.getStatus());
             return toDTO(bookingRepository.save(b));
         }).orElse(null);
     }
@@ -100,19 +122,16 @@ public class BookingController {
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         try {
             if (!bookingRepository.existsById(id)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Booking not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Booking not found");
             }
-            // Delete related payments first (due to foreign key constraint)
+            // Delete related payments first
             var payments = paymentRepository.findByBookingID(id);
             paymentRepository.deleteAll(payments);
             
-            // Then delete the booking
             bookingRepository.deleteById(id);
             return ResponseEntity.ok("Booking cancelled successfully.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error cancelling booking: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
 }

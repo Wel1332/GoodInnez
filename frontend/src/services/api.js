@@ -156,7 +156,7 @@ export const api = {
             console.error("Cancel booking error:", response.status, errorText);
             throw new Error(errorText || "Failed to cancel booking");
         }
-        return response.status === 204 ? null : await response.json();
+        return await response.text(); 
     },
     rejectBooking: async (id) => {
         const response = await fetch(`${API_BASE_URL}/bookings/${id}`, { method: "DELETE" });

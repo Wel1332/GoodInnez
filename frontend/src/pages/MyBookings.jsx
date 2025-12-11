@@ -27,22 +27,22 @@ export default function MyBookings({ user }) {
           console.log("Filtered user bookings:", userBookings);
           
           // If no bookings, add a sample booking for testing
-          if (userBookings.length === 0) {
-            console.log("No bookings found, adding sample data");
-            userBookings.push({
-              bookingID: 999,
-              guestID: user.guestID,
-              roomID: 1,
-              checkinTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-              checkoutTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-              totalPrice: 5000,
-              room: {
-                roomID: 1,
-                name: "Deluxe Room",
-                roomType: { name: "Deluxe Room", typeID: 1 }
-              }
-            });
-          }
+          // if (userBookings.length === 0) {
+          //   console.log("No bookings found, adding sample data");
+          //   userBookings.push({
+          //     bookingID: 999,
+          //     guestID: user.guestID,
+          //     roomID: 1,
+          //     checkinTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          //     checkoutTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          //     totalPrice: 5000,
+          //     room: {
+          //       roomID: 1,
+          //       name: "Deluxe Room",
+          //       roomType: { name: "Deluxe Room", typeID: 1 }
+          //     }
+          //   });
+          // }
           
           setBookings(userBookings);
           setLoading(false);

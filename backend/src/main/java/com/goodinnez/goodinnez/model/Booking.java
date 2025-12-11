@@ -10,4 +10,5 @@ public class Booking {
     public BigDecimal totalPrice;
     public Integer guestID;
     public Integer roomID;
+    public String status;
 }

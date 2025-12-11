@@ -14,18 +14,18 @@ public class Booking {
     private LocalDateTime checkinTime;
     private LocalDateTime checkoutTime;
     private BigDecimal totalPrice;
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "guestid")
-    @JsonBackReference(value = "guest-booking") // <--- UNIQUE NAME 1
+    @JsonBackReference(value = "guest-booking")
     private Guest guest;
 
     @ManyToOne
     @JoinColumn(name = "room_number", referencedColumnName = "roomID")
-    @JsonBackReference(value = "room-booking")  // <--- UNIQUE NAME 2
+    @JsonBackReference(value = "room-booking")
     private Room room;
 
-    // Getters and Setters
     public Integer getBookingID() { return bookingID; }
     public void setBookingID(Integer bookingID) { this.bookingID = bookingID; }
 
@@ -43,4 +43,8 @@ public class Booking {
 
     public BigDecimal getTotalPrice() { return totalPrice; }
     public void setTotalPrice(BigDecimal totalPrice) { this.totalPrice = totalPrice; }
+
+    // --- NEW GETTER & SETTER ---
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }
