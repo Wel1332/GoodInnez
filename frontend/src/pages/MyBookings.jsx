@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { toastService } from '../lib/toast';
 import { useAuthStore } from '../store/authStore';
-import { Calendar, MapPin, DollarSign, Trash2 } from 'lucide-react';
+import { 
+  Calendar, MapPin, DollarSign, Trash2, 
+  CheckCircle, XCircle, Edit, Star 
+} from 'lucide-react';
 
 export default function MyBookings() {
   const navigate = useNavigate();
@@ -20,6 +23,7 @@ export default function MyBookings() {
 
     api.getBookings()
       .then(data => {
+        // Filter bookings for the current user
         const userBookings = data.filter(b => b.guestID === user.guestID);
         setBookings(userBookings);
         setLoading(false);
@@ -58,6 +62,7 @@ export default function MyBookings() {
 
   const filteredBookings = bookings.filter(b => {
     const isPast = new Date(b.checkoutTime) < new Date();
+    if (activeTab === 'cancelled') return false; // Add logic for cancelled if you track status
     return activeTab === 'upcoming' ? !isPast : isPast;
   });
 
@@ -85,7 +90,9 @@ export default function MyBookings() {
                   : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
             >
-              {tab === 'upcoming' ? '📅 Upcoming' : '✓ Past'} ({bookings.filter(b => {
+              {tab === 'upcoming' && <Calendar size={16} />}
+              {tab === 'past' && <CheckCircle size={16} />}
+              {tab} ({bookings.filter(b => {
                 const isPast = new Date(b.checkoutTime) < new Date();
                 return tab === 'upcoming' ? !isPast : isPast;
               }).length})

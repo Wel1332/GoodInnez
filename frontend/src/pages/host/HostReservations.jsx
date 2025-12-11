@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
+import { toastService } from '../../lib/toast';
 import HostHeader from '../../components/HostHeader';
-import { CheckCircle, XCircle } from 'lucide-react';
 
 export default function HostReservations({ user }) {
   const navigate = useNavigate();
@@ -11,23 +11,40 @@ export default function HostReservations({ user }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user || user.userType !== 'employee') navigate('/');
+    // Only fetch if user is a partner
+    if (!user || user.userType !== 'employee') {
+        navigate('/');
+        return;
+    }
+
+    // FIX: Use api service instead of raw fetch
+    api.getBookings()
+      .then(data => { 
+          setReservations(data); 
+          setLoading(false); 
+      })
+      .catch(err => {
+          console.error(err);
+          toastService.error("Failed to load reservations");
+          setLoading(false);
+      });
   }, [user, navigate]);
 
-
-  useEffect(() => {
-    fetch('http://localhost:8080/api/bookings')
-      .then(res => res.json())
-      .then(data => { setReservations(data); setLoading(false); })
-      .catch(err => setLoading(false));
-  }, []);
-
-  const handleApprove = async (id) => { alert("Booking Approved!"); };
+  const handleApprove = async (id) => { 
+      // Add logic to approve booking if backend supports it
+      // await api.approveBooking(id);
+      toastService.success("Booking Approved!"); 
+  };
 
   const handleReject = async (id) => {
     if (window.confirm("Reject this reservation?")) {
-      await api.rejectBooking(id);
-      setReservations(prev => prev.filter(b => b.bookingID !== id));
+      try {
+        await api.rejectBooking(id);
+        setReservations(prev => prev.filter(b => b.bookingID !== id));
+        toastService.success("Booking rejected");
+      } catch (e) {
+        toastService.error("Failed to reject booking");
+      }
     }
   };
 

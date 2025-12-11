@@ -6,7 +6,11 @@ import { api } from '../services/api';
 import { toastService } from '../lib/toast';
 import { profileUpdateSchema } from '../lib/validations';
 import { useAuthStore } from '../store/authStore';
-import { Check, Edit, LogOut, Loader } from 'lucide-react';
+import { 
+  Check, Edit, MapPin, LogOut, Heart, Settings, 
+  List, CalendarDays, Trash2, Star, History, ArrowRight, 
+  Loader, Calendar 
+} from 'lucide-react';
 
 export default function GuestProfile({ onLogout }) {
   const navigate = useNavigate();
@@ -46,20 +50,7 @@ export default function GuestProfile({ onLogout }) {
       api.getBookings()
         .then(data => {
             const userBookings = data.filter(b => b.guestID === user.guestID);
-            
-            // If no bookings, add sample data for demonstration
-            if (userBookings.length === 0) {
-              userBookings.push({
-                bookingID: 999,
-                guestID: user.guestID,
-                roomID: 1,
-                checkinTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                checkoutTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                totalPrice: 5000,
-                room: { roomID: 1, name: "Deluxe Room" }
-              });
-            }
-            
+            // FIX: Removed the static booking #999 block here so real empty state is shown
             setBookings(userBookings);
             setLoading(false);
         })
@@ -110,8 +101,9 @@ export default function GuestProfile({ onLogout }) {
     toastService.success('Review feature coming soon! Thank you for staying with us.');
   };
 
+  // FIX: Ensure logout uses the prop which handles store cleanup
   const handleLogoutClick = async () => {
-    await onLogout();
+    if (onLogout) await onLogout();
   };
 
   const filteredBookings = bookings.filter(b => {
@@ -148,13 +140,26 @@ export default function GuestProfile({ onLogout }) {
             </div>
 
             <div className="mt-8 flex flex-col gap-2">
-                 <button className={`text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'profile' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('profile')}>✏️ Edit Profile</button>
-                 <button className={`text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'bookings' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('bookings')}>📅 Reservations</button>
-                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/my-bookings')}>🗂️ All Bookings</button>
-                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/wishlist')}>❤️ Wishlist</button>
+                  <button className={`flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'profile' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('profile')}>
+                    <Edit size={16} /> Edit Profile
+                  </button>
+                 <button className={`flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors ${activeTab === 'bookings' ? 'text-black bg-gray-50 border-l-2 border-gold pl-2' : 'text-gray-400'}`} onClick={() => setActiveTab('bookings')}>
+                    <CalendarDays size={16} /> Reservations
+                 </button>
+                 <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/my-bookings')}>
+                    <List size={16} /> All Bookings
+                 </button>
+                 <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/wishlist')}>
+                    <Heart size={16} /> Wishlist
+                 </button>
                  <div className="border-t border-gray-100 my-2"></div>
-                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400">⚙️ Settings</button>
-                 <button className="text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors" onClick={() => { localStorage.clear(); navigate('/'); }}>🚪 Logout</button>
+                 <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400">
+                    <Settings size={16} /> Settings
+                 </button>
+                 {/* FIX: Use handleLogoutClick instead of direct localStorage manipulation */}
+                 <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors" onClick={handleLogoutClick}>
+                    <LogOut size={16} /> Logout
+                 </button>
             </div>
         </div>
 
@@ -235,7 +240,14 @@ export default function GuestProfile({ onLogout }) {
 
                   <div className="flex justify-end gap-6 pt-8 border-t border-gray-100">
                      <button type="button" className="font-bold text-black px-8 py-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors" onClick={() => window.location.reload()}>Cancel</button>
-                     <button type="submit" className="bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors">✓ Save Changes</button>
+                     <button 
+                        type="submit" 
+                        disabled={isSubmitting}
+                        className="bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors flex items-center gap-2 disabled:opacity-50"
+                     >
+                        {isSubmitting ? <Loader size={18} className="animate-spin" /> : <Check size={18} />}
+                        Save Changes
+                     </button>
                   </div>
                </form>
             </div>
