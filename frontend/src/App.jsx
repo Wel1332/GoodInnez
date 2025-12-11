@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
@@ -7,26 +7,10 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import Signup from './components/Signup';
-import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Guest Pages
-import LandingPage from './pages/LandingPage';
-import ListingPage from './pages/ListingPage';
-import HotelDetails from './pages/HotelDetails';
-import BookingPage from './pages/BookingPage';
-import GuestProfile from './pages/GuestProfile';
-import MyBookings from './pages/MyBookings';
-import MessagesPage from './pages/MessagesPage';
-import NotificationsPage from './pages/NotificationsPage';
-import BookingSuccess from './pages/BookingSuccess';
-
-// Host Pages
-import HostProperties from './pages/host/HostProperties';
-import AddProperty from './pages/host/AddProperty';
-import HostReservations from './pages/host/HostReservations';
-import HostDashboard from './pages/host/HostDashboard';
-import HostTransactions from './pages/host/HostTransactions';
+// Import the Component Map for Dynamic Routing
+import { COMPONENT_MAP } from './utils/componentMap';
 
 // Store
 import { useAuthStore } from './store/authStore';
@@ -35,8 +19,32 @@ import './App.css';
 
 function App() {
   const { user, logout } = useAuthStore();
+  const [dbRoutes, setDbRoutes] = useState([]);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+
+  // --- Dynamic Routing: Fetch Routes from Database ---
+  useEffect(() => {
+    const fetchRoutes = async () => {
+      try {
+        // Determine role to send to backend
+        const role = user ? user.userType : 'PUBLIC';
+        
+        // Fetch routes allowed for this role
+        const response = await fetch(`http://localhost:8080/api/routes?role=${role}`);
+        if (response.ok) {
+          const data = await response.json();
+          setDbRoutes(data);
+        } else {
+          console.error("Failed to fetch routes");
+        }
+      } catch (error) {
+        console.error("Error loading routes:", error);
+      }
+    };
+
+    fetchRoutes();
+  }, [user]); // Re-fetch whenever user logs in/out
 
   // --- Handlers ---
   const handleOpenAuth = (mode = 'login') => {
@@ -88,114 +96,31 @@ function App() {
 
           <main>
             <Routes>
-              {/* Guest Routes - Public */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/search" element={<ListingPage />} />
-              <Route path="/listings" element={<ListingPage />} />
-              <Route path="/hotel/:id" element={<HotelDetails user={user} />} />
-              
-              {/* Protected Guest Routes */}
-              <Route 
-                path="/booking" 
-                element={
-                  <ProtectedRoute>
-                    <BookingPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/booking-success" element={<BookingSuccess />} />
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <GuestProfile onLogout={handleLogout} />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/my-bookings" 
-                element={
-                  <ProtectedRoute>
-                    <MyBookings />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/messages" 
-                element={
-                  <ProtectedRoute>
-                    <MessagesPage onLogout={handleLogout} />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/notifications" 
-                element={
-                  <ProtectedRoute>
-                    <NotificationsPage onLogout={handleLogout} />
-                  </ProtectedRoute>
-                } 
-              />
+              {/* --- DYNAMIC ROUTES FROM DATABASE --- */}
+              {dbRoutes.map((route) => {
+                // Map the string key from DB (e.g., "HostDashboard") to the actual Component
+                const Component = COMPONENT_MAP[route.componentKey];
+                
+                // Only render if the component exists in our map
+                if (Component) {
+                  return (
+                    <Route 
+                      key={route.id || route.path} 
+                      path={route.path} 
+                      element={<Component />} 
+                    />
+                  );
+                }
+                return null;
+              })}
 
-              {/* Protected Partner/Host Routes */}
-              <Route 
-                path="/host" 
-                element={
-                  <ProtectedRoute requiresPartner={true}>
-                    <HostProperties />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/host/properties" 
-                element={
-                  <ProtectedRoute requiresPartner={true}>
-                    <HostProperties />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/host/add" 
-                element={
-                  <ProtectedRoute requiresPartner={true}>
-                    <AddProperty />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/host/reservations" 
-                element={
-                  <ProtectedRoute requiresPartner={true}>
-                    <HostReservations />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/host/dashboard" 
-                element={
-                  <ProtectedRoute requiresPartner={true}>
-                    <HostDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/host/transactions" 
-                element={
-                  <ProtectedRoute requiresPartner={true}>
-                    <HostTransactions />
-                  </ProtectedRoute>
-                } 
-              />
-
-              {/* --- NEW ROUTE FOR EDITING --- */}
-              <Route 
-                path="/host/edit/:id" 
-                element={
-                  <ProtectedRoute requiresPartner={true}>
-                    <AddProperty />
-                  </ProtectedRoute>
-                } 
-              />
+              {/* Fallback Route for 404 */}
+              <Route path="*" element={
+                <div className="min-h-[50vh] flex flex-col items-center justify-center">
+                  <h1 className="text-4xl font-bold text-gray-300 mb-4">404</h1>
+                  <p className="text-gray-500">Page not found</p>
+                </div>
+              } />
             </Routes>
           </main>
           

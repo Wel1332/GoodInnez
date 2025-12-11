@@ -56,12 +56,6 @@ export default function HostProperties() {
       <main className="max-w-[1200px] mx-auto px-5 py-16">
         <div className="flex justify-between items-center mb-12">
           <h1 className="text-4xl font-extrabold text-black">Listed Properties</h1>
-          <button 
-            className="bg-black text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-gold hover:text-black transition-colors shadow-lg" 
-            onClick={() => navigate('/host/add')}
-          >
-            + Add New Property
-          </button>
         </div>
 
         {error && (

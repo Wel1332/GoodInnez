@@ -1,10 +1,10 @@
-CREATE DATABASE  IF NOT EXISTS `dbgoodinnez` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE IF NOT EXISTS `dbgoodinnez` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `dbgoodinnez`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: localhost    Database: dbgoodinnez
 -- ------------------------------------------------------
--- Server version	9.4.0
+-- Server version 9.4.0
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -232,6 +232,50 @@ LOCK TABLES `room_type` WRITE;
 INSERT INTO `room_type` VALUES (1,2,'Basic room with 1 queen bed','Standard',2500.00),(2,2,'Spacious room with 1 king bed and city view','Deluxe',4000.00),(3,4,'Family room with 2 double beds','Family',5500.00);
 /*!40000 ALTER TABLE `room_type` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `app_route`
+--
+
+DROP TABLE IF EXISTS `app_route`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `app_route` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `path` varchar(255) DEFAULT NULL,
+  `component_key` varchar(255) DEFAULT NULL,
+  `required_role` varchar(255) DEFAULT NULL,
+  `label` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `app_route`
+--
+
+LOCK TABLES `app_route` WRITE;
+/*!40000 ALTER TABLE `app_route` DISABLE KEYS */;
+INSERT INTO `app_route` (path, component_key, required_role, label) VALUES 
+('/', 'LandingPage', 'PUBLIC', 'Home'),
+('/search', 'ListingPage', 'PUBLIC', 'Search'),
+('/listings', 'ListingPage', 'PUBLIC', 'Search'),
+('/hotel/:id', 'HotelDetails', 'PUBLIC', 'Details'),
+('/booking', 'BookingPage', 'GUEST', 'Book Now'),
+('/profile', 'GuestProfile', 'GUEST', 'My Profile'),
+('/host/dashboard', 'HostDashboard', 'PARTNER', 'Dashboard'),
+('/host/properties', 'HostProperties', 'PARTNER', 'My Properties'),
+('/host/reservations', 'HostReservations', 'PARTNER', 'Reservations'),
+('/host/transactions', 'HostTransactions', 'PARTNER', 'Transactions'),
+('/host/add', 'AddProperty', 'PARTNER', 'List Property'),
+('/host/edit/:id', 'AddProperty', 'PARTNER', 'Edit Property'),
+('/my-bookings', 'MyBookings', 'GUEST', 'My Bookings'),
+('/messages', 'MessagesPage', 'GUEST', 'Messages'),
+('/notifications', 'NotificationsPage', 'GUEST', 'Notifications'),
+('/booking-success', 'BookingSuccess', 'GUEST', 'Booking Success');
+/*!40000 ALTER TABLE `app_route` ENABLE KEYS */;
+UNLOCK TABLES;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
