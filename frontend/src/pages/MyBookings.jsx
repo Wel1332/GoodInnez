@@ -4,7 +4,7 @@ import { api } from '../services/api';
 import { toastService } from '../lib/toast';
 import { useAuthStore } from '../store/authStore';
 import { 
-  Calendar, MapPin, DollarSign, Trash2, 
+  Calendar, MapPin, Trash2, 
   CheckCircle, XCircle, Edit, Star 
 } from 'lucide-react';
 
@@ -177,7 +177,6 @@ export default function MyBookings() {
                             Standard Room
                           </div>
                           <div className="flex items-center gap-2 text-gray-600">
-                            <DollarSign size={18} />
                             <span className="text-2xl font-extrabold text-black">₱{booking.totalPrice?.toLocaleString() || '0'}</span>
                             <span className="text-gray-500 text-sm">for {nights} {nights === 1 ? 'night' : 'nights'}</span>
                           </div>
