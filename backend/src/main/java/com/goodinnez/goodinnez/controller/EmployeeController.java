@@ -2,7 +2,11 @@ package com.goodinnez.goodinnez.controller;
 
 import com.goodinnez.goodinnez.model.Employee;
 import com.goodinnez.goodinnez.repository.EmployeeRepository;
+
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,9 +17,12 @@ import java.util.stream.Collectors;
 public class EmployeeController {
 
     private final EmployeeRepository employeeRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public EmployeeController(EmployeeRepository employeeRepository) {
+
+    public EmployeeController(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder) {
         this.employeeRepository = employeeRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private Employee toDTO(com.goodinnez.goodinnez.entity.Employee e) {
@@ -44,21 +51,22 @@ public class EmployeeController {
     }
 
     @PostMapping("/login")
-    public org.springframework.http.ResponseEntity<?> login(@RequestBody java.util.Map<String, String> loginData) {
+    public ResponseEntity<?> login(@RequestBody java.util.Map<String, String> loginData) {
         String email = loginData.get("email");
         String password = loginData.get("password");
 
         com.goodinnez.goodinnez.entity.Employee dbEmployee = employeeRepository.findByEmail(email);
-
-        if (dbEmployee != null && dbEmployee.getPassword() != null && dbEmployee.getPassword().equals(password)) {
-            return org.springframework.http.ResponseEntity.ok(toDTO(dbEmployee));
+        if (dbEmployee != null && passwordEncoder.matches(password, dbEmployee.getPassword())) {
+            return ResponseEntity.ok(toDTO(dbEmployee));
         } else {
-            return org.springframework.http.ResponseEntity.status(401).body("Invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
-    
+
     @PostMapping
     public Employee create(@RequestBody com.goodinnez.goodinnez.entity.Employee employee) {
+        String encodedPassword = passwordEncoder.encode(employee.getPassword());
+        employee.setPassword(encodedPassword);
         return toDTO(employeeRepository.save(employee));
     }
 
