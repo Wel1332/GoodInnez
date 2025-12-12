@@ -4,7 +4,7 @@ import { api } from '../services/api';
 import { toastService } from '../lib/toast';
 import { useAuthStore } from '../store/authStore';
 import { HotelDetailsSkeleton } from '../components/LoadingSkeleton';
-import { Heart, Share2, BedDouble, Bath, Car, PawPrint, Loader } from 'lucide-react';
+import { Heart, Share2, BedDouble, Bath, Car, PawPrint, Loader, AlertCircle } from 'lucide-react';
 
 export default function HotelDetails() {
   const { id } = useParams();
@@ -18,6 +18,9 @@ export default function HotelDetails() {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isReserving, setIsReserving] = useState(false);
+  
+  // NEW: Track occupied rooms for selected dates
+  const [occupiedRoomIds, setOccupiedRoomIds] = useState([]);
 
   // Initialize dates
   const [dates, setDates] = useState({ 
@@ -26,6 +29,7 @@ export default function HotelDetails() {
   });
   const [guests, setGuests] = useState(location.state?.guests || 1);
 
+  // 1. Load Hotel Data
   useEffect(() => {
     Promise.all([
       api.getHotelById(id),
@@ -50,6 +54,20 @@ export default function HotelDetails() {
     });
   }, [id]);
 
+  // 2. NEW: Fetch Availability when dates change
+  useEffect(() => {
+    if (hotel && dates.checkIn && dates.checkOut) {
+      // Validate dates
+      if (new Date(dates.checkIn) < new Date(dates.checkOut)) {
+        api.getOccupiedRooms(hotel.hotelID, dates.checkIn, dates.checkOut)
+          .then(ids => setOccupiedRoomIds(ids))
+          .catch(err => console.error("Availability check failed", err));
+      }
+    } else {
+      setOccupiedRoomIds([]); // Reset if dates cleared
+    }
+  }, [hotel, dates.checkIn, dates.checkOut]);
+
   const getTypeDetails = (typeId) => roomTypes.find(t => (t.typeID || t.typeId) === typeId) || { name: 'Unknown', pricePerNight: 0, description: '' };
   
   // Helper to safely get Type ID
@@ -57,13 +75,33 @@ export default function HotelDetails() {
 
   const uniqueTypesAvailable = [...new Set(availableRooms.map(r => getTypeId(r)))];
 
+  // 3. NEW: Helper to calculate room status per type
+  const getRoomAvailability = (typeId) => {
+    const totalRoomsOfType = availableRooms.filter(r => getTypeId(r) === typeId);
+    // Filter out occupied rooms
+    const available = totalRoomsOfType.filter(r => {
+        const rId = r.roomID || r.roomid || r.id;
+        return !occupiedRoomIds.includes(rId) && r.status !== 'Occupied';
+    });
+    
+    const count = available.length;
+    const isFullyBooked = count === 0 && dates.checkIn && dates.checkOut;
+
+    return {
+        count,
+        isFullyBooked,
+        label: isFullyBooked ? "Fully booked" : `${count} room${count !== 1 ? 's' : ''} available`,
+        colorClass: isFullyBooked ? "text-red-500" : "text-green-600"
+    };
+  };
+
   const handleShare = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => toastService.success('Link copied!'));
   };
 
   const handleReserve = () => {
-    // 1. Validation
+    // Validation
     if (!user) {
       toastService.error('Please log in to make a booking');
       navigate('/login', { state: { from: location.pathname } });
@@ -78,37 +116,27 @@ export default function HotelDetails() {
       return;
     }
 
-    // 2. DEBUGGING: Log available rooms to see what the data looks like
-    console.log("Searching for room type:", getTypeId(selectedRoom));
-    console.log("Available rooms:", availableRooms);
-
-    // 3. ROBUST ROOM FINDER
-    // Check for typeID, typeId, or type_id
+    // Find actual room object
     const targetTypeId = getTypeId(selectedRoom);
     
     const roomToBook = availableRooms.find(r => {
+      const rId = r.roomID || r.roomid || r.id;
       const rTypeId = getTypeId(r);
       const isTypeMatch = rTypeId === targetTypeId;
-      const isAvailable = r.status === 'Available' || r.status !== 'Occupied';
-      return isTypeMatch && isAvailable;
+      // Must not be in occupied list
+      const isNotOccupied = !occupiedRoomIds.includes(rId);
+      // Fallback static check
+      const isAvailableStatic = r.status === 'Available' || r.status !== 'Occupied';
+      
+      return isTypeMatch && isNotOccupied && isAvailableStatic;
     });
 
     if (!roomToBook) {
-      toastService.error(`Sorry, no ${selectedRoom.name} rooms are available for these dates.`);
+      toastService.error(`Sorry, ${selectedRoom.name} rooms are fully booked for these dates.`);
       return;
     }
 
-    // 4. ROBUST ID GETTER (The Fix)
-    // Check all possible casing variations
-    const finalRoomId = roomToBook.roomID || roomToBook.roomid || roomToBook.id || roomToBook.roomId;
-
-    if (!finalRoomId) {
-      console.error("CRITICAL ERROR: Found a room object, but it has no ID field!", roomToBook);
-      toastService.error("System Error: Room data is incomplete.");
-      return;
-    }
-
-    console.log("Selected Room ID:", finalRoomId);
+    const finalRoomId = roomToBook.roomID || roomToBook.roomid || roomToBook.id;
 
     setIsReserving(true);
 
@@ -125,7 +153,7 @@ export default function HotelDetails() {
           room: { 
             ...selectedRoom, 
             typeId: targetTypeId,
-            id: finalRoomId,       // <--- We use the safely extracted ID
+            id: finalRoomId,
             roomNumber: finalRoomId 
           },
           checkIn: dates.checkIn,
@@ -145,6 +173,7 @@ export default function HotelDetails() {
   return (
     <div className="bg-white min-h-screen pt-24 pb-20 text-black">
       <div className="max-w-[1200px] mx-auto px-8">
+        
         {/* Gallery */}
         <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-4 h-[450px] mb-12 rounded-3xl overflow-hidden">
             <img src={hotel.image || "/colorful-modern-hotel-room.jpg"} alt={hotel.name} className="w-full h-full object-cover" />
@@ -170,6 +199,13 @@ export default function HotelDetails() {
                     </div>
                 </div>
 
+                {/* Features (Static for now) */}
+                <div className="flex gap-4 mb-10">
+                    {[{icon:BedDouble, label:"2 Beds"}, {icon:Bath, label:"2 Baths"}, {icon:Car, label:"Parking"}, {icon:PawPrint, label:"Pets"}].map((f,i)=>(
+                        <div key={i} className="flex-1 bg-gray-50 p-4 rounded-xl flex flex-col items-center gap-2 text-sm font-bold text-gray-700"><f.icon size={24} /> {f.label}</div>
+                    ))}
+                </div>
+
                 <div className="mb-10">
                   <h3 className="text-2xl font-bold mb-4">Select Room</h3>
                   <div className="flex flex-col gap-4">
@@ -178,9 +214,28 @@ export default function HotelDetails() {
                         const currentTypeId = getTypeId(typeDetails);
                         const isSelected = getTypeId(selectedRoom) === currentTypeId;
                         
+                        // NEW: Calculate dynamic availability
+                        const { count, isFullyBooked, label, colorClass } = getRoomAvailability(typeId);
+                        const isDisabled = isFullyBooked; 
+
                         return (
-                          <div key={typeId} onClick={() => setSelectedRoom(typeDetails)} className={`p-6 border rounded-2xl cursor-pointer flex justify-between items-center transition-all ${isSelected ? 'border-gold bg-yellow-50/50' : 'border-gray-200 hover:border-black'}`}>
-                            <div><h4 className="text-xl font-bold">{typeDetails.name}</h4><p className="text-gray-500 text-sm">{typeDetails.description}</p></div>
+                          <div 
+                            key={typeId} 
+                            onClick={() => !isDisabled && setSelectedRoom(typeDetails)} 
+                            className={`p-6 border rounded-2xl flex justify-between items-center transition-all 
+                                ${isDisabled ? 'bg-gray-50 border-gray-100 opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+                                ${isSelected && !isDisabled ? 'border-gold bg-yellow-50/50' : 'border-gray-200 hover:border-black'}
+                            `}
+                          >
+                            <div>
+                                <h4 className="text-xl font-bold">{typeDetails.name}</h4>
+                                <p className="text-gray-500 text-sm mb-2">{typeDetails.description}</p>
+                                {/* NEW: Availability Badge */}
+                                <div className={`text-xs font-bold flex items-center gap-1 ${colorClass}`}>
+                                    {isFullyBooked && <AlertCircle size={12}/>}
+                                    {dates.checkIn && dates.checkOut ? label : <span className="text-gray-400 font-normal">Select dates to check availability</span>}
+                                </div>
+                            </div>
                             <div className="text-right"><p className="text-2xl font-extrabold">₱{typeDetails.pricePerNight}</p></div>
                           </div>
                         );
@@ -209,9 +264,13 @@ export default function HotelDetails() {
                 </div>
                 
                 <button 
-                  disabled={isReserving}
+                  disabled={isReserving || (selectedRoom && getRoomAvailability(getTypeId(selectedRoom)).isFullyBooked)}
                   onClick={handleReserve}
-                  className="w-full bg-gold text-black py-4 rounded-xl font-bold text-lg hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`w-full py-4 rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 
+                    ${isReserving || (selectedRoom && getRoomAvailability(getTypeId(selectedRoom)).isFullyBooked) 
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                        : 'bg-gold text-black hover:bg-yellow-600'}`
+                  }
                 >
                   {isReserving && <Loader size={20} className="animate-spin" />}
                   {selectedRoom ? `Reserve ${selectedRoom.name}` : "Select a Room"}

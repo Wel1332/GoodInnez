@@ -134,6 +134,14 @@ export const api = {
             body: JSON.stringify(roomData),
         });
     },
+    getOccupiedRooms: async (hotelId, checkIn, checkOut) => {
+        try {
+            return await httpClient(`${API_BASE_URL}/bookings/occupied?hotelId=${hotelId}&checkIn=${checkIn}&checkOut=${checkOut}`);
+        } catch (error) {
+            console.error("Failed to check availability", error);
+            return [];
+        }
+    },
     getRoomsByHotel: async (hotelId) => {
         try {
             return await httpClient(`${API_BASE_URL}/rooms/hotel/${hotelId}`);

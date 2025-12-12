@@ -7,6 +7,7 @@ import com.goodinnez.goodinnez.repository.BookingRepository;
 import com.goodinnez.goodinnez.repository.GuestRepository;
 import com.goodinnez.goodinnez.repository.PaymentRepository;
 import com.goodinnez.goodinnez.repository.RoomRepository;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +74,23 @@ public class BookingController {
     @GetMapping("/{id}")
     public Booking getById(@PathVariable Integer id) {
         return bookingRepository.findById(id).map(this::toDTO).orElse(null);
+    }
+
+    @GetMapping("/occupied")
+    public List<Integer> getOccupiedRooms(
+            @RequestParam Integer hotelId,
+            @RequestParam String checkIn,
+            @RequestParam String checkOut
+    ) {
+        LocalDate start = LocalDate.parse(checkIn);
+        LocalDate end = LocalDate.parse(checkOut);
+
+        // Standardize times to match create() method exactly
+        // Check-in: 2:00 PM, Check-out: 12:00 PM
+        LocalDateTime startDT = start.atTime(14, 0); 
+        LocalDateTime endDT = end.atTime(12, 0);     
+
+        return bookingRepository.findOccupiedRoomIds(hotelId, startDT, endDT);
     }
 
     @PostMapping
