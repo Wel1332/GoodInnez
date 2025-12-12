@@ -87,9 +87,6 @@ export default function HostProperties() {
                 </div>
 
                 <div className="flex gap-4 mt-auto pt-4 border-t border-gray-100">
-                  <button className="flex-1 py-2 rounded-lg font-semibold text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2 transition-colors">
-                    <Edit2 size={14} /> Modify
-                  </button>
                   <button 
                     className="flex-1 py-2 rounded-lg font-semibold text-sm bg-white border border-gray-200 text-red-600 hover:bg-red-50 flex items-center justify-center gap-2 transition-colors" 
                     onClick={() => handleDelete(hotel.hotelID)}

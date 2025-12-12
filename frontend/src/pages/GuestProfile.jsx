@@ -9,7 +9,7 @@ import { useAuthStore } from '../store/authStore';
 import { 
   Check, Edit, MapPin, LogOut, Heart, Settings, 
   List, CalendarDays, Trash2, Star, History, ArrowRight, 
-  Loader, Calendar 
+  Loader, Calendar, Clock, XCircle 
 } from 'lucide-react';
 
 export default function GuestProfile({ onLogout }) {
@@ -49,12 +49,13 @@ export default function GuestProfile({ onLogout }) {
     if (user) {
       api.getBookings()
         .then(data => {
-            const userBookings = data.filter(b => b.guestID === user.guestID);
-            // FIX: Removed the static booking #999 block here so real empty state is shown
+            // Ensure we filter correctly for the logged-in guest
+            const userBookings = data.filter(b => b.guestID === user.guestID || b.guestId === user.guestID || b.guest?.guestID === user.guestID);
             setBookings(userBookings);
             setLoading(false);
         })
         .catch((err) => {
+          console.error(err);
           toastService.error('Failed to load bookings');
           setLoading(false);
         });
@@ -79,6 +80,8 @@ export default function GuestProfile({ onLogout }) {
     if (window.confirm("Are you sure you want to cancel this reservation?")) {
       try {
         await api.cancelBooking(id);
+        // Optimistically update UI to show Cancelled instead of removing it immediately (optional)
+        // or just remove it from the list:
         setBookings(prev => prev.filter(b => b.bookingID !== id));
         toastService.success('Booking cancelled successfully');
       } catch (err) {
@@ -101,7 +104,6 @@ export default function GuestProfile({ onLogout }) {
     toastService.success('Review feature coming soon! Thank you for staying with us.');
   };
 
-  // FIX: Ensure logout uses the prop which handles store cleanup
   const handleLogoutClick = async () => {
     if (onLogout) await onLogout();
   };
@@ -110,6 +112,21 @@ export default function GuestProfile({ onLogout }) {
     const isPast = new Date(b.checkoutTime) < new Date();
     return bookingTab === 'upcoming' ? !isPast : isPast;
   });
+
+  // --- NEW: Helper for Badge Styling ---
+  const getStatusBadge = (status, isPast) => {
+    if (isPast) return { label: 'Completed', className: 'bg-gray-100 text-gray-600', icon: <Check size={12}/> };
+    
+    // Normalize string (handle nulls)
+    const s = (status || 'Pending').toLowerCase();
+    
+    if (s === 'confirmed') return { label: 'Confirmed', className: 'bg-green-50 text-green-700', icon: <Check size={12}/> };
+    if (s === 'pending') return { label: 'Pending Payment', className: 'bg-yellow-50 text-yellow-700', icon: <Clock size={12}/> };
+    if (s === 'cancelled') return { label: 'Cancelled', className: 'bg-red-50 text-red-600', icon: <XCircle size={12}/> };
+    
+    // Fallback
+    return { label: status || 'Pending', className: 'bg-gray-100 text-gray-600', icon: <Clock size={12}/> };
+  };
 
   if (!user) return null;
 
@@ -148,7 +165,6 @@ export default function GuestProfile({ onLogout }) {
                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-400" onClick={() => navigate('/my-bookings')}>
                     <List size={16} /> All Bookings
                  </button>
-                 {/* FIX: Use handleLogoutClick instead of direct localStorage manipulation */}
                  <button className="flex items-center gap-3 w-full text-left text-sm font-bold py-3 px-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors" onClick={handleLogoutClick}>
                     <LogOut size={16} /> Logout
                  </button>
@@ -168,25 +184,18 @@ export default function GuestProfile({ onLogout }) {
                </div>
 
                <form className="bg-white p-8 rounded-2xl shadow-sm space-y-8" onSubmit={handleSubmit(onSubmit)}>
-                  <div>
+                 {/* ... (Your existing form fields remain unchanged) ... */}
+                 <div>
                     <h2 className="text-2xl font-bold text-black mb-6">Personal Information</h2>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-bold text-black mb-3">First Name</label>
-                        <input 
-                          type="text" 
-                          className={`w-full p-4 border ${errors.firstName ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white`}
-                          {...register('firstName')}
-                        />
+                        <input type="text" className={`w-full p-4 border ${errors.firstName ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 transition-colors bg-white`} {...register('firstName')} />
                         {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-black mb-3">Last Name</label>
-                        <input 
-                          type="text" 
-                          className={`w-full p-4 border ${errors.lastName ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white`}
-                          {...register('lastName')}
-                        />
+                        <input type="text" className={`w-full p-4 border ${errors.lastName ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 transition-colors bg-white`} {...register('lastName')} />
                         {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName.message}</p>}
                       </div>
                     </div>
@@ -197,20 +206,12 @@ export default function GuestProfile({ onLogout }) {
                     <div className="grid grid-cols-1 gap-6">
                       <div>
                         <label className="block text-sm font-bold text-black mb-3">Email Address</label>
-                        <input 
-                          type="email" 
-                          className={`w-full p-4 border ${errors.email ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white`}
-                          {...register('email')}
-                        />
+                        <input type="email" className={`w-full p-4 border ${errors.email ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 transition-colors bg-white`} {...register('email')} />
                         {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-black mb-3">Phone Number</label>
-                        <input 
-                          type="tel" 
-                          className={`w-full p-4 border ${errors.phone ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white`}
-                          {...register('phone')}
-                        />
+                        <input type="tel" className={`w-full p-4 border ${errors.phone ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 transition-colors bg-white`} {...register('phone')} />
                         {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
                       </div>
                     </div>
@@ -220,26 +221,17 @@ export default function GuestProfile({ onLogout }) {
                     <h2 className="text-2xl font-bold text-black mb-6">Address</h2>
                     <div>
                       <label className="block text-sm font-bold text-black mb-3">Location</label>
-                      <input 
-                        type="text" 
-                        className={`w-full p-4 border ${errors.address ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 focus:ring-gold focus:ring-opacity-20 transition-colors bg-white`}
-                        placeholder="City, Country" 
-                        {...register('address')}
-                      />
+                      <input type="text" className={`w-full p-4 border ${errors.address ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:border-gold focus:ring-2 transition-colors bg-white`} placeholder="City, Country" {...register('address')} />
                       {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>}
                     </div>
                   </div>
 
                   <div className="flex justify-end gap-6 pt-8 border-t border-gray-100">
-                     <button type="button" className="font-bold text-black px-8 py-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors" onClick={() => window.location.reload()}>Cancel</button>
-                     <button 
-                        type="submit" 
-                        disabled={isSubmitting}
-                        className="bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors flex items-center gap-2 disabled:opacity-50"
-                     >
+                      <button type="button" className="font-bold text-black px-8 py-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors" onClick={() => window.location.reload()}>Cancel</button>
+                      <button type="submit" disabled={isSubmitting} className="bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors flex items-center gap-2 disabled:opacity-50">
                         {isSubmitting ? <Loader size={18} className="animate-spin" /> : <Check size={18} />}
                         Save Changes
-                     </button>
+                      </button>
                   </div>
                </form>
             </div>
@@ -279,8 +271,11 @@ export default function GuestProfile({ onLogout }) {
                     const isPast = new Date(booking.checkoutTime) < new Date();
                     const checkinDate = new Date(booking.checkinTime);
                     const checkoutDate = new Date(booking.checkoutTime);
-                    const nights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+                    const nights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24)) || 1;
                     
+                    // --- DYNAMIC STATUS LOGIC ---
+                    const badge = getStatusBadge(booking.status, isPast);
+
                     return (
                       <div key={booking.bookingID} className="flex flex-col lg:flex-row gap-6 p-6 bg-white border border-gray-100 rounded-2xl hover:shadow-md transition-shadow">
                         <div className="w-full lg:w-32 h-32 rounded-xl overflow-hidden bg-gray-200 shrink-0">
@@ -292,13 +287,13 @@ export default function GuestProfile({ onLogout }) {
                               <h4 className="text-xl font-bold text-black mb-1">Hotel Reservation</h4>
                               <p className="text-gray-500 text-sm">Booking #{booking.bookingID}</p>
                             </div>
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              isPast 
-                                ? 'bg-gray-100 text-gray-600' 
-                                : 'bg-green-50 text-green-700'
-                            }`}>
-                              {isPast ? 'Completed' : 'Confirmed'}
+                            
+                            {/* --- THE UPDATED BADGE --- */}
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${badge.className}`}>
+                              {badge.icon}
+                              {badge.label}
                             </span>
+
                           </div>
                           <div className="flex flex-wrap gap-4 items-center text-sm mb-4">
                             <div className="flex items-center gap-2">
@@ -318,12 +313,16 @@ export default function GuestProfile({ onLogout }) {
                           <div className="flex flex-col gap-2 mt-4">
                             {!isPast && (
                               <>
-                                <button 
-                                  onClick={() => handleModify(booking)}
-                                  className="bg-black text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-                                >
-                                  <Edit size={14} /> Modify
-                                </button>
+                                {/* Only show Modify if not cancelled */}
+                                {booking.status !== 'Cancelled' && (
+                                    <button 
+                                    onClick={() => handleModify(booking)}
+                                    className="bg-black text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                                    >
+                                    <Edit size={14} /> Modify
+                                    </button>
+                                )}
+                                
                                 <button 
                                   className="bg-red-50 border border-red-200 text-red-500 px-6 py-2 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
                                   onClick={() => handleCancel(booking.bookingID)}

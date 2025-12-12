@@ -253,6 +253,17 @@ export const api = {
             body: JSON.stringify(bookingData),
         });
     },
+
+    updateBookingStatus: async (bookingId, newStatus) => {
+    const response = await fetch(`http://localhost:8080/api/bookings/${bookingId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    
+    if (!response.ok) throw new Error('Failed to update status');
+    return response.json();
+    },
     
     cancelBooking: async (id) => {
         return await httpClient(`${API_BASE_URL}/bookings/${id}`, { method: "DELETE" });
